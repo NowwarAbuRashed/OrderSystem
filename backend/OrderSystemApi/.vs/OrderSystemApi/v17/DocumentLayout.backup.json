@@ -1,0 +1,53 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Project For UN\\backend\\OrderSystemApi\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{8CEF8370-BFE4-40DD-BCEE-E8AA3F27A50A}|OrderSystemApi\\OrderSystem.Api.csproj|d:\\project for un\\backend\\ordersystemapi\\ordersystemapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8CEF8370-BFE4-40DD-BCEE-E8AA3F27A50A}|OrderSystemApi\\OrderSystem.Api.csproj|solutionrelative:ordersystemapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0F8C84A8-69EE-4019-985A-C12E57A313C3}|OrderSystem.Infrastructure\\OrderSystem.Infrastructure.csproj|d:\\project for un\\backend\\ordersystemapi\\ordersystem.infrastructure\\ordersystem.infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{0F8C84A8-69EE-4019-985A-C12E57A313C3}|OrderSystem.Infrastructure\\OrderSystem.Infrastructure.csproj|solutionrelative:ordersystem.infrastructure\\ordersystem.infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "OrderSystem.Infrastructure.csproj",
+              "DocumentMoniker": "D:\\Project For UN\\backend\\OrderSystemApi\\OrderSystem.Infrastructure\\OrderSystem.Infrastructure.csproj",
+              "RelativeDocumentMoniker": "OrderSystem.Infrastructure\\OrderSystem.Infrastructure.csproj",
+              "ToolTip": "D:\\Project For UN\\backend\\OrderSystemApi\\OrderSystem.Infrastructure\\OrderSystem.Infrastructure.csproj",
+              "RelativeToolTip": "OrderSystem.Infrastructure\\OrderSystem.Infrastructure.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-03-01T22:09:24.023Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Project For UN\\backend\\OrderSystemApi\\OrderSystemApi\\Program.cs",
+              "RelativeDocumentMoniker": "OrderSystemApi\\Program.cs",
+              "ToolTip": "D:\\Project For UN\\backend\\OrderSystemApi\\OrderSystemApi\\Program.cs",
+              "RelativeToolTip": "OrderSystemApi\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-01T20:05:48.052Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
