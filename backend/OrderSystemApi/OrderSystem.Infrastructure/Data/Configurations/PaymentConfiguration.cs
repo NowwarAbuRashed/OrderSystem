@@ -52,8 +52,8 @@ namespace OrderSystem.Infrastructure.Data.Configurations
                 .HasColumnName("created_at")
                 .IsRequired();
 
-            //// ONE TO ONE
-            //builder.HasOne(x=>x.Order)
+            // ONE TO ONE
+            //builder.HasOne(x => x.Order)
             //    .WithOne(o => o.Payment)
             //    .HasForeignKey<Payment>(x => x.OrderId)
             //    .OnDelete(DeleteBehavior.Cascade);

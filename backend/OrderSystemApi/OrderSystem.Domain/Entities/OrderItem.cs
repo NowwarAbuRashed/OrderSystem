@@ -17,7 +17,7 @@ namespace OrderSystem.Domain.Entities
         public decimal LineTotal { get; set; }
 
         // Navigation Properties
-        //public Order Order { get; set; }
+        //public Order Order { get; set; }= null!;
 
         //public Product Product { get; set; }
     }
