@@ -27,7 +27,7 @@ namespace OrderSystem.Domain.Entities
 
         //public Product Product { get; set; }
 
-        //public Order? RefOrder { get; set; }
+        //public Orders? RefOrder { get; set; }
 
         //public User? PerformedByUser { get; set; }
 

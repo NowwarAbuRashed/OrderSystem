@@ -26,6 +26,6 @@ namespace OrderSystem.Domain.Entities
         public DateTime CreatedAt { get; set; }
 
         // Navigation
-        //public Order Order { get; set; }
+        //public Orders Order { get; set; }
     }
 }
