@@ -10,8 +10,8 @@ namespace OrderSystem.Domain.Enums
     {
         // وضعت هاي الارقام لحتى اتفادى القيم الافتراضيه اللي بتبدأ من 0
         // هاي الارقام مش  هتفيدنا بشي بس في حال احتجنا نتعامل معهم كأرقام في المستقبل
-        Customer = 1,
-        Manager = 2,
-        Admin = 3
+       CUSTOMER =1,
+        MANAGER,
+        ADMIN
     }
 }

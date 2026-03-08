@@ -8,9 +8,9 @@ namespace OrderSystem.Domain.Enums
 {
     public enum OrderStatus
     {
-        Processing,
-        Ready,
-        OutForDelivery,
-        Delivered
+        PROCESSING,
+        READY,
+        OUT_FOR_DELIVERY,
+        DELIVERED
     }
 }

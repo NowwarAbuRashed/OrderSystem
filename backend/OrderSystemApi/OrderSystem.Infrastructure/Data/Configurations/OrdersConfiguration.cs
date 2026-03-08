@@ -9,11 +9,10 @@ namespace OrderSystem.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Orders> builder)
         {
-            //خزّن هذا الكيان في جدول اسمه orders
-            //وعلى هذا الجدول حط شرط يمنع total_amount يكون أقل من صفر
+            
             builder.ToTable("orders", t =>
             {
-                // اسم القيد , الشرط 
+                
                 t.HasCheckConstraint("CK_Orders_TotalAmount", "total_amount >= 0");
                 // HasCheckConstraint : هي ميثود في EF Core بتخليك تضيف شرط على مستوى قاعدة البيانات.
             });
@@ -30,17 +29,13 @@ namespace OrderSystem.Infrastructure.Persistence.Configurations
 
             builder.Property(o => o.Status)
                 .HasColumnName("status")
-                .HasConversion(
-                    v => ConvertOrderStatusToDb(v),
-                    v => ConvertOrderStatusFromDb(v))
+                .HasConversion<string>()
                 .HasMaxLength(30)
                 .IsRequired();
 
             builder.Property(o => o.PaymentMethod)
                 .HasColumnName("payment_method")
-                .HasConversion(
-                    v => v.ToString().ToUpper(),
-                    v => Enum.Parse<PaymentMethod>(v, true))
+               .HasConversion<string>()
                 .HasMaxLength(20)
                 .IsRequired();
 
@@ -73,7 +68,7 @@ namespace OrderSystem.Infrastructure.Persistence.Configurations
             builder.HasIndex(o => o.Status);
             builder.HasIndex(o => o.CustomerId);
 
-            // navigation properties
+            // relationships
 
             //builder.HasOne(o => o.Customer)
             //    .WithMany(u => u.Orders)
@@ -94,40 +89,6 @@ namespace OrderSystem.Infrastructure.Persistence.Configurations
             //    .WithOne(im => im.RefOrder)
             //    .HasForeignKey(im => im.RefOrderId)
             //    .OnDelete(DeleteBehavior.SetNull);
-        }
-
-        private static string ConvertOrderStatusToDb(OrderStatus status)
-        {
-            if (status == OrderStatus.Processing)
-                return "PROCESSING";
-
-            if (status == OrderStatus.Ready)
-                return "READY";
-
-            if (status == OrderStatus.OutForDelivery)
-                return "OUT_FOR_DELIVERY";
-
-            if (status == OrderStatus.Delivered)
-                return "DELIVERED";
-
-            throw new InvalidOperationException("Invalid order status");
-        }
-
-        private static OrderStatus ConvertOrderStatusFromDb(string status)
-        {
-            if (status == "PROCESSING")
-                return OrderStatus.Processing;
-
-            if (status == "READY")
-                return OrderStatus.Ready;
-
-            if (status == "OUT_FOR_DELIVERY")
-                return OrderStatus.OutForDelivery;
-
-            if (status == "DELIVERED")
-                return OrderStatus.Delivered;
-
-            throw new InvalidOperationException("Invalid order status value from database");
         }
     }
 }
