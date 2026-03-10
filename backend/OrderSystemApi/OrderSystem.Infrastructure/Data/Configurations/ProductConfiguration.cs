@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OrderSystem.Domain.Entities;
+using OrderSystem.Domain.Enums;
 using System;
 using System;
 using System.Collections.Generic;
@@ -18,8 +19,8 @@ namespace OrderSystem.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Product> builder)
         {
-            builder.ToTable("Products");
-            builder.ToTable(nameof(OrderItem), table =>
+         
+            builder.ToTable("products", table =>
             {
                 table.HasCheckConstraint("CK_Product_Price", "price >= 0");
                 table.HasCheckConstraint("CK_Product_Quantity", "quantity >= 0");
@@ -29,8 +30,7 @@ namespace OrderSystem.Infrastructure.Data.Configurations
             builder.HasKey(p => p.Id);
             builder.Property(x => x.Id)
              .HasColumnName("id")
-             .ValueGeneratedOnAdd()
-            .IsRequired();
+             .ValueGeneratedOnAdd();
 
             builder.Property(p=>p.Name)
                 .HasColumnName ("name")
@@ -39,13 +39,12 @@ namespace OrderSystem.Infrastructure.Data.Configurations
             builder.HasIndex(x => x.Name);
 
             builder.Property(p => p.Description)
-                .HasColumnName("description")
-                .IsRequired(false);
+                .HasColumnName("description");
                  
 
             builder.Property(p=>p.Price)
                 .HasColumnName("price")
-                .HasColumnType("decimal(18,2)")
+                .HasColumnType("decimal(10,2)")
                 .IsRequired();
 
             builder.Property(p=>p.Quantity)
@@ -57,29 +56,43 @@ namespace OrderSystem.Infrastructure.Data.Configurations
                 .IsRequired();
 
             builder.Property(p => p.Status)
-             .HasColumnName("status")
-             .HasDefaultValue("Active")
-             .IsRequired();
+               .HasColumnName("status")
+               .HasConversion(
+                   v => ConvertProductStatusToDb(v),
+                   v => ConvertProductStatusFromDb(v))
+               .IsRequired()
+               .HasDefaultValue(ProductStatus.ACTIVE);
             builder.HasIndex(x => x.Status);
 
             builder.Property(p => p.CategoryId)
-                .HasColumnName("category_id")
-                .IsRequired();
+                .HasColumnName("category_id");
             builder.HasIndex(x => x.CategoryId);
 
             builder.Property(p => p.CreatedAt)
                 .HasColumnName("created_at")
+                .HasDefaultValueSql("SYSDATETIME()")
                 .IsRequired();
 
             builder.Property(p => p.UpdatedAt)
                 .HasColumnName("updated_at")
                 .IsRequired();
 
-            //Configure the relationship with Category
-            // builder.HasOne(x => x.Category)
-            //.WithMany(c => c.Products)
-            //.HasForeignKey(x => x.CategoryId)
-            //.OnDelete(DeleteBehavior.SetNull);
+           // relationship with Category
+             builder.HasOne(x => x.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(x => x.CategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+ 
+        }
+        private static string ConvertProductStatusToDb(ProductStatus status)
+        {
+            return status.ToString();
+        }
+
+        private static ProductStatus ConvertProductStatusFromDb(string value)
+        {
+            return Enum.Parse<ProductStatus>(value);
         }
     }
 }

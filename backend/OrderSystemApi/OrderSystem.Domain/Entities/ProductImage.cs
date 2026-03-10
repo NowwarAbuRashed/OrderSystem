@@ -23,8 +23,8 @@ namespace OrderSystem.Domain.Entities
 
         public DateTime CreatedAt { get; set; }
 
-        // Navigation Property
-        //public Product Product { get; set; }
+      // Navigation Property
+        public Product Product { get; set; }
 
     }
 }

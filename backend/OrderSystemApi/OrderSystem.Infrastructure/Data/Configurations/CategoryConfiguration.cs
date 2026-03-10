@@ -16,15 +16,14 @@ namespace OrderSystem.Infrastructure.Data.Configurations
             builder.ToTable("categories");
 
             builder.HasKey(x => x.Id);
-     
+
             builder.Property(x => x.Id)
                 .HasColumnName("id")
-                .ValueGeneratedOnAdd()
-                .IsRequired();
+                .ValueGeneratedOnAdd();
 
             builder.Property(x => x.Name)
                 .HasColumnName("name")
-                .HasColumnType("varchar(50)")
+                .HasColumnType("varchar(0)")
                 .IsRequired();
 
             builder.Property(x => x.CreatedAt)
@@ -38,10 +37,10 @@ namespace OrderSystem.Infrastructure.Data.Configurations
 
 
             //Relationship
-            //builder.HasMany(x => x.Products)
-            //    .WithOne(p => p.Category)
-            //    .HasForeignKey(p => p.CategoryId)
-            //    .OnDelete(DeleteBehavior.SetNull);
+            builder.HasMany(x => x.Products)
+                .WithOne(p => p.Category)
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

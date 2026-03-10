@@ -7,7 +7,7 @@ namespace OrderSystem.Domain.Entities
         public long Id { get; set; }
 
   
-        public string ? Name { get; set; } 
+        public string  Name { get; set; } =string.Empty;
 
         public string? Description { get; set; }
 
@@ -33,7 +33,12 @@ namespace OrderSystem.Domain.Entities
         public DateTime UpdatedAt { get; set; }
 
         //Navigation property
-        // public Category? Category { get; set; }
-        //public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+        public Category? Category { get; set; }
+        public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+        public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+
+        public ICollection<OrderItem> OrderItems { get; set; }= new List<OrderItem>();
+
+        public ICollection<InventoryMovement> InventoryMovements { get; set; } = new List<InventoryMovement>();
     }
 }

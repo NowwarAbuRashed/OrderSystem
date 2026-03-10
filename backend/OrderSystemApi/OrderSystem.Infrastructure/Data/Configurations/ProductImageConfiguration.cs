@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OrderSystem.Domain.Entities;
 namespace OrderSystem.Infrastructure.Data.Configurations
 {
-    public class ProductproductImagesConfiguration : IEntityTypeConfiguration<ProductImage>
+    public class ProductImageConfiguration : IEntityTypeConfiguration<ProductImage>
     {
         public void Configure(EntityTypeBuilder<ProductImage> builder)
         {
@@ -13,8 +13,7 @@ namespace OrderSystem.Infrastructure.Data.Configurations
             builder.HasKey(p => p.Id);
             builder.Property(x => x.Id)
              .HasColumnName("id")
-             .ValueGeneratedOnAdd()
-            .IsRequired();
+             .ValueGeneratedOnAdd();
 
             builder.Property(x => x.ProductId)
              .HasColumnName("product_id")
@@ -28,8 +27,7 @@ namespace OrderSystem.Infrastructure.Data.Configurations
 
             builder.Property(p => p.AltText)
                 .HasColumnName("alt_text")
-                .HasColumnType("varchar(200)")
-                .IsRequired(false);
+                .HasColumnType("varchar(200)");
 
 
             builder.Property(p => p.SortOrder)
@@ -44,8 +42,13 @@ namespace OrderSystem.Infrastructure.Data.Configurations
 
             builder.Property(p => p.CreatedAt)
                 .HasColumnName("created_at")
+                .HasDefaultValueSql("SYSDATETIME()")
                 .IsRequired();
-
+            // Configure the relationship with Product
+            builder.HasOne(i => i.Product)
+                .WithMany(p => p.Images)
+                .HasForeignKey(i => i.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
 
         }
     }
