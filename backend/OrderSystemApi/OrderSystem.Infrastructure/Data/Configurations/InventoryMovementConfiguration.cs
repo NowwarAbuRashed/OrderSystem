@@ -27,19 +27,19 @@ namespace OrderSystem.Infrastructure.Data.Configurations
             builder.Property(x => x.CreatedAt)
                 .IsRequired();
 
-            //builder.HasOne(x => x.Product)
-            //    .WithMany(p => p.InventoryMovements)
-            //    .HasForeignKey(x => x.ProductId);
+            builder.HasOne(x => x.Product)
+                .WithMany(p => p.InventoryMovements)
+                .HasForeignKey(x => x.ProductId);
 
-            //builder.HasOne(x => x.RefOrder)
-            //    .WithMany()
-            //    .HasForeignKey(x => x.RefOrderId)
-            //    .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(x => x.RefOrder)
+                .WithMany()
+                .HasForeignKey(x => x.RefOrderId)
+                .OnDelete(DeleteBehavior.SetNull);
 
-            //builder.HasOne(x => x.PerformedByUser)
-            //    .WithMany()
-            //    .HasForeignKey(x => x.PerformedBy)
-            //    .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(x => x.PerformedByUser)
+                .WithMany()
+                .HasForeignKey(x => x.PerformedBy)
+                .OnDelete(DeleteBehavior.SetNull);
 
         }
     }

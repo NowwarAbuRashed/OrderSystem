@@ -19,7 +19,12 @@ namespace OrderSystem.Infrastructure.Data.Configurations
                 table.HasCheckConstraint("CK_OrderItem_Quantity", "quantity > 0");
                 table.HasCheckConstraint("CK_OrderItem_UnitPrice", "unit_price >= 0");
             });
+
             builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id)
+                .HasColumnName("id")
+                .ValueGeneratedOnAdd();
+
             builder.Property(x => x.OrderId)
                 .HasColumnName("order_id")
                 .IsRequired();
@@ -42,21 +47,21 @@ namespace OrderSystem.Infrastructure.Data.Configurations
             .HasPrecision(12, 2)
             .IsRequired();
 
-            //// Relationships
-            //builder.HasOne(x => x.Order)
-            //    .WithMany(o => o.OrderItems)
-            //    .HasForeignKey(x => x.OrderId)
-            //    .OnDelete(DeleteBehavior.Cascade);
+            // Relationships
+            builder.HasOne(x => x.Order)
+                .WithMany(o => o.OrderItems)
+                .HasForeignKey(x => x.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            //builder.HasOne(x => x.Product)
-            //    .WithMany(p => p.OrderItems)
-            //    .HasForeignKey(x => x.ProductId);
+            builder.HasOne(x => x.Product)
+                .WithMany(p => p.OrderItems)
+                .HasForeignKey(x => x.ProductId);
 
 
-         
+
             //// Optional Unique constraint
-            //builder.HasIndex(x => new { x.OrderId, x.ProductId })
-            //    .IsUnique();
+            builder.HasIndex(x => new { x.OrderId, x.productId})
+                .IsUnique();
         }
     }
 }

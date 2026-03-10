@@ -25,9 +25,9 @@ namespace OrderSystem.Domain.Entities
 
         // Navigation
 
-        //public Product Product { get; set; }
+        public Product Product { get; set; }
 
-        //public Orders? RefOrder { get; set; }
+        public Order? RefOrder { get; set; }
 
         //public User? PerformedByUser { get; set; }
 
