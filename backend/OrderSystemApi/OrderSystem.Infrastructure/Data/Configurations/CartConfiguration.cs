@@ -44,18 +44,16 @@ namespace OrderSystem.Infrastructure.Data.Configurations
         
             builder.HasIndex(c => c.CustomerId)
                 .IsUnique()
-                .HasFilter("[status]='ACTIVE'"); 
+                .HasFilter("[status]='ACTIVE'");
             // Relationships
 
-            //builder.HasOne(c => c.Customer)
-            //    .WithMany(u => u.Carts)
-            //    .HasForeignKey(c => c.CustomerId)
-            //    .OnDelete(DeleteBehavior.Restrict);
 
-            //builder.HasMany(c => c.CartItems)
-            //    .WithOne(ci => ci.Cart)
-            //    .HasForeignKey(ci => ci.CartId)
-            //    .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(c => c.Customer)
+                .WithMany(u => u.Carts)
+                .HasForeignKey(c => c.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+        
         }
     }
 }

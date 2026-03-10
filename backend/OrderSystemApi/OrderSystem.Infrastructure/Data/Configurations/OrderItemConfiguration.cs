@@ -55,7 +55,7 @@ namespace OrderSystem.Infrastructure.Data.Configurations
 
             builder.HasOne(x => x.Product)
                 .WithMany(p => p.OrderItems)
-                .HasForeignKey(x => x.ProductId);
+                .HasForeignKey(x => x.productId);
 
 
 

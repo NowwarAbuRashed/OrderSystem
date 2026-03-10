@@ -52,16 +52,16 @@ namespace OrderSystem.Infrastructure.Data.Configurations
 
             // Relationships
 
-            //builder.HasOne(ci => ci.Cart)
-            //    .WithMany(c => c.CartItems)
-            //    .HasForeignKey(ci => ci.CartId)
-            //    .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(ci => ci.Cart)
+                .WithMany(c => c.CartItems)
+                .HasForeignKey(ci => ci.CartId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // 
-            //builder.HasOne(ci => ci.Product)
-            //    .WithMany(p => p.CartItems)
-            //    .HasForeignKey(ci => ci.ProductId)
-            //    .OnDelete(DeleteBehavior.Restrict); // لأنو لو المنتج مستخدم بال cartItem  ف ما ينحذف المنتج
+
+            builder.HasOne(ci => ci.Product)
+                .WithMany(p => p.CartItems)
+                .HasForeignKey(ci => ci.ProductId)
+                .OnDelete(DeleteBehavior.Restrict); 
         }
     }
 }

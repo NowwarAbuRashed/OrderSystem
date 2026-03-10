@@ -29,7 +29,7 @@ namespace OrderSystem.Domain.Entities
 
         public Order? RefOrder { get; set; }
 
-        //public User? PerformedByUser { get; set; }
+        public User? PerformedByUser { get; set; }
 
     }
 }

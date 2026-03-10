@@ -71,25 +71,19 @@ namespace OrderSystem.Infrastructure.Persistence.Configurations
 
             // relationships
 
-            //builder.HasOne(o => o.Customer)
-            //    .WithMany(u => u.Orders)
-            //    .HasForeignKey(o => o.CustomerId)
-            //    .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(o => o.Customer)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(o => o.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            //builder.HasMany(o => o.OrderItems)
-            //    .WithOne(oi => oi.Order)
-            //    .HasForeignKey(oi => oi.OrderId)
-            //    .OnDelete(DeleteBehavior.Cascade);
+     
 
-            //builder.HasMany(o => o.Payments)
-            //    .WithOne(p => p.Order)
-            //    .HasForeignKey(p => p.OrderId)
-            //    .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(o => o.Payments)
+                .WithOne(p => p.Order)
+                .HasForeignKey<Payment>(p => p.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            //builder.HasMany(o => o.InventoryMovements)
-            //    .WithOne(im => im.RefOrder)
-            //    .HasForeignKey(im => im.RefOrderId)
-            //    .OnDelete(DeleteBehavior.SetNull);
+         
         }
     }
 }

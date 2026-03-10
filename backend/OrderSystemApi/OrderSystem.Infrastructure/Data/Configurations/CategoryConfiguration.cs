@@ -23,11 +23,12 @@ namespace OrderSystem.Infrastructure.Data.Configurations
 
             builder.Property(x => x.Name)
                 .HasColumnName("name")
-                .HasColumnType("varchar(0)")
+                .HasColumnType("varchar(120)")
                 .IsRequired();
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
+                .HasDefaultValueSql("SYSUTCDATETIME()")
                 .IsRequired();
 
             builder.Property(x => x.UpdatedAt)
@@ -36,11 +37,6 @@ namespace OrderSystem.Infrastructure.Data.Configurations
 
 
 
-            //Relationship
-            builder.HasMany(x => x.Products)
-                .WithOne(p => p.Category)
-                .HasForeignKey(p => p.CategoryId)
-                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
