@@ -20,6 +20,9 @@ namespace OrderSystem.Infrastructure.Data.Configurations
             });
 
             builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id)
+                .HasColumnName("id")
+                .ValueGeneratedOnAdd();
 
             builder.Property(x => x.OrderId)
            .HasColumnName("order_id")
@@ -50,13 +53,10 @@ namespace OrderSystem.Infrastructure.Data.Configurations
 
             builder.Property(x => x.CreatedAt)
                 .HasColumnName("created_at")
+                 .HasDefaultValueSql("SYSUTCDATETIME()")
                 .IsRequired();
 
-            // ONE TO ONE
-            builder.HasOne(x => x.Order)
-                .WithOne(o => o.Payments)
-                .HasForeignKey<Payment>(x => x.OrderId)
-                .OnDelete(DeleteBehavior.Cascade);
+           
         }
     }
 }

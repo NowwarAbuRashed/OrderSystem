@@ -64,22 +64,9 @@ namespace OrderSystem.Infrastructure.Data.Configurations
 
             builder.HasIndex(u => u.Role);
 
-            // Relationships
-
-            //builder.HasMany(u => u.Orders)
-            //    .WithOne(o => o.Customer)
-            //    .HasForeignKey(o => o.CustomerId)
-            //    .OnDelete(DeleteBehavior.Restrict);
-
-            //builder.HasMany(u => u.Carts)
-            //    .WithOne(c => c.Customer)
-            //    .HasForeignKey(c => c.CustomerId)
-            //    .OnDelete(DeleteBehavior.Restrict);
-
-            //builder.HasMany(u => u.InventoryMovementsPerformed)
-            //    .WithOne(im => im.PerformedByUser)
-            //    .HasForeignKey(im => im.PerformedBy)
-            //    .OnDelete(DeleteBehavior.Restrict);
+            
+           
+         
         }
     }
 }

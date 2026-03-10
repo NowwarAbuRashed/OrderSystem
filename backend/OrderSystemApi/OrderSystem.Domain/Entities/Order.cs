@@ -32,7 +32,7 @@ namespace OrderSystem.Domain.Entities
 
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
-        public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public Payment Payments { get; set; }
 
         public User Customer { get; set; } = null!;
 

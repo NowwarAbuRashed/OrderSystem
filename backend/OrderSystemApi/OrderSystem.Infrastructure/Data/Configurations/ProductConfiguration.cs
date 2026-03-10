@@ -57,11 +57,11 @@ namespace OrderSystem.Infrastructure.Data.Configurations
 
             builder.Property(p => p.Status)
                .HasColumnName("status")
-               .HasConversion(
-                   v => ConvertProductStatusToDb(v),
-                   v => ConvertProductStatusFromDb(v))
+               .HasConversion<string>()
                .IsRequired()
                .HasDefaultValue(ProductStatus.ACTIVE);
+
+
             builder.HasIndex(x => x.Status);
 
             builder.Property(p => p.CategoryId)
@@ -85,14 +85,6 @@ namespace OrderSystem.Infrastructure.Data.Configurations
 
  
         }
-        private static string ConvertProductStatusToDb(ProductStatus status)
-        {
-            return status.ToString();
-        }
-
-        private static ProductStatus ConvertProductStatusFromDb(string value)
-        {
-            return Enum.Parse<ProductStatus>(value);
-        }
+   
     }
 }
