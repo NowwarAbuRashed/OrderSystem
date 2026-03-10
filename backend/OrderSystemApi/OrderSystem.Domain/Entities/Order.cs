@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OrderSystem.Domain.Entities
 {
-    public class Orders
+    public class Order
     {
         public long Id { get; set; }
 
@@ -30,9 +30,9 @@ namespace OrderSystem.Domain.Entities
         // Navigation properties
         //public User Customer { get; set; } = null!;
 
-        //public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
-        //public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
         //public ICollection<InventoryMovement> InventoryMovements { get; set; } = new List<InventoryMovement>();
     }

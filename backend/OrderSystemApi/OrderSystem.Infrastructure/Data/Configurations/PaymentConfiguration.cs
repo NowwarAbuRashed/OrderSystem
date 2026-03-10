@@ -53,10 +53,10 @@ namespace OrderSystem.Infrastructure.Data.Configurations
                 .IsRequired();
 
             // ONE TO ONE
-            //builder.HasOne(x => x.Order)
-            //    .WithOne(o => o.Payment)
-            //    .HasForeignKey<Payment>(x => x.OrderId)
-            //    .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(x => x.Order)
+                .WithOne(o => o.Payments)
+                .HasForeignKey<Payment>(x => x.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
