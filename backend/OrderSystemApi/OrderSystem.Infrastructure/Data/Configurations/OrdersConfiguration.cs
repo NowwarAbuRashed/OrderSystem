@@ -5,9 +5,9 @@ using OrderSystem.Domain.Enums;
 
 namespace OrderSystem.Infrastructure.Persistence.Configurations
 {
-    public class OrderConfiguration : IEntityTypeConfiguration<Orders>
+    public class OrderConfiguration : IEntityTypeConfiguration<Order>
     {
-        public void Configure(EntityTypeBuilder<Orders> builder)
+        public void Configure(EntityTypeBuilder<Order> builder)
         {
             
             builder.ToTable("orders", t =>
