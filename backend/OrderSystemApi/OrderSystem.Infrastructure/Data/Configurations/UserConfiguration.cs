@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace OrderSystem.Infrastructure.Data.Configurations
 {
-    public class UserConfiguration : IEntityTypeConfiguration<Users>
+    public class UserConfiguration : IEntityTypeConfiguration<User>
     {
-        public void Configure(EntityTypeBuilder<Users> builder)
+        public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.ToTable("users");
 
@@ -20,33 +20,26 @@ namespace OrderSystem.Infrastructure.Data.Configurations
 
             builder.Property(u => u.Id)
                 .HasColumnName("id")
-                .ValueGeneratedOnAdd();// aouto-increment
+                .ValueGeneratedOnAdd();
 
             builder.Property(u => u.FullName)
-                .HasColumnName("full_name").
-                HasColumnType("VARCHAR")
-                .HasMaxLength(150)
-                .IsRequired(); // not null
+                .HasColumnName("full_name")
+                .HasColumnType("VARCHAR(150)")
+                .IsRequired(); 
 
             builder.Property(u => u.Email)
-                .HasColumnName("email").
-                HasColumnType("VARCHAR")
-                .HasMaxLength(190)
+                .HasColumnName("email")
+                .HasColumnType("VARCHAR(190)")
                 .IsRequired();  
 
             builder.Property(u => u.PasswordHash)
-                .HasColumnName("password_hash").
-                HasColumnType("VARCHAR")
-                .HasMaxLength(255)
+                .HasColumnName("password_hash")
+                .HasColumnType("VARCHAR(255)")
                 .IsRequired(); 
                                 
             builder.Property(u => u.Role)
                .HasColumnName("role")
-               // هاذا الجزء مسؤول عن التحويل بين : C# Enum <-> Database String
-               .HasConversion( // يخزنها بالنص: CUSTOMER / MANAGER / ADMIN
-                   v => v.ToString().ToUpper(),
-                   //  لما نقرأ من الداتا بيز , يحول مع تجاهل الاحرف الكبيرة والصغيرة
-                   v => Enum.Parse<UserRole>(v, true))
+               .HasConversion<string>()
                .HasMaxLength(20)
                .IsRequired();
 
@@ -56,9 +49,11 @@ namespace OrderSystem.Infrastructure.Data.Configurations
                 .HasDefaultValue(true)
                 .IsRequired();  
 
+             
             builder.Property(u => u.CreatedAt)
                 .HasColumnName("created_at")
-                .IsRequired();  
+                .HasDefaultValueSql("SYSUTCDATETIME()")
+                .IsRequired();
 
             builder.Property(u => u.UpdatedAt)
                 .HasColumnName("updated_at")

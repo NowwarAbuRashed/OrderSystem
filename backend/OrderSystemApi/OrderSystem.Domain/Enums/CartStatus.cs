@@ -8,7 +8,7 @@ namespace OrderSystem.Domain.Enums
 {
     public enum CartStatus
     {
-        Active,
-        CheckedOut
+        ACTIVE,
+        CHECKED_OUT
     }
 }

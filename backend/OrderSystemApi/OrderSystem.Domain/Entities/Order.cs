@@ -28,12 +28,14 @@ namespace OrderSystem.Domain.Entities
         public DateTime? DeliveredAt { get; set; }
 
         // Navigation properties
-        //public User Customer { get; set; } = null!;
+
 
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
         public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
-        //public ICollection<InventoryMovement> InventoryMovements { get; set; } = new List<InventoryMovement>();
+        public User Customer { get; set; } = null!;
+
+        public ICollection<InventoryMovement> InventoryMovements { get; set; } = new List<InventoryMovement>();
     }
 }

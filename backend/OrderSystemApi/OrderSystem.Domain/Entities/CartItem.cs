@@ -21,8 +21,9 @@ namespace OrderSystem.Domain.Entities
         public DateTime CreatedAt { get; set; }
 
         // Navigation Properties
-        //public Carts Cart { get; set; } = null!;
 
-        //public Products Product { get; set; } = null!;
+        public Cart Cart { get; set; } = null!;
+
+        public Product Product { get; set; } = null!;
     }
 }

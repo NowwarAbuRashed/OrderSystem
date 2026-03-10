@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OrderSystem.Domain.Entities
 {
-    public class Carts
+    public class Cart
     {
         public long Id { get; set; }
 
@@ -21,8 +21,8 @@ namespace OrderSystem.Domain.Entities
 
         // Navigation properties
 
-        //public Users Customer { get; set; } = null!;
+        public User Customer { get; set; } = null!;
 
-        //public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+        public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
     }
 }
