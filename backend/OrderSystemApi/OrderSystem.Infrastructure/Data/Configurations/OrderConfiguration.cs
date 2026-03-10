@@ -14,7 +14,7 @@ namespace OrderSystem.Infrastructure.Persistence.Configurations
             {
                 
                 t.HasCheckConstraint("CK_Orders_TotalAmount", "total_amount >= 0");
-                // HasCheckConstraint : هي ميثود في EF Core بتخليك تضيف شرط على مستوى قاعدة البيانات.
+                
             });
 
             builder.HasKey(o => o.Id);
@@ -44,8 +44,9 @@ namespace OrderSystem.Infrastructure.Persistence.Configurations
                 .HasColumnType("decimal(12,2)")
                 .IsRequired();
 
-            builder.Property(o => o.CreatedAt)
+            builder.Property(u => u.CreatedAt)
                 .HasColumnName("created_at")
+                .HasDefaultValueSql("SYSUTCDATETIME()")
                 .IsRequired();
 
             builder.Property(o => o.ReadyAt)

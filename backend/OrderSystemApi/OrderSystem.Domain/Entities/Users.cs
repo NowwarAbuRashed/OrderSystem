@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OrderSystem.Domain.Entities
 {
-    public class Users
+    public class User
     {
         public long Id { get; set; }
 
@@ -24,11 +24,11 @@ namespace OrderSystem.Domain.Entities
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
-        // Relationships
-        //public ICollection<Orders> Orders { get; set; } = new List<Order>();
+        // Navigation properties
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
 
-        //public ICollection<Carts> Carts { get; set; } = new List<Cart>();
+        public ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
-        //public ICollection<InventoryMovement> InventoryMovementsPerformed { get; set; } = new List<InventoryMovement>();
+        public ICollection<InventoryMovement> InventoryMovementsPerformed { get; set; } = new List<InventoryMovement>();
     }
 }

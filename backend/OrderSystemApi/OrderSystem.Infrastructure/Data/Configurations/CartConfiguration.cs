@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace OrderSystem.Infrastructure.Data.Configurations
 {
-    public class CartConfiguration : IEntityTypeConfiguration<Carts>
+    public class CartConfiguration : IEntityTypeConfiguration<Cart>
     {
-        public void Configure(EntityTypeBuilder<Carts> builder)
+        public void Configure(EntityTypeBuilder<Cart> builder)
         {
             builder.ToTable("carts");
 
@@ -28,26 +28,23 @@ namespace OrderSystem.Infrastructure.Data.Configurations
 
             builder.Property(c => c.Status)
                 .HasColumnName("status")
-                .HasConversion(
-                    v => ConvertCartStatusToDb(v),
-                    v => ConvertCartStatusFromDb(v))
+                .HasConversion<string>()
                 .HasMaxLength(20)
                 .IsRequired()
-                .HasDefaultValue(CartStatus.Active);
+                .HasDefaultValue(CartStatus.ACTIVE);
 
-            builder.Property(c => c.CreatedAt)
+            builder.Property(u => u.CreatedAt)
                 .HasColumnName("created_at")
+                .HasDefaultValueSql("SYSUTCDATETIME()")
                 .IsRequired();
 
             builder.Property(c => c.UpdatedAt)
                 .HasColumnName("updated_at")
                 .IsRequired();
-            // مركب Unique Index , يعني ما بصير يتكرر نفس الزوج بريكورد معين
-            // لضمان ان العميل عندو سلة واحدة فقط تكون Active او CheckedOut في نفس الوقت
-            // هذا يمنع تعدد CHECKED_OUT أيضًا. !!! 
-            builder.HasIndex(c => new { c.CustomerId, c.Status })
-                .IsUnique();
-
+        
+            builder.HasIndex(c => c.CustomerId)
+                .IsUnique()
+                .HasFilter("[status]='ACTIVE'"); 
             // Relationships
 
             //builder.HasOne(c => c.Customer)
@@ -59,28 +56,6 @@ namespace OrderSystem.Infrastructure.Data.Configurations
             //    .WithOne(ci => ci.Cart)
             //    .HasForeignKey(ci => ci.CartId)
             //    .OnDelete(DeleteBehavior.Cascade);
-        }
-
-        private static string ConvertCartStatusToDb(CartStatus status)
-        {
-            if (status == CartStatus.Active)
-                return "ACTIVE";
-
-            if (status == CartStatus.CheckedOut)
-                return "CHECKED_OUT";
-
-            throw new InvalidOperationException("Invalid cart status");
-        }
-
-        private static CartStatus ConvertCartStatusFromDb(string status)
-        {
-            if (status == "ACTIVE")
-                return CartStatus.Active;
-
-            if (status == "CHECKED_OUT")
-                return CartStatus.CheckedOut;
-
-            throw new InvalidOperationException("Invalid cart status value from database");
         }
     }
 }

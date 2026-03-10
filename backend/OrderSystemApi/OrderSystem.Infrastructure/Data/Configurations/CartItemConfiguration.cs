@@ -41,11 +41,12 @@ namespace OrderSystem.Infrastructure.Data.Configurations
                 .HasColumnType("decimal(10,2)")
                 .IsRequired(false);
 
-            builder.Property(ci => ci.CreatedAt)
+            builder.Property(u => u.CreatedAt)
                 .HasColumnName("created_at")
+                .HasDefaultValueSql("SYSUTCDATETIME()")
                 .IsRequired();
+
             // not duplicate product in the same cart as two records
-            //المفروض نزيد quantity بدل ما ننشئ row جديد
             builder.HasIndex(ci => new { ci.CartId, ci.ProductId })
                 .IsUnique();
 
