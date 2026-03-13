@@ -46,6 +46,8 @@ namespace OrderSystem.Application.Inventory.Services
 
             if (request.MinQuantity.HasValue)
             {
+                if (request.MinQuantity.Value < 0)
+                    throw new Exception("MinQuantity cannot be negative");
                 product.MinQuantity = request.MinQuantity.Value;
             }
 
