@@ -1,6 +1,11 @@
 
 using Microsoft.EntityFrameworkCore;
+using OrderSystem.Application.Inventory.Interfaces;
+using OrderSystem.Application.Inventory.Services;
+using OrderSystem.Application.Products.Interfaces;
 using OrderSystem.Infrastructure.Data;
+using OrderSystem.Infrastructure.Interfaces;
+using OrderSystem.Infrastructure.Repositories;
 
 namespace OrderSystemApi
 {
@@ -14,6 +19,15 @@ namespace OrderSystemApi
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            builder.Services.AddScoped<IInventoryMovementRepository, InventoryMovementRepository>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IInventoryService, InventoryService>();
+
+
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
