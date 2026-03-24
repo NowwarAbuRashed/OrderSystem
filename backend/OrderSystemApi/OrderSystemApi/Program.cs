@@ -1,10 +1,12 @@
 
 using Microsoft.EntityFrameworkCore;
-using OrderSystem.Application.Inventory.Interfaces;
-using OrderSystem.Application.Inventory.Services;
+using OrderSystem.Application.Carts.Interfaces;
+using OrderSystem.Application.Carts.Services;
+using OrderSystem.Application.Common.Mappings;
+using OrderSystem.Application.Inventorys.Interfaces;
+using OrderSystem.Application.Inventorys.Services;
 using OrderSystem.Application.Products.Interfaces;
 using OrderSystem.Infrastructure.Data;
-using OrderSystem.Infrastructure.Interfaces;
 using OrderSystem.Infrastructure.Repositories;
 
 namespace OrderSystemApi
@@ -21,11 +23,16 @@ namespace OrderSystemApi
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            builder.Services.AddAutoMapper(cfg => { }, typeof(InventoryProfile));
 
             builder.Services.AddScoped<IInventoryMovementRepository, InventoryMovementRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IInventoryService, InventoryService>();
+
+            builder.Services.AddScoped<ICartRepository, CartRepository>();
+            builder.Services.AddScoped<ICartItemRepository, CartItemRepository>();
+            builder.Services.AddScoped<ICartService, CartService>();
+
 
 
 

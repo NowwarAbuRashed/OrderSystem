@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OrderSystem.Application.Inventory.DTOs.Requests;
+using OrderSystem.Application.Inventorys.DTOs.Requests;
+using OrderSystem.Application.Inventorys.Interfaces;
 using OrderSystem.Domain.Entities;
 using OrderSystem.Infrastructure.Data;
-using OrderSystem.Infrastructure.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,6 +51,48 @@ namespace OrderSystem.Infrastructure.Repositories
             return (items, totalCount);
 
         }
+
+
+        public async Task<(List<Product> Items, int TotalCount)> GetInventoryStatusPagedAsync(
+           int page,
+           int pageSize,
+           CancellationToken cancellationToken)
+        {
+            var query = _context.Products
+                .AsNoTracking()
+                .OrderBy(p => p.Name);
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (items, totalCount);
+        }
+
+        public async Task<(List<Product> Items, int TotalCount)> GetLowStockPagedAsync(
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken)
+        {
+            var query = _context.Products
+                .AsNoTracking()
+                .Where(p => p.Quantity <= p.MinQuantity)
+                .OrderBy(p => p.Quantity)
+                .ThenBy(p => p.Name);
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (items, totalCount);
+        }
+
 
     }
 }
