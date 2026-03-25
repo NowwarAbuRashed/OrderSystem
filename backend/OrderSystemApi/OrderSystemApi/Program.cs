@@ -2,6 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using OrderSystem.Application.Inventory.Interfaces;
 using OrderSystem.Application.Inventory.Services;
+using OrderSystem.Application.Orders.Interfaces;
+using OrderSystem.Application.Orders.Services;
+using OrderSystem.Application.Payments.Interfaces;
+using OrderSystem.Application.Payments.Services;
 using OrderSystem.Application.Products.Interfaces;
 using OrderSystem.Infrastructure.Data;
 using OrderSystem.Infrastructure.Interfaces;
@@ -15,6 +19,7 @@ namespace OrderSystemApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            
             // Add services to the container.
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -27,7 +32,12 @@ namespace OrderSystemApi
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IInventoryService, InventoryService>();
 
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
 
+            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -51,6 +61,7 @@ namespace OrderSystemApi
             app.MapControllers();
 
             app.Run();
+
         }
     }
 }
