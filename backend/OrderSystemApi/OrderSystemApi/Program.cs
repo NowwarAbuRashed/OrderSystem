@@ -5,8 +5,6 @@ using OrderSystem.Application.Carts.Services;
 using OrderSystem.Application.Common.Mappings;
 using OrderSystem.Application.Inventorys.Interfaces;
 using OrderSystem.Application.Inventorys.Services;
-using OrderSystem.Application.Inventory.Interfaces;
-using OrderSystem.Application.Inventory.Services;
 using OrderSystem.Application.Orders.Interfaces;
 using OrderSystem.Application.Orders.Services;
 using OrderSystem.Application.Payments.Interfaces;

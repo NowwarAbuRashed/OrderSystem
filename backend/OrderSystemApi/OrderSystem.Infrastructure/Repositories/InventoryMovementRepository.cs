@@ -1,17 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OrderSystem.Application.Inventory.DTOs.Requests;
-using OrderSystem.Domain.Entities;
-using OrderSystem.Infrastructure.Data;
-using OrderSystem.Infrastructure.Interfaces;
 using OrderSystem.Application.Inventorys.DTOs.Requests;
-using OrderSystem.Application.Inventorys.Interfaces;
 using OrderSystem.Domain.Entities;
 using OrderSystem.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OrderSystem.Application.Inventorys.Interfaces;
+
 
 namespace OrderSystem.Infrastructure.Repositories
 {
