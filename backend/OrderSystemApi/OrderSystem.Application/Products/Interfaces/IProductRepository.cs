@@ -9,7 +9,16 @@ namespace OrderSystem.Application.Products.Interfaces
 {
     public interface IProductRepository
     {
-        Task<Product?> GetByIdAsync(long id, CancellationToken cancellationToken);
-        void Update(Product product);
+        Task<(List<Product> Items, int TotalCount)> GetPagedAsync(
+                   string? search,
+                   long? categoryId,
+                   int page,
+                   int pageSize,
+                   CancellationToken ct);
+        Task<Product?> GetByIdAsync(long id, CancellationToken ct);
+        Task<List<Product>> GetByIdsAsync(IEnumerable<long> ids, CancellationToken ct);
+        Task<long> AddAsync(Product product, CancellationToken ct);
+        Task<bool> Update(Product product);
+        Task<bool> DeleteAsync(long id);
     }
 }
