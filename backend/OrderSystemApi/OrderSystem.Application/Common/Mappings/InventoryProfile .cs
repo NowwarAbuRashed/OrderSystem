@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using OrderSystem.Application.Inventory.DTOs.Responses;
+using OrderSystem.Application.Inventorys.DTOs.Responses;
 using OrderSystem.Domain.Entities;
 using System;
 using System.Collections.Generic;

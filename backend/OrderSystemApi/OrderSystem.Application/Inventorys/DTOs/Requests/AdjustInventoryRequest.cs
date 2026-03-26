@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OrderSystem.Application.Inventory.DTOs.Requests
+namespace OrderSystem.Application.Inventorys.DTOs.Requests
 {
     public class AdjustInventoryRequest
     {
