@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OrderSystem.Application.Inventory.DTOs.Responses
+namespace OrderSystem.Application.Inventorys.DTOs.Responses
 {
     public class InventoryMovementResponse
     {

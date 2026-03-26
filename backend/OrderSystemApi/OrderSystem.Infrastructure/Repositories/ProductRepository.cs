@@ -85,6 +85,10 @@ namespace OrderSystem.Infrastructure.Repositories
                 .ToListAsync(ct);
 
             return (items, totalCount);
+        public void Update(Product product)
+        {
+            _context.Products.Update(product);
+            _context.SaveChanges();
         }
     }
 }

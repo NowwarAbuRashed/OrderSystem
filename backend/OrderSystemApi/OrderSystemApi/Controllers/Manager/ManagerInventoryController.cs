@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using OrderSystem.Application.Inventory.DTOs.Requests;
-using OrderSystem.Application.Inventory.Interfaces;
+using OrderSystem.Application.Inventorys.DTOs.Requests;
+using OrderSystem.Application.Inventorys.Interfaces;
 
 namespace OrderSystem.Api.Controllers.Manager
 {
