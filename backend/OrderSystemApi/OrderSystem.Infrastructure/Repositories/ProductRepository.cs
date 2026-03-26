@@ -3,11 +3,7 @@ using OrderSystem.Application.Products.Interfaces;
 using OrderSystem.Domain.Entities;
 using OrderSystem.Domain.Enums;
 using OrderSystem.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace OrderSystem.Infrastructure.Repositories
 {
@@ -22,7 +18,6 @@ namespace OrderSystem.Infrastructure.Repositories
 
         public async Task<long> AddAsync(Product product, CancellationToken ct)
         {
-           product.Status=product.Quantity> product.MinQuantity?ProductStatus.ACTIVE:ProductStatus.INACTIVE;
             _context.Products.Add(product);
              await _context.SaveChangesAsync() ;
             return product.Id;
@@ -46,7 +41,7 @@ namespace OrderSystem.Infrastructure.Repositories
         }
         public async Task<bool> DeleteAsync(long productId)
         {
-            Product prduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
+            Product? prduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
             if (prduct == null) return false;
             _context.Products.Remove(prduct) ;
             return await _context.SaveChangesAsync() > 0;
@@ -85,10 +80,11 @@ namespace OrderSystem.Infrastructure.Repositories
                 .ToListAsync(ct);
 
             return (items, totalCount);
-        public void Update(Product product)
-        {
-            _context.Products.Update(product);
-            _context.SaveChanges();
         }
+        //public void Update(Product product)
+        //{
+        //    _context.Products.Update(product);
+        //    _context.SaveChanges();
+        //}
     }
 }

@@ -4,13 +4,8 @@ using OrderSystem.Application.Products.DTOs.Requests;
 using OrderSystem.Application.Products.DTOs.Responses;
 using OrderSystem.Application.Products.Interfaces;
 using OrderSystem.Domain.Entities;
-using System;
 using OrderSystem.Domain.Enums;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OrderSystem.Application.ProductImage.Services;
+
 namespace OrderSystem.Application.Products.Services;
 public class ProductService : IProductService
 {
@@ -90,8 +85,7 @@ public class ProductService : IProductService
             Quantity = request.Quantity,
             MinQuantity = request.MinQuantity,
             CategoryId = request.CategoryId,
-            Status = request.Quantity <= request.MinQuantity ? ProductStatus.INACTIVE : ProductStatus.INACTIVE
-
+            Status = (request.Quantity >= request.MinQuantity) ? ProductStatus.ACTIVE : ProductStatus.INACTIVE
         };  
 
         return await _productRepository.AddAsync(product, ct);
