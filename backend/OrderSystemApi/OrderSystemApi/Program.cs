@@ -32,7 +32,7 @@ namespace OrderSystemApi
 
         
 
-            builder.Services.AddScoped<IProductService, ProductService>();
+          
           
 
             builder.Services.AddControllers();

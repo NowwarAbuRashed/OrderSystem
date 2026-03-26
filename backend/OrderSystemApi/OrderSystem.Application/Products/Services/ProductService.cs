@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using OrderSystem.Application.ProductImage.Services;
 namespace OrderSystem.Application.Products.Services;
 public class ProductService : IProductService
 {
@@ -32,7 +32,7 @@ public class ProductService : IProductService
             page,
             pageSize,
             ct);
-
+        
         return new PagedResult<ProductResponse>
         {
             Items = items.Select(x => new ProductResponse
@@ -43,7 +43,8 @@ public class ProductService : IProductService
                 Quantity = x.Quantity,
                 MinQuantity = x.MinQuantity,
                 Status = x.Status.ToString(),
-                CategoryId = x.CategoryId??0
+                CategoryId = x.CategoryId ?? 0,
+         //       Images = (x.Id, ct)
             }).ToList(),
             TotalCount = totalCount,
             Page = page,
@@ -78,6 +79,7 @@ public class ProductService : IProductService
 
     public async Task<long> CreateProductAsync(CreateProductRequest request, CancellationToken ct)
     {
+
         ValidateCreateRequest(request);
 
         var product = new Product
