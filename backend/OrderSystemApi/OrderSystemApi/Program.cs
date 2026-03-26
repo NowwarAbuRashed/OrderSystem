@@ -12,6 +12,7 @@ using OrderSystem.Application.Orders.Services;
 using OrderSystem.Application.Payments.Interfaces;
 using OrderSystem.Application.Payments.Services;
 using OrderSystem.Application.Products.Interfaces;
+using OrderSystem.Application.Products.Services;
 using OrderSystem.Infrastructure.Data;
 using OrderSystem.Infrastructure.Repositories;
 
@@ -34,12 +35,17 @@ namespace OrderSystemApi
 
             builder.Services.AddScoped<IInventoryMovementRepository, InventoryMovementRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+
             builder.Services.AddScoped<IInventoryService, InventoryService>();
 
+        
             builder.Services.AddScoped<ICartRepository, CartRepository>();
             builder.Services.AddScoped<ICartItemRepository, CartItemRepository>();
             builder.Services.AddScoped<ICartService, CartService>();
 
+          
+          
 
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();

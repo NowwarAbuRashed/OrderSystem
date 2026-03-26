@@ -1,4 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OrderSystem.Application.Inventory.DTOs.Requests;
+using OrderSystem.Domain.Entities;
+using OrderSystem.Infrastructure.Data;
+using OrderSystem.Infrastructure.Interfaces;
 using OrderSystem.Application.Inventorys.DTOs.Requests;
 using OrderSystem.Application.Inventorys.Interfaces;
 using OrderSystem.Domain.Entities;
