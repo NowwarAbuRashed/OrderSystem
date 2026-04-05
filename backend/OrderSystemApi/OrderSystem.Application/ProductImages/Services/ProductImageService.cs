@@ -37,18 +37,18 @@ namespace OrderSystem.Application.ProductImage.Services
                     throw new ArgumentException("ImageUrl is required.");
 
                 var images = await _productImageRepository.GetByProductIdAsync(productId, ct);
-                
 
-                //if (request.IsPrimary)
-                //{
-                //    foreach (var image in images.Where(x => x.IsPrimary))
-                //    {
-                //        image.IsPrimary = false;
-                //        _productImageRepository.Update(image);
-                //    }
-                //}
 
-                var newImage = new OrderSystem.Domain.Entities.ProductImage
+            if (request.IsPrimary)
+            {
+                foreach (var image in images.Where(x => x.IsPrimary))
+                {
+                    image.IsPrimary = false;
+                    _productImageRepository.Update(image);
+                }
+            }
+
+            var newImage = new OrderSystem.Domain.Entities.ProductImage
                 {
                     ProductId = productId,
                     ImageUrl = request.ImageUrl,
@@ -94,7 +94,8 @@ namespace OrderSystem.Application.ProductImage.Services
                     }
 
                     image.IsPrimary = request.IsPrimary.Value;
-                }
+
+            }
 
             OrderSystem.Domain.Entities.ProductImage updatedImage = new OrderSystem.Domain.Entities.ProductImage();
             
@@ -109,6 +110,16 @@ namespace OrderSystem.Application.ProductImage.Services
 
                 if (image is null)
                     throw new KeyNotFoundException($"Product image with id {imageId} was not found.");
+                if (image.IsPrimary)
+                {
+                    var images = await _productImageRepository.GetByProductIdAsync(image.ProductId, ct);
+                    var nextPrimary = images.Where(x => x.Id != imageId).OrderBy(x => x.SortOrder).FirstOrDefault();
+                    if (nextPrimary is not null)
+                    {
+                        nextPrimary.IsPrimary = true;
+                        _productImageRepository.Update(nextPrimary);
+                    }
+            }
 
 
             return await _productImageRepository.Remove(imageId);

@@ -1,4 +1,5 @@
-﻿using OrderSystem.Application.Common.Models;
+﻿using OrderSystem.Application.Categories.Interfaces;
+using OrderSystem.Application.Common.Models;
 using OrderSystem.Application.ProductImage.DTOs.Responses;
 using OrderSystem.Application.Products.DTOs.Requests;
 using OrderSystem.Application.Products.DTOs.Responses;
@@ -10,10 +11,12 @@ namespace OrderSystem.Application.Products.Services;
 public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
+    private readonly ICategoryRepository _categoryRepository;
 
-    public ProductService(IProductRepository productRepository)
+    public ProductService(IProductRepository productRepository, ICategoryRepository CategoryRepository)
     {
         _productRepository = productRepository;
+        _categoryRepository= CategoryRepository;
     }
 
     public async Task<PagedResult<ProductResponse>> GetProductsAsync(ProductQueryRequest request, CancellationToken ct)
@@ -76,6 +79,9 @@ public class ProductService : IProductService
     {
 
         ValidateCreateRequest(request);
+        var Category = await _categoryRepository.GetByIdAsync(request.CategoryId, ct);
+        if (Category is null)
+            throw new KeyNotFoundException($"Category with id '{request.CategoryId}' was not found.");
 
         var product = new Product
         {

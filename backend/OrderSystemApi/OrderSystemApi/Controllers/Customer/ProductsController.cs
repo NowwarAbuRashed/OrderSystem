@@ -2,7 +2,7 @@
 using OrderSystem.Application.Products.DTOs.Requests;
 using OrderSystem.Application.Products.Interfaces;
 
-namespace OrderSystem.Api.Customer;
+namespace OrderSystem.Api.Controllers.Customer;
 
 [ApiController]
 [Route("api/v1/products")]
