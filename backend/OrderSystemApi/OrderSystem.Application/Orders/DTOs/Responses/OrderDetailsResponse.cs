@@ -19,6 +19,8 @@ namespace OrderSystem.Application.Orders.DTOs.Responses
         public DateTime? OutForDeliveryAt { get; set; }
         public DateTime? DeliveredAt { get; set; }
 
+        public string? Notes { get; set; }
+
         public List<OrderItemResponse> Items { get; set; } = new();
     }
 }

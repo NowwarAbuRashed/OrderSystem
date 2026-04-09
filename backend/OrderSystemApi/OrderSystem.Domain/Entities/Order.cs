@@ -9,6 +9,7 @@ namespace OrderSystem.Domain.Entities
 {
     public class Order
     {
+       
         public long Id { get; set; }
 
         public long CustomerId { get; set; }
@@ -20,6 +21,8 @@ namespace OrderSystem.Domain.Entities
         public decimal TotalAmount { get; set; }
 
         public DateTime CreatedAt { get; set; }
+
+        public string? Notes { get; set; }
 
         public DateTime? ReadyAt { get; set; }
 
