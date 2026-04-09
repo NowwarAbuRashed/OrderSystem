@@ -22,8 +22,17 @@ namespace OrderSystem.Api.Controllers.Auth
             [FromBody] LoginRequest request,
             CancellationToken cancellationToken)
         {
-            var result = await _authService.LoginAsync(request, cancellationToken);
-            return Ok(result);
+            try
+            {
+                var result = await _authService.LoginAsync(request, cancellationToken);
+                return Ok(result);
+            }
+            catch (Exception ex) when (
+                  ex.Message == "Invalid email or password" ||
+                  ex.Message == "This account is inactive")
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
         }
     }
 }
