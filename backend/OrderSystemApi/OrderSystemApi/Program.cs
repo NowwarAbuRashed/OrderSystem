@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using OrderSystem.Application.Carts.Interfaces;
 using OrderSystem.Application.Carts.Services;
+using OrderSystem.Application.Categories.Interfaces;
+using OrderSystem.Application.Categories.Services;
 using OrderSystem.Application.Common.Mappings;
 using OrderSystem.Application.Inventorys.Interfaces;
 using OrderSystem.Application.Inventorys.Services;
@@ -9,6 +11,8 @@ using OrderSystem.Application.Orders.Interfaces;
 using OrderSystem.Application.Orders.Services;
 using OrderSystem.Application.Payments.Interfaces;
 using OrderSystem.Application.Payments.Services;
+using OrderSystem.Application.ProductImage.Interfaces;
+using OrderSystem.Application.ProductImage.Services;
 using OrderSystem.Application.Products.Interfaces;
 using OrderSystem.Application.Products.Services;
 using OrderSystem.Infrastructure.Data;
@@ -51,6 +55,13 @@ namespace OrderSystemApi
 
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+            builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
+            builder.Services.AddScoped<IProductImageService, ProductImageService>();
+
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
