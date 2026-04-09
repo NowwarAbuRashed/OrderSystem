@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using OrderSystem.Api.Extensions;
 using OrderSystem.Application.Orders.DTOs.Requests;
 using OrderSystem.Application.Orders.Interfaces;
 
@@ -6,6 +8,7 @@ namespace OrderSystem.Api.Controllers.Customer
 {
     [ApiController]
     [Route("api/v1/me/orders")]
+    [Authorize(Roles = "CUSTOMER")]
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -20,7 +23,8 @@ namespace OrderSystem.Api.Controllers.Customer
             [FromBody] CheckoutRequest request,
             CancellationToken cancellationToken)
         {
-            var result = await _orderService.CheckoutAsync(request, cancellationToken);
+            var customerId = User.GetUserId();
+            var result = await _orderService.CheckoutAsync(customerId, request, cancellationToken);
             return Ok(result);
         }
 
@@ -29,7 +33,8 @@ namespace OrderSystem.Api.Controllers.Customer
             [FromQuery] OrderQueryRequest request,
             CancellationToken cancellationToken)
         {
-            var result = await _orderService.GetMyOrdersAsync(request, cancellationToken);
+            var customerId = User.GetUserId();
+            var result = await _orderService.GetMyOrdersAsync(customerId, request, cancellationToken);
             return Ok(result);
         }
 
@@ -38,7 +43,8 @@ namespace OrderSystem.Api.Controllers.Customer
             long orderId,
             CancellationToken cancellationToken)
         {
-            var result = await _orderService.GetMyOrderByIdAsync(orderId, cancellationToken);
+            var customerId = User.GetUserId();
+            var result = await _orderService.GetMyOrderByIdAsync(customerId, orderId, cancellationToken);
             return Ok(result);
         }
     }

@@ -1,11 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using OrderSystem.Api.Extensions;
 using OrderSystem.Application.Carts.DTOs.Requests;
 using OrderSystem.Application.Carts.Interfaces;
+using OrderSystem.Domain.Entities;
+using OrderSystem.Domain.Enums;
 
 namespace OrderSystem.Api.Controllers.Customer
 {
     [ApiController]
     [Route("api/v1/me/cart")]
+    [Authorize(Roles = "CUSTOMER")]
     public class CartController : ControllerBase
     {
         private readonly ICartService _cartService;
@@ -18,7 +23,7 @@ namespace OrderSystem.Api.Controllers.Customer
         [HttpGet]
         public async Task<IActionResult> GetMyCart(CancellationToken cancellationToken)
         {
-            var customerId = 1L; // مؤقتًا بدون security
+            var customerId = User.GetUserId(); 
             var result = await _cartService.GetMyCartAsync(customerId, cancellationToken);
             return Ok(result);
         }
@@ -28,7 +33,7 @@ namespace OrderSystem.Api.Controllers.Customer
             [FromBody] AddCartItemRequest request,
             CancellationToken cancellationToken)
         {
-            var customerId = 1L; // مؤقتًا بدون security
+            var customerId = User.GetUserId(); 
             var result = await _cartService.AddItemAsync(customerId, request, cancellationToken);
             return Ok(result);
         }
@@ -39,7 +44,7 @@ namespace OrderSystem.Api.Controllers.Customer
             [FromBody] UpdateCartItemRequest request,
             CancellationToken cancellationToken)
         {
-            var customerId = 1L; // مؤقتًا بدون security
+            var customerId = User.GetUserId(); 
             var result = await _cartService.UpdateItemAsync(customerId, itemId, request, cancellationToken);
             return Ok(result);
         }
@@ -49,7 +54,7 @@ namespace OrderSystem.Api.Controllers.Customer
             long itemId,
             CancellationToken cancellationToken)
         {
-            var customerId = 1L; // مؤقتًا بدون security
+            var customerId = User.GetUserId(); 
             await _cartService.RemoveItemAsync(customerId, itemId, cancellationToken);
             return NoContent();
         }
@@ -57,7 +62,7 @@ namespace OrderSystem.Api.Controllers.Customer
         [HttpDelete("items")]
         public async Task<IActionResult> ClearCart(CancellationToken cancellationToken)
         {
-            var customerId = 1L; // مؤقتًا بدون security
+            var customerId = User.GetUserId();
             await _cartService.ClearCartAsync(customerId, cancellationToken);
             return NoContent();
         }

@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OrderSystem.Application.Inventorys.Interfaces;
 
 namespace OrderSystem.Api.Controllers.Admin
 {
     [ApiController]
     [Route("api/v1/admin/inventory")]
+    [Authorize(Roles = "ADMIN")]
     public class AdminInventoryController : ControllerBase
     {
         private readonly IInventoryService _inventoryService;

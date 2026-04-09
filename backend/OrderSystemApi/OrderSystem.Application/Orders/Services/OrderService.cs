@@ -26,18 +26,19 @@ namespace OrderSystem.Application.Orders.Services
         }
 
         public Task<CheckoutResponse> CheckoutAsync(
-            CheckoutRequest request,
-            CancellationToken cancellationToken)
+        long customerId,
+        CheckoutRequest request,
+        CancellationToken cancellationToken)
         {
             throw new NotImplementedException("Checkout depends on Cart and Inventory completion.");
         }
 
         public async Task<PagedResult<OrderResponse>> GetMyOrdersAsync(
+           long customerId,
             OrderQueryRequest request,
             CancellationToken cancellationToken)
         {
-            // مؤقتًا بدون security
-            var customerId = 1L;
+           
 
             var (items, totalCount) = await _orderRepository.GetPagedForCustomerAsync(
                 customerId,
@@ -56,11 +57,11 @@ namespace OrderSystem.Application.Orders.Services
         }
 
         public async Task<OrderDetailsResponse> GetMyOrderByIdAsync(
+            long customerId,
             long orderId,
             CancellationToken cancellationToken)
         {
-            // مؤقتًا بدون security
-            var customerId = 1L;
+          
 
             var order = await _orderRepository.GetByIdForCustomerAsync(
                 orderId,

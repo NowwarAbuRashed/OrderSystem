@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using OrderSystem.Api.Extensions;
 using OrderSystem.Application.Payments.DTOs.Requests;
 using OrderSystem.Application.Payments.Interfaces;
 
@@ -6,6 +8,7 @@ namespace OrderSystem.Api.Controllers.Customer
 {
     [ApiController]
     [Route("api/v1/me/orders")]
+    [Authorize(Roles = "CUSTOMER")]
     public class PaymentsController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
@@ -20,7 +23,8 @@ namespace OrderSystem.Api.Controllers.Customer
             long orderId,
             CancellationToken cancellationToken)
         {
-            var result = await _paymentService.GetPaymentForOrderAsync(orderId, cancellationToken);
+            var customerId = User.GetUserId();
+            var result = await _paymentService.GetPaymentForOrderAsync(customerId, orderId, cancellationToken);
             return Ok(result);
         }
 
@@ -30,7 +34,8 @@ namespace OrderSystem.Api.Controllers.Customer
             [FromBody] PayByCardRequest request,
             CancellationToken cancellationToken)
         {
-            var result = await _paymentService.PayByCardAsync(orderId, request, cancellationToken);
+            var customerId = User.GetUserId();
+            var result = await _paymentService.PayByCardAsync(customerId, orderId, request, cancellationToken);
             return Ok(result);
         }
     }

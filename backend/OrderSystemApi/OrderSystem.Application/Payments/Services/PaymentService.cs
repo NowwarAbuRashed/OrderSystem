@@ -25,11 +25,11 @@ namespace OrderSystem.Application.Payments.Services
         }
 
         public async Task<PaymentResponse> GetPaymentForOrderAsync(
+            long customerId,
             long orderId,
             CancellationToken cancellationToken)
         {
-            // مؤقتًا بدون security
-            var customerId = 1L;
+           
 
             var order = await _orderRepository.GetByIdForCustomerAsync(
                 orderId,
@@ -48,12 +48,12 @@ namespace OrderSystem.Application.Payments.Services
         }
 
         public async Task<PaymentResponse> PayByCardAsync(
+            long customerId,
             long orderId,
             PayByCardRequest request,
             CancellationToken cancellationToken)
         {
-            // مؤقتًا بدون security
-            var customerId = 1L;
+            
 
             var order = await _orderRepository.GetByIdForCustomerAsync(
                 orderId,

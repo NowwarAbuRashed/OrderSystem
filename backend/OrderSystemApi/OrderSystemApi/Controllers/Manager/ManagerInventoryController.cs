@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using OrderSystem.Api.Extensions;
 using OrderSystem.Application.Inventorys.DTOs.Requests;
 using OrderSystem.Application.Inventorys.Interfaces;
 
@@ -6,6 +8,7 @@ namespace OrderSystem.Api.Controllers.Manager
 {
     [ApiController]
     [Route("api/v1/manager")]
+    [Authorize(Roles = "MANAGER,ADMIN")]
     public class ManagerInventoryController : ControllerBase
     {
         private readonly IInventoryService _inventoryService;
@@ -21,8 +24,7 @@ namespace OrderSystem.Api.Controllers.Manager
             [FromBody] AdjustInventoryRequest request,
             CancellationToken cancellationToken)
         {
-            // مؤقتًا بدون security
-            var performedBy = 1L;
+            var performedBy = User.GetUserId();
 
             var result = await _inventoryService.AdjustInventoryAsync(
                 productId,

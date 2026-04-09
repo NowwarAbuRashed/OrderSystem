@@ -11,10 +11,12 @@ namespace OrderSystem.Application.Payments.Interfaces
     public interface IPaymentService
     {
         Task<PaymentResponse> GetPaymentForOrderAsync(
+            long customerId,
             long orderId,
             CancellationToken cancellationToken);
 
         Task<PaymentResponse> PayByCardAsync(
+            long customerId,
             long orderId,
             PayByCardRequest request,
             CancellationToken cancellationToken);
