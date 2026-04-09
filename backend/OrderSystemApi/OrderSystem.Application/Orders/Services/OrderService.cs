@@ -40,7 +40,7 @@ namespace OrderSystem.Application.Orders.Services
             _inventoryMovementRepository = inventoryMovementRepository;
         }
 
-        public Task<CheckoutResponse> CheckoutAsync(
+        public async Task<CheckoutResponse> CheckoutAsync(
         long customerId,
         CheckoutRequest request,
         CancellationToken cancellationToken)
