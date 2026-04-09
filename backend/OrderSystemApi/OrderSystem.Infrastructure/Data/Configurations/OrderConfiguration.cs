@@ -61,7 +61,11 @@ namespace OrderSystem.Infrastructure.Persistence.Configurations
                 .HasColumnName("delivered_at")
                 .IsRequired(false);
 
-            
+                builder.Property(o => o.Notes)
+                .HasColumnName("notes")
+                .HasMaxLength(1000)
+                .IsRequired(false);
+
 
             builder.HasIndex(o => o.CreatedAt);
             builder.HasIndex(o => o.ReadyAt);
