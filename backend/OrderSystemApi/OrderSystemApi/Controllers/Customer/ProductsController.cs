@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OrderSystem.Application.Products.DTOs.Requests;
 using OrderSystem.Application.Products.Interfaces;
 
@@ -6,6 +7,7 @@ namespace OrderSystem.Api.Controllers.Customer;
 
 [ApiController]
 [Route("api/v1/products")]
+[AllowAnonymous]
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;

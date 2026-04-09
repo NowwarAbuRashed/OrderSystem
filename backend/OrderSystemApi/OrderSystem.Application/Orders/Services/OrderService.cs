@@ -39,13 +39,13 @@ namespace OrderSystem.Application.Orders.Services
             _paymentRepository = paymentRepository;
             _inventoryMovementRepository = inventoryMovementRepository;
         }
-        // العملية هاي مش معمولة ك عملية واحة كاملة !! , بدها تحديث بحيث انو لو تمت العمليات كلها اذا دن اذا لا يتراجع عن كل العمليات 
-        public async Task<CheckoutResponse> CheckoutAsync(
-            CheckoutRequest request,
-            CancellationToken cancellationToken)
+
+        public Task<CheckoutResponse> CheckoutAsync(
+        long customerId,
+        CheckoutRequest request,
+        CancellationToken cancellationToken)
         {
-            // مؤقتًا بدون security
-            var customerId = 1L;
+            
 
             var cart = await _cartRepository.GetActiveCartByCustomerIdAsync(customerId, cancellationToken);
             if (cart == null)
@@ -153,11 +153,11 @@ namespace OrderSystem.Application.Orders.Services
         }
 
         public async Task<PagedResult<OrderResponse>> GetMyOrdersAsync(
+           long customerId,
             OrderQueryRequest request,
             CancellationToken cancellationToken)
         {
-            // مؤقتًا بدون security
-            var customerId = 1L;
+           
 
             var (items, totalCount) = await _orderRepository.GetPagedForCustomerAsync(
                 customerId,
@@ -176,11 +176,11 @@ namespace OrderSystem.Application.Orders.Services
         }
 
         public async Task<OrderDetailsResponse> GetMyOrderByIdAsync(
+            long customerId,
             long orderId,
             CancellationToken cancellationToken)
         {
-            // مؤقتًا بدون security
-            var customerId = 1L;
+          
 
             var order = await _orderRepository.GetByIdForCustomerAsync(
                 orderId,

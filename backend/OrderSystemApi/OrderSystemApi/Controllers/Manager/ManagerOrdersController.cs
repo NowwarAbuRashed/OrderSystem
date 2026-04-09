@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OrderSystem.Application.Orders.DTOs.Requests;
 using OrderSystem.Application.Orders.Interfaces;
 
@@ -6,6 +7,7 @@ namespace OrderSystem.Api.Controllers.Manager
 {
     [ApiController]
     [Route("api/v1/manager/orders")]
+    [Authorize(Roles = "MANAGER,ADMIN")]
     public class ManagerOrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;

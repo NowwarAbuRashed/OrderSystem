@@ -11,13 +11,17 @@ namespace OrderSystem.Application.Orders.Interfaces
 {
     public interface IOrderService
     {
-        Task<CheckoutResponse> CheckoutAsync(CheckoutRequest request, CancellationToken cancellationToken);
-
+        Task<CheckoutResponse> CheckoutAsync(
+                    long customerId,
+                    CheckoutRequest request,
+                    CancellationToken cancellationToken);
         Task<PagedResult<OrderResponse>> GetMyOrdersAsync(
-            OrderQueryRequest request,
-            CancellationToken cancellationToken);
+             long customerId,
+             OrderQueryRequest request,
+             CancellationToken cancellationToken);
 
         Task<OrderDetailsResponse> GetMyOrderByIdAsync(
+            long customerId,
             long orderId,
             CancellationToken cancellationToken);
 
