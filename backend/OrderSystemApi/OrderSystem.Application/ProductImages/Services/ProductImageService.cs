@@ -1,4 +1,4 @@
-﻿using OrderSystem.Application.ProductImage.DTOs.Requests;
+using OrderSystem.Application.ProductImage.DTOs.Requests;
 using OrderSystem.Application.ProductImage.DTOs.Responses;
 using OrderSystem.Application.ProductImage.Interfaces;
 using OrderSystem.Domain.Entities;
@@ -44,7 +44,7 @@ namespace OrderSystem.Application.ProductImage.Services
                 foreach (var image in images.Where(x => x.IsPrimary))
                 {
                     image.IsPrimary = false;
-                    _productImageRepository.Update(image);
+                    await _productImageRepository.Update(image);
                 }
             }
 
@@ -89,7 +89,7 @@ namespace OrderSystem.Application.ProductImage.Services
                         foreach (var item in images.Where(x => x.IsPrimary && x.Id != image.Id))
                         {
                             item.IsPrimary = false;
-                            _productImageRepository.Update(item);
+                            await _productImageRepository.Update(item);
                         }
                     }
 
@@ -97,10 +97,7 @@ namespace OrderSystem.Application.ProductImage.Services
 
             }
 
-            OrderSystem.Domain.Entities.ProductImage updatedImage = new OrderSystem.Domain.Entities.ProductImage();
-            
-
-              return  await _productImageRepository.Update(updatedImage);
+            return await _productImageRepository.Update(image);
             
             }
 
@@ -117,7 +114,7 @@ namespace OrderSystem.Application.ProductImage.Services
                     if (nextPrimary is not null)
                     {
                         nextPrimary.IsPrimary = true;
-                        _productImageRepository.Update(nextPrimary);
+                        await _productImageRepository.Update(nextPrimary);
                     }
             }
 

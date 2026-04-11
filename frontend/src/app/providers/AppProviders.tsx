@@ -1,0 +1,14 @@
+import { ReactNode } from 'react';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '../api/query-client';
+import { AuthProvider } from '../store/auth-context';
+
+export function AppProviders({ children }: { children: ReactNode }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        {children}
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+}

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using OrderSystem.Application.Common.Models;
 using OrderSystem.Application.Inventorys.DTOs.Requests;
 using OrderSystem.Application.Inventorys.DTOs.Responses;
@@ -54,7 +54,7 @@ namespace OrderSystem.Application.Inventorys.Services
                 product.MinQuantity = request.MinQuantity.Value;
             }
 
-            _productRepository.Update(product);
+            await _productRepository.Update(product);
 
             var movement = new InventoryMovement
             {
