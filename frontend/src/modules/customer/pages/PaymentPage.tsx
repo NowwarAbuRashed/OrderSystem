@@ -37,7 +37,7 @@ export function PaymentPage() {
 
   if (paymentInfo.status === PaymentStatus.PAID) {
     return (
-      <div className="max-w-xl mx-auto text-center space-y-6 mt-10 p-8 bg-white rounded-lg shadow-sm border border-slate-200">
+      <div className="max-w-xl mx-auto text-center space-y-6 mt-10 p-8 bg-white rounded-lg shadow-sm border border-slate-200/60">
         <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
           <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -47,7 +47,7 @@ export function PaymentPage() {
         <p className="text-slate-500">Your payment of <PriceText amount={paymentInfo.amount} /> has been processed.</p>
         <button
           onClick={() => navigate(`/me/orders/${id}`)}
-          className="mt-4 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
+          className="mt-4 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500"
         >
           View Order Details
         </button>
@@ -69,21 +69,21 @@ export function PaymentPage() {
 
       {payError && <ErrorState message={getApiErrorMessage(payError)} />}
 
-      <div className="bg-slate-50 p-6 rounded-lg mb-6 border border-slate-200">
+      <div className="bg-slate-50 p-6 rounded-lg mb-6 border border-slate-200/60">
         <div className="flex justify-between items-center">
           <span className="text-sm font-medium text-slate-500">Amount Due</span>
           <span className="text-2xl font-bold text-slate-900"><PriceText amount={paymentInfo.amount} /></span>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-slate-200/60">
         <div>
           <label className="block text-sm font-medium leading-6 text-slate-900">Cardholder Name</label>
           <div className="mt-2">
             <input
               {...register('cardHolderName')}
               type="text"
-              className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
+              className="block w-full rounded-lg border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-primary-600 sm:text-sm sm:leading-6 px-3"
             />
             {errors.cardHolderName && <p className="mt-1 text-sm text-red-600">{errors.cardHolderName.message}</p>}
           </div>
@@ -96,7 +96,7 @@ export function PaymentPage() {
               {...register('cardNumber')}
               type="text"
               maxLength={16}
-              className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
+              className="block w-full rounded-lg border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-primary-600 sm:text-sm sm:leading-6 px-3"
             />
             {errors.cardNumber && <p className="mt-1 text-sm text-red-600">{errors.cardNumber.message}</p>}
           </div>
@@ -112,7 +112,7 @@ export function PaymentPage() {
                 min={1}
                 max={12}
                 placeholder="MM"
-                className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
+                className="block w-full rounded-lg border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-primary-600 sm:text-sm sm:leading-6 px-3"
               />
               {errors.expiryMonth && <p className="mt-1 text-sm text-red-600">{errors.expiryMonth.message}</p>}
             </div>
@@ -125,7 +125,7 @@ export function PaymentPage() {
                 type="number"
                 min={new Date().getFullYear()}
                 placeholder="YYYY"
-                className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
+                className="block w-full rounded-lg border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-primary-600 sm:text-sm sm:leading-6 px-3"
               />
               {errors.expiryYear && <p className="mt-1 text-sm text-red-600">{errors.expiryYear.message}</p>}
             </div>
@@ -137,7 +137,7 @@ export function PaymentPage() {
                 {...register('cvv')}
                 type="text"
                 maxLength={3}
-                className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
+                className="block w-full rounded-lg border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-primary-600 sm:text-sm sm:leading-6 px-3"
               />
               {errors.cvv && <p className="mt-1 text-sm text-red-600">{errors.cvv.message}</p>}
             </div>
@@ -148,7 +148,7 @@ export function PaymentPage() {
           <button
             type="submit"
             disabled={isPaying}
-            className="w-full rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:opacity-50"
+            className="w-full rounded-lg bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 disabled:opacity-50"
           >
             {isPaying ? 'Processing Payment...' : 'Pay Now'}
           </button>

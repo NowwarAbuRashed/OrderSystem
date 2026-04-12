@@ -23,12 +23,12 @@ export function ManagerLayout() {
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col hidden md:flex">
-        <div className="p-4 bg-slate-950">
-          <Link to="/manager/orders" className="text-xl font-bold text-white">Manager Portal</Link>
-          <div className="text-xs text-slate-500 mt-1">{user?.fullName}</div>
+      <aside className="w-64 bg-white border-r border-slate-200/60 hidden md:flex flex-col">
+        <div className="p-6">
+          <Link to="/manager/orders" className="text-xl font-bold text-primary-600">Manager Portal</Link>
+          <div className="text-xs font-medium text-slate-500 mt-1">{user?.fullName}</div>
         </div>
-        <nav className="flex-1 p-2 space-y-1 mt-4">
+        <nav className="flex-1 px-4 space-y-1 mt-2">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = location.pathname.startsWith(link.to);
@@ -37,18 +37,18 @@ export function ManagerLayout() {
                 key={link.to}
                 to={link.to}
                 className={clsx(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                  isActive ? "bg-slate-800 text-white" : "hover:bg-slate-800 hover:text-white"
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                  isActive ? "bg-primary-50 text-primary-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 )}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className={clsx("w-4 h-4", isActive ? "text-primary-600" : "text-slate-400")} />
                 {link.label}
               </Link>
             );
           })}
         </nav>
-        <div className="p-4">
-          <button onClick={handleLogout} className="flex items-center gap-3 text-sm font-medium text-slate-400 hover:text-white w-full">
+        <div className="p-4 border-t border-slate-200/60">
+          <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg w-full transition-all">
             <LogOut className="w-4 h-4" /> Logout
           </button>
         </div>

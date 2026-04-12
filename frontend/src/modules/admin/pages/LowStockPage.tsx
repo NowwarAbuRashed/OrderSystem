@@ -4,6 +4,8 @@ import { LoadingBlock } from '../../../shared/components/LoadingBlock';
 import { ErrorState } from '../../../shared/components/ErrorState';
 import { AppTable, Column } from '../../../shared/components/AppTable';
 import { StatusBadge } from '../../../shared/components/StatusBadge';
+import { Card, CardContent } from '../../../shared/components/Card';
+import { AlertTriangle, Tag } from 'lucide-react';
 import { AdminInventoryStatusDto } from '../../../shared/types/inventory';
 
 export function AdminLowStockPage() {
@@ -33,14 +35,42 @@ export function AdminLowStockPage() {
     }
   ];
 
+  const totalAlerts = data.length;
+  const criticalItems = data.filter((i: AdminInventoryStatusDto) => i.stockStatus.toLowerCase() === 'out of stock').length;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader 
         title="Low Stock Alerts" 
         description="Products currently at or below their minimum required quantity."
       />
       
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-amber-50 text-amber-600 rounded-lg">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-slate-500">Products Need Reordering</p>
+              <h4 className="text-2xl font-bold text-slate-900">{totalAlerts}</h4>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-red-50 text-red-600 rounded-lg">
+              <Tag className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-slate-500">Out of Stock</p>
+              <h4 className="text-2xl font-bold text-slate-900">{criticalItems}</h4>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200/60 overflow-hidden">
         <AppTable
           columns={columns}
           data={data}

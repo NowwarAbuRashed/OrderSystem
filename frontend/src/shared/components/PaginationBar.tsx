@@ -12,19 +12,19 @@ export function PaginationBar({ page, pageSize, totalCount, onPageChange }: Prop
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-3 sm:px-6 rounded-b-lg">
+    <div className="flex items-center justify-between border-t border-slate-200/60 bg-white px-4 py-3 sm:px-6 rounded-b-lg">
       <div className="flex flex-1 justify-between sm:hidden">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page === 1}
-          className="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          className="relative inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
         >
           Previous
         </button>
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page === totalPages}
-          className="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          className="relative ml-3 inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
         >
           Next
         </button>
@@ -37,7 +37,7 @@ export function PaginationBar({ page, pageSize, totalCount, onPageChange }: Prop
           </p>
         </div>
         <div>
-          <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+          <nav className="isolate inline-flex -space-x-px rounded-lg shadow-sm" aria-label="Pagination">
             <button
               onClick={() => onPageChange(page - 1)}
               disabled={page === 1}

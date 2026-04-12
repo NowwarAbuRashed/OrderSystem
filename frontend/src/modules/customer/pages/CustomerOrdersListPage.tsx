@@ -5,6 +5,7 @@ import { PageHeader } from '../../../shared/components/PageHeader';
 import { AppTable, Column } from '../../../shared/components/AppTable';
 import { PaginationBar } from '../../../shared/components/PaginationBar';
 import { StatusBadge } from '../../../shared/components/StatusBadge';
+import { Card } from '../../../shared/components/Card';
 import { PriceText } from '../../../shared/components/PriceText';
 import { orderStatusLabelMap, paymentMethodLabelMap } from '../../../shared/types/orders';
 
@@ -37,19 +38,21 @@ export function CustomerOrdersListPage() {
     },
     {
       header: 'Actions',
-      accessor: (row) => <Link to={`/me/orders/${row.orderId}`} className="text-blue-600 hover:text-blue-800 font-medium">View</Link>,
+      accessor: (row) => <Link to={`/me/orders/${row.orderId}`} className="text-primary-600 hover:text-primary-800 font-medium">View</Link>,
     }
   ];
 
   return (
     <div className="space-y-6">
       <PageHeader title="My Orders" />
-      <AppTable
-        columns={columns}
-        data={data?.items || []}
-        isLoading={isLoading}
-        emptyMessage="You haven't placed any orders yet."
-      />
+      <Card className="rounded-2xl shadow-sm border-slate-200/60 overflow-hidden">
+        <AppTable
+          columns={columns}
+          data={data?.items || []}
+          isLoading={isLoading}
+          emptyMessage="You haven't placed any orders yet."
+        />
+      </Card>
       {data && data.totalCount > 0 && (
         <PaginationBar
           page={data.page}

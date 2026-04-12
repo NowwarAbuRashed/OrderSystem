@@ -9,6 +9,9 @@ import { AppTable, Column } from '../../../shared/components/AppTable';
 import { formatDateTime } from '../../../shared/utils/date';
 import { InventoryMovement } from '../../../shared/types/inventory';
 import { ChevronLeft } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/Card';
+import { Input } from '../../../shared/components/Input';
+import { Button } from '../../../shared/components/Button';
 
 export function ManagerInventoryManagePage() {
   const { productId } = useParams();
@@ -64,81 +67,85 @@ export function ManagerInventoryManagePage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <Link to="/manager/inventory" className="inline-flex items-center text-sm text-blue-600 hover:underline">
+      <Link to="/manager/inventory" className="inline-flex items-center text-sm text-primary-600 hover:underline">
         <ChevronLeft className="w-4 h-4 mr-1" /> Back to inventory
       </Link>
 
       <PageHeader title={`Manage Stock: ${product.name}`} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-          <h3 className="text-lg font-medium leading-6 text-slate-900 mb-4">Stock Overview</h3>
-          <dl className="grid grid-cols-2 gap-4">
-            <div>
-              <dt className="text-sm font-medium text-slate-500">Current Stock</dt>
-              <dd className={`mt-1 text-3xl font-semibold tracking-tight ${product.quantity <= product.minQuantity ? 'text-red-600' : 'text-slate-900'}`}>
-                {product.quantity}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-slate-500">Minimum Required</dt>
-              <dd className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">
-                {product.minQuantity}
-              </dd>
-            </div>
-          </dl>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Stock Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <dl className="grid grid-cols-2 gap-4">
+              <div>
+                <dt className="text-sm font-medium text-slate-500">Current Stock</dt>
+                <dd className={`mt-1 text-3xl font-semibold tracking-tight ${product.quantity <= product.minQuantity ? 'text-red-600' : 'text-slate-900'}`}>
+                  {product.quantity}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-slate-500">Minimum Required</dt>
+                <dd className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">
+                  {product.minQuantity}
+                </dd>
+              </div>
+            </dl>
+          </CardContent>
+        </Card>
 
-        <form onSubmit={handleAdjust} className="bg-white p-6 rounded-lg shadow-sm border border-slate-200 space-y-4 text-sm">
-          <h3 className="text-lg font-medium leading-6 text-slate-900">Adjust Stock</h3>
-          
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2">
-              <input type="radio" value="add" checked={action === 'add'} onChange={() => setAction('add')} className="text-blue-600" />
-              Add Stock
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="radio" value="remove" checked={action === 'remove'} onChange={() => setAction('remove')} className="text-blue-600" />
-              Remove Stock
-            </label>
-          </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Adjust Stock</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAdjust} className="space-y-4 text-sm">
+              <div className="flex gap-4 pb-2">
+                <label className="flex items-center gap-2 font-medium text-slate-900 cursor-pointer">
+                  <input type="radio" value="add" checked={action === 'add'} onChange={() => setAction('add')} className="text-primary-600 focus:ring-primary-600" />
+                  Add Stock
+                </label>
+                <label className="flex items-center gap-2 font-medium text-slate-900 cursor-pointer">
+                  <input type="radio" value="remove" checked={action === 'remove'} onChange={() => setAction('remove')} className="text-primary-600 focus:ring-primary-600" />
+                  Remove Stock
+                </label>
+              </div>
 
-          <div>
-            <label className="block font-medium text-slate-900 mb-1">Quantity to {action}</label>
-            <input 
-              type="number" 
-              min="1" 
-              value={qty} 
-              onChange={e => setQty(e.target.value)} 
-              className="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600"
-              required
-            />
-          </div>
+              <Input 
+                label={`Quantity to ${action}`}
+                type="number" 
+                min="1" 
+                value={qty} 
+                onChange={e => setQty(e.target.value)} 
+                required
+              />
 
-          <div>
-            <label className="block font-medium text-slate-900 mb-1">Reason</label>
-            <input 
-              type="text" 
-              value={reason} 
-              onChange={e => setReason(e.target.value)} 
-              placeholder={action === 'add' ? 'e.g. Received new shipment' : 'e.g. Damaged goods'}
-              className="block w-full rounded-md border-0 py-1.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600"
-              required
-            />
-          </div>
+              <Input 
+                label="Reason"
+                type="text" 
+                value={reason} 
+                onChange={e => setReason(e.target.value)} 
+                placeholder={action === 'add' ? 'e.g. Received new shipment' : 'e.g. Damaged goods'}
+                required
+              />
 
-          <button 
-            type="submit" 
-            disabled={isAdding || isRemoving || !qty || !reason.trim()}
-            className="w-full rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:opacity-50"
-          >
-            {isAdding || isRemoving ? 'Adjusting...' : `Confirm ${action === 'add' ? 'Addition' : 'Removal'}`}
-          </button>
-        </form>
+              <Button 
+                type="submit" 
+                className="w-full"
+                disabled={isAdding || isRemoving || !qty || !reason.trim()}
+                isLoading={isAdding || isRemoving}
+              >
+                {`Confirm ${action === 'add' ? 'Addition' : 'Removal'}`}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200">
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-200/60">
           <h3 className="text-lg font-medium leading-6 text-slate-900">Movement History</h3>
         </div>
         <AppTable

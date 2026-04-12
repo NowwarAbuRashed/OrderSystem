@@ -52,7 +52,7 @@ export function ManagerOrdersPage() {
     },
     {
       header: 'Actions',
-      accessor: (row) => <Link to={`/manager/orders/${row.orderId}`} className="text-blue-600 hover:text-blue-800 font-medium">View</Link>,
+      accessor: (row) => <Link to={`/manager/orders/${row.orderId}`} className="text-primary-600 hover:text-primary-800 font-medium">View</Link>,
     }
   ];
 

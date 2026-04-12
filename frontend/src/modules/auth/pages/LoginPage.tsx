@@ -4,6 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useLogin } from '../hooks/useLogin';
 import { getApiErrorMessage } from '../../../shared/utils/error';
 import { ErrorState } from '../../../shared/components/ErrorState';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../shared/components/Card';
+import { Button } from '../../../shared/components/Button';
+import { Input } from '../../../shared/components/Input';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -27,57 +30,55 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <h2 className="mt-5 text-center text-2xl font-bold leading-9 tracking-tight text-slate-900">
-          Sign in to your account
-        </h2>
-      </div>
-
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        {error && <div className="mb-4"><ErrorState message={getApiErrorMessage(error)} /></div>}
-        
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label className="block text-sm font-medium leading-6 text-slate-900">Email address</label>
-            <div className="mt-2">
-              <input
-                {...register('email')}
+    <div className="flex min-h-[calc(100vh-4rem)] flex-1 flex-col justify-center px-6 py-12 lg:px-8 bg-slate-50">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <Card className="shadow-lg border-slate-200/60">
+          <CardHeader className="text-center pb-2">
+            <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">
+              Welcome back
+            </CardTitle>
+            <CardDescription className="mt-2">
+              Please sign in to your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="mt-4">
+            {error && <div className="mb-6"><ErrorState message={getApiErrorMessage(error)} /></div>}
+            
+            <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+              <Input
+                label="Email address"
                 type="email"
-                className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
+                {...register('email')}
+                error={errors.email?.message}
+                placeholder="Ex: admin@local.com"
               />
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
-            </div>
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium leading-6 text-slate-900">Password</label>
-            <div className="mt-2">
-              <input
-                {...register('password')}
+              <Input
+                label="Password"
                 type="password"
-                className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
+                {...register('password')}
+                error={errors.password?.message}
+                placeholder="••••••••"
               />
-              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
-            </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50"
-            >
-              {isPending ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
-        </form>
+              <div className="pt-2">
+                <Button
+                  type="submit"
+                  isLoading={isPending}
+                  className="w-full"
+                >
+                  Sign in
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
 
-        <div className="mt-8 text-center text-sm text-slate-500 space-y-1 bg-slate-100 p-4 rounded-lg">
-          <p className="font-medium text-slate-700">Demo accounts:</p>
-          <p>customer@local.com / Customer123!</p>
-          <p>manager@local.com / Manager123!</p>
-          <p>admin@local.com / Admin123!</p>
+        <div className="mt-8 text-center text-sm text-slate-500 space-y-1.5 bg-slate-200/50 p-4 rounded-xl border border-slate-200/60 shadow-sm">
+          <p className="font-semibold text-slate-700">Demo Accounts</p>
+          <p className="text-slate-600">Customer: customer@local.com / Customer123!</p>
+          <p className="text-slate-600">Manager: manager@local.com / Manager123!</p>
+          <p className="text-slate-600">Admin: admin@local.com / Admin123!</p>
         </div>
       </div>
     </div>

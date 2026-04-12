@@ -4,6 +4,10 @@ import { PageHeader } from '../../../shared/components/PageHeader';
 import { AppTable, Column } from '../../../shared/components/AppTable';
 import { Category } from '../../../shared/types/categories';
 import { ConfirmDialog } from '../../../shared/components/ConfirmDialog';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../shared/components/Card';
+import { Input } from '../../../shared/components/Input';
+import { Button } from '../../../shared/components/Button';
+import { FolderPlus } from 'lucide-react';
 
 export function ManagerCategoriesPage() {
   const { data: categories, isLoading } = useManagerCategoriesQuery();
@@ -56,14 +60,15 @@ export function ManagerCategoriesPage() {
       header: 'Name',
       accessor: (row) => isEditingId === row.id ? (
         <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={editName}
-            onChange={(e) => setEditName(e.target.value)}
-            className="block w-full max-w-xs rounded-md border-0 py-1 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600 sm:text-sm px-2"
-          />
-          <button onClick={handleUpdate} disabled={isUpdating} className="text-sm text-blue-600 font-medium">Save</button>
-          <button onClick={() => setIsEditingId(null)} className="text-sm text-slate-500 font-medium">Cancel</button>
+          <div className="max-w-xs">
+            <Input
+              type="text"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+            />
+          </div>
+          <Button variant="ghost" size="sm" onClick={handleUpdate} isLoading={isUpdating} className="text-primary-600">Save</Button>
+          <Button variant="ghost" size="sm" onClick={() => setIsEditingId(null)} className="text-slate-500">Cancel</Button>
         </div>
       ) : (
         row.name
@@ -73,7 +78,7 @@ export function ManagerCategoriesPage() {
       header: 'Actions',
       accessor: (row) => (
         <div className="flex gap-3">
-          <button onClick={() => startEdit(row)} className="text-blue-600 hover:text-blue-800 font-medium text-sm">Edit</button>
+          <button onClick={() => startEdit(row)} className="text-primary-600 hover:text-primary-800 font-medium text-sm">Edit</button>
           <button onClick={() => setDeleteId(row.id)} className="text-red-600 hover:text-red-800 font-medium text-sm">Delete</button>
         </div>
       ),
@@ -84,34 +89,53 @@ export function ManagerCategoriesPage() {
     <div className="space-y-6">
       <PageHeader title="Manage Categories" />
 
-      <form onSubmit={handleCreate} className="bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex items-end gap-4 max-w-md">
-        <div className="flex-1">
-          <label className="block text-sm font-medium leading-6 text-slate-900">New Category</label>
-          <div className="mt-1">
-            <input
-              type="text"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="e.g. Laptops"
-              className="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6 px-3"
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Table Column */}
+        <div className="lg:col-span-2">
+          <Card className="shadow-sm border-slate-200/60 overflow-hidden">
+            <AppTable
+              columns={columns}
+              data={categories || []}
+              isLoading={isLoading}
+              emptyMessage="No categories found."
             />
-          </div>
+          </Card>
         </div>
-        <button
-          type="submit"
-          disabled={isCreating || !newName.trim()}
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:opacity-50"
-        >
-          Add
-        </button>
-      </form>
 
-      <AppTable
-        columns={columns}
-        data={categories || []}
-        isLoading={isLoading}
-        emptyMessage="No categories found."
-      />
+        {/* Sidebar Actions Column */}
+        <div className="space-y-6">
+          <Card className="shadow-sm border-slate-200/60">
+            <CardHeader className="bg-slate-50 border-b border-slate-100 pb-4">
+              <CardTitle className="flex items-center gap-2 text-primary-900">
+                <FolderPlus className="w-5 h-5 text-primary-600" />
+                Add Category
+              </CardTitle>
+              <CardDescription>Create a new product category</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <form onSubmit={handleCreate} className="flex flex-col gap-4">
+                <div className="w-full">
+                  <Input
+                    label="Category Name"
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="e.g. Laptops"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={isCreating || !newName.trim()}
+                  isLoading={isCreating}
+                  className="w-full"
+                >
+                  Create Category
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       <ConfirmDialog
         isOpen={!!deleteId}
