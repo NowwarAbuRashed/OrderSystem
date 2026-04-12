@@ -26,17 +26,22 @@ export function AdminLowStockPage() {
     {
       header: 'Stock Status',
       accessor: (row) => {
-        let variant: any = 'default';
-        if (row.stockStatus.toLowerCase() === 'in stock') variant = 'success';
-        if (row.stockStatus.toLowerCase() === 'low stock') variant = 'warning';
-        if (row.stockStatus.toLowerCase() === 'out of stock') variant = 'error';
-        return <StatusBadge label={row.stockStatus} variant={variant} />;
+        let label = 'Healthy';
+        let variant: any = 'success';
+        if (row.quantity <= 0) {
+          label = 'Out of Stock';
+          variant = 'error';
+        } else if (row.quantity <= row.minQuantity) {
+          label = 'Low Stock';
+          variant = 'warning';
+        }
+        return <StatusBadge label={label} variant={variant} />;
       }
     }
   ];
 
   const totalAlerts = data.length;
-  const criticalItems = data.filter((i: AdminInventoryStatusDto) => i.stockStatus.toLowerCase() === 'out of stock').length;
+  const criticalItems = data.filter((i: AdminInventoryStatusDto) => i.quantity <= 0).length;
 
   return (
     <div className="space-y-8">

@@ -7,6 +7,7 @@ import { ErrorState } from '../../../shared/components/ErrorState';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../shared/components/Card';
 import { Button } from '../../../shared/components/Button';
 import { Input } from '../../../shared/components/Input';
+import { Link } from 'react-router-dom';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -40,6 +41,12 @@ export function LoginPage() {
             <CardDescription className="mt-2">
               Please sign in to your account
             </CardDescription>
+            <p className="mt-2 text-center text-sm text-slate-600">
+              Or{' '}
+              <Link to="/register" className="font-medium text-primary-600 hover:text-primary-500">
+                create a new Customer account
+              </Link>
+            </p>
           </CardHeader>
           <CardContent className="mt-4">
             {error && <div className="mb-6"><ErrorState message={getApiErrorMessage(error)} /></div>}

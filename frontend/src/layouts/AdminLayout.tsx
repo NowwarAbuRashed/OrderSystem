@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../app/store/auth-context';
-import { LogOut, Activity, AlertTriangle } from 'lucide-react';
+import { LogOut, Activity, AlertTriangle, Settings } from 'lucide-react';
 import clsx from 'clsx';
 
 export function AdminLayout() {
@@ -16,6 +16,7 @@ export function AdminLayout() {
   const navLinks = [
     { to: '/admin/inventory/status', label: 'Inventory Status', icon: Activity },
     { to: '/admin/inventory/low-stock', label: 'Low Stock Alerts', icon: AlertTriangle },
+    { to: '/admin/settings', label: 'Settings', icon: Settings },
   ];
 
   return (

@@ -14,6 +14,12 @@ export type LoginRequest = {
   password: string;
 };
 
+export type RegisterRequest = {
+  fullName: string;
+  email: string;
+  password: string;
+};
+
 export type LoginResponse = {
   userId: number;
   fullName: string;
@@ -21,4 +27,20 @@ export type LoginResponse = {
   role: AppRole;
   token: string;
   expiresAtUtc: string;
+};
+
+export type ProfileResponse = {
+  userId: number;
+  fullName: string;
+  email: string;
+  role: string;
+};
+
+export type UpdateProfileRequest = {
+  fullName: string;
+};
+
+export type ChangePasswordRequest = {
+  currentPassword: string;
+  newPassword: string;
 };

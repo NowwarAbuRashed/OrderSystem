@@ -5,6 +5,7 @@ import { ManagerLayout } from '../../layouts/ManagerLayout';
 import { AdminLayout } from '../../layouts/AdminLayout';
 import { GuestGuard, AuthGuard, RoleGuard } from './guards';
 import { LoginPage } from '../../modules/auth/pages/LoginPage';
+import { RegisterPage } from '../../modules/customer/pages/RegisterPage';
 import { ProductsListPage } from '../../modules/catalog/pages/ProductsListPage';
 import { ProductDetailsPage } from '../../modules/catalog/pages/ProductDetailsPage';
 import { CartPage } from '../../modules/cart/pages/CartPage';
@@ -21,6 +22,7 @@ import { ManagerInventoryListPage } from '../../modules/manager/pages/InventoryL
 import { ManagerInventoryManagePage } from '../../modules/manager/pages/InventoryManagePage';
 import { AdminInventoryStatusPage } from '../../modules/admin/pages/InventoryStatusPage';
 import { AdminLowStockPage } from '../../modules/admin/pages/LowStockPage';
+import { SettingsPage } from '../../modules/auth/pages/SettingsPage';
 
 export const router = createBrowserRouter([
   {
@@ -30,6 +32,7 @@ export const router = createBrowserRouter([
         element: <PublicLayout />,
         children: [
           { path: '/login', element: <LoginPage /> },
+          { path: '/register', element: <RegisterPage /> },
           { path: '/', element: <Navigate to="/login" replace /> }
         ]
       }
@@ -51,6 +54,7 @@ export const router = createBrowserRouter([
               { path: '/me/orders', element: <CustomerOrdersListPage /> },
               { path: '/me/orders/:orderId', element: <CustomerOrderDetailsPage /> },
               { path: '/me/orders/:orderId/payment', element: <PaymentPage /> },
+              { path: '/me/settings', element: <SettingsPage /> },
             ]
           }
         ]
@@ -69,6 +73,7 @@ export const router = createBrowserRouter([
               { path: 'categories', element: <ManagerCategoriesPage /> },
               { path: 'inventory', element: <ManagerInventoryListPage /> },
               { path: 'inventory/:productId', element: <ManagerInventoryManagePage /> },
+              { path: 'settings', element: <SettingsPage /> },
             ]
           }
         ]
@@ -82,6 +87,7 @@ export const router = createBrowserRouter([
             children: [
               { path: 'inventory/status', element: <AdminInventoryStatusPage /> },
               { path: 'inventory/low-stock', element: <AdminLowStockPage /> },
+              { path: 'settings', element: <SettingsPage /> },
             ]
           }
         ]
