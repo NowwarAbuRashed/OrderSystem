@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme {
+  /* Deep Premium Blue Primary Palette */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  --color-primary-950: #172554;
+
+  /* Typography */
+  --font-sans: "Inter", "Roboto", "Segoe UI", sans-serif;
+
+  /* Refined radius scale for 10px - 14px default */
+  --radius-sm: 0.375rem; /* 6px */
+  --radius-md: 0.625rem; /* 10px (default rounded) */
+  --radius-lg: 0.875rem; /* 14px (default rounded-md or card) */
+  --radius-xl: 1rem;     /* 16px */
+  
+  /* Soft layered shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.04), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.03), 0 4px 6px -4px rgb(0 0 0 / 0.03);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.03), 0 8px 10px -6px rgb(0 0 0 / 0.03);
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #f8fafc; /* Clean surface */
+  color: #0f172a;            /* Slate 900 for optimal contrast */
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

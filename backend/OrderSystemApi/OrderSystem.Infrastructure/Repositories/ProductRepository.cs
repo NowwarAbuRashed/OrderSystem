@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using OrderSystem.Application.Products.Interfaces;
 using OrderSystem.Domain.Entities;
 using OrderSystem.Domain.Enums;
@@ -26,7 +26,7 @@ namespace OrderSystem.Infrastructure.Repositories
 
         public async Task<Product?> GetByIdAsync(long id, CancellationToken cancellationToken)
         {
-            return await _context.Products.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            return await _context.Products.Include(p => p.Images).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
         public Task<List<Product>> GetByIdsAsync(IEnumerable<long> ids, CancellationToken ct)

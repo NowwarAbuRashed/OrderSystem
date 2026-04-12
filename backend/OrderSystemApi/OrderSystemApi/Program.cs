@@ -139,6 +139,12 @@ namespace OrderSystemApi
                 await DevelopmentUserSeeder.SeedAsync(app.Services);
             }
 
+            app.UseCors(builder => builder
+                .WithOrigins("http://localhost:5173", "http://localhost:5174")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials());
+
             app.UseHttpsRedirection();
 
             app.UseAuthentication();

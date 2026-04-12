@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OrderSystem.Application.ProductImage.DTOs.Requests;
 using OrderSystem.Application.ProductImage.Interfaces;
@@ -7,6 +8,7 @@ namespace OrderSystem.Api.Controllers.Manager
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "MANAGER,ADMIN")]
     public class ManagerProductImagesController : ControllerBase
     {
         readonly IProductImageService _productImageService;
