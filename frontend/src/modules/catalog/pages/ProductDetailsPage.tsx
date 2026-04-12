@@ -96,10 +96,13 @@ export function ProductDetailsPage() {
                     <Input
                       label="Quantity"
                       type="number"
-                      min={1}
-                      max={product.quantity}
                       value={quantity}
-                      onChange={(e) => setQuantity(Number(e.target.value))}
+                      onChange={(e) => {
+                        let val = Number(e.target.value);
+                        if (val > product.quantity) val = product.quantity;
+                        if (val < 1) val = 1;
+                        setQuantity(val);
+                      }}
                     />
                   </div>
                   <div className="flex-1">

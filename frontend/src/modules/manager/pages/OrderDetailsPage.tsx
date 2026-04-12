@@ -9,6 +9,31 @@ import { orderStatusLabelMap, paymentMethodLabelMap, OrderStatus } from '../../.
 import { ChevronLeft, Package, Clock, Truck, CheckCircle2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/Card';
 import { Button } from '../../../shared/components/Button';
+import { useProductQuery } from '../../catalog/hooks/useCatalog';
+
+function OrderItemRow({ item }: { item: any }) {
+  const { data: product } = useProductQuery(item.productId);
+  const productName = product ? product.name : `Product #${item.productId}`;
+
+  return (
+    <li className="py-4 flex justify-between items-center group">
+      <div className="flex flex-col">
+        <Link to={`/products/${item.productId}`} className="font-semibold text-slate-900 hover:text-primary-600 transition-colors">
+          {productName}
+        </Link>
+        <span className="text-sm text-slate-500 mt-1">Quantity: {item.quantity}</span>
+      </div>
+      <div className="flex flex-col items-end">
+        <div className="text-base font-bold text-slate-900 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+          <PriceText amount={item.lineTotal} />
+        </div>
+        <div className="text-xs text-slate-500 mt-1 font-medium">
+          <PriceText amount={item.unitPrice} /> each
+        </div>
+      </div>
+    </li>
+  );
+}
 
 export function ManagerOrderDetailsPage() {
   const { orderId } = useParams();
@@ -58,21 +83,8 @@ export function ManagerOrderDetailsPage() {
             </CardHeader>
             <CardContent className="pt-0">
               <ul className="divide-y divide-slate-100">
-                {order.items.map(item => (
-                  <li key={item.orderItemId} className="py-4 flex justify-between items-center group">
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-slate-900 group-hover:text-primary-600 transition-colors">Product #{item.productId}</span>
-                      <span className="text-sm text-slate-500 mt-1">Quantity: {item.quantity}</span>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <div className="text-base font-bold text-slate-900 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-                        <PriceText amount={item.lineTotal} />
-                      </div>
-                      <div className="text-xs text-slate-500 mt-1 font-medium">
-                        <PriceText amount={item.unitPrice} /> each
-                      </div>
-                    </div>
-                  </li>
+                {order.items.map((item: any) => (
+                  <OrderItemRow key={item.orderItemId} item={item} />
                 ))}
               </ul>
             </CardContent>

@@ -11,7 +11,61 @@ import { Card, CardContent } from '../../../shared/components/Card';
 import { Button } from '../../../shared/components/Button';
 import { Input } from '../../../shared/components/Input';
 import { ConfirmDialog } from '../../../shared/components/ConfirmDialog';
+import { useProductQuery } from '../../catalog/hooks/useCatalog';
+import { CartItem } from '../../../shared/types/cart';
 import { useState } from 'react';
+
+function CartItemRow({ item, updateItem, deleteItem }: { item: CartItem, updateItem: any, deleteItem: any }) {
+  const { data: product } = useProductQuery(item.productId);
+  const maxAvailable = product ? product.quantity : 999;
+
+  return (
+    <li className="p-6 flex flex-col sm:flex-row sm:items-center gap-6 hover:bg-slate-50 transition-colors">
+      <div className="flex-1 min-w-0">
+        <Link to={`/products/${item.productId}`} className="text-lg font-semibold text-slate-900 hover:text-primary-600 transition-colors truncate block">
+          {item.productName}
+        </Link>
+        <div className="mt-1 flex items-center gap-2">
+          <span className="text-slate-500 font-medium"><PriceText amount={item.unitPrice} /></span>
+          <span className="text-slate-300">|</span>
+          <span className="text-slate-500 text-sm">
+            {product ? `${product.quantity} in stock` : 'In stock'}
+          </span>
+        </div>
+      </div>
+      <div className="flex items-center gap-6 sm:gap-8">
+        <div className="w-24">
+          <label htmlFor={`qty-${item.id}`} className="sr-only">Quantity</label>
+          <Input
+            id={`qty-${item.id}`}
+            type="number"
+            min={1}
+            max={maxAvailable}
+            value={item.quantity}
+            onChange={(e) => {
+              let val = Number(e.target.value);
+              if (val > maxAvailable) val = maxAvailable;
+              if (val < 1) val = 1;
+              if (val !== item.quantity) {
+                 updateItem({ itemId: item.id, quantity: val });
+              }
+            }}
+          />
+        </div>
+        <div className="text-lg font-bold text-slate-900 w-24 text-right">
+          <PriceText amount={item.lineTotal} />
+        </div>
+        <button
+          onClick={() => deleteItem(item.id)}
+          className="text-slate-400 hover:text-red-500 p-2 rounded-xl hover:bg-red-50 transition-colors flex-shrink-0 flex items-center justify-center bg-white border border-slate-100 shadow-sm hover:border-red-200"
+          title="Remove item"
+        >
+          <Trash2 className="w-5 h-5" />
+        </button>
+      </div>
+    </li>
+  );
+}
 
 export function CartPage() {
   const { data: cart, isLoading, error } = useCartQuery();
@@ -50,40 +104,7 @@ export function CartPage() {
         <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
           <ul className="divide-y divide-slate-100">
             {cart.items.map(item => (
-              <li key={item.id} className="p-6 flex flex-col sm:flex-row sm:items-center gap-6 hover:bg-slate-50 transition-colors">
-                <div className="flex-1 min-w-0">
-                  <Link to={`/products/${item.productId}`} className="text-lg font-semibold text-slate-900 hover:text-primary-600 transition-colors truncate block">
-                    {item.productName}
-                  </Link>
-                  <div className="mt-1 flex items-center gap-2">
-                    <span className="text-slate-500 font-medium"><PriceText amount={item.unitPrice} /></span>
-                    <span className="text-slate-300">|</span>
-                    <span className="text-slate-500 text-sm">In stock</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-6 sm:gap-8">
-                  <div className="w-24">
-                    <label htmlFor={`qty-${item.id}`} className="sr-only">Quantity</label>
-                    <Input
-                      id={`qty-${item.id}`}
-                      type="number"
-                      min={1}
-                      value={item.quantity}
-                      onChange={(e) => updateItem({ itemId: item.id, quantity: Number(e.target.value) })}
-                    />
-                  </div>
-                  <div className="text-lg font-bold text-slate-900 w-24 text-right">
-                    <PriceText amount={item.lineTotal} />
-                  </div>
-                  <button
-                    onClick={() => deleteItem(item.id)}
-                    className="text-slate-400 hover:text-red-500 p-2 rounded-xl hover:bg-red-50 transition-colors flex-shrink-0 flex items-center justify-center bg-white border border-slate-100 shadow-sm hover:border-red-200"
-                    title="Remove item"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
-              </li>
+              <CartItemRow key={item.id} item={item} updateItem={updateItem} deleteItem={deleteItem} />
             ))}
           </ul>
         </div>

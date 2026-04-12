@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../app/store/auth-context';
-import { LogOut, LayoutDashboard, Package, Archive, Tags } from 'lucide-react';
+import { LogOut, LayoutDashboard, Package, Archive, Tags, Settings } from 'lucide-react';
 import clsx from 'clsx';
 
 export function ManagerLayout() {
@@ -18,6 +18,7 @@ export function ManagerLayout() {
     { to: '/manager/products', label: 'Products', icon: Archive },
     { to: '/manager/categories', label: 'Categories', icon: Tags },
     { to: '/manager/inventory', label: 'Inventory', icon: LayoutDashboard },
+    { to: '/manager/settings', label: 'Settings', icon: Settings },
   ];
 
   return (

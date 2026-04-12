@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../app/store/auth-context';
-import { LogOut, ShoppingCart, Package } from 'lucide-react';
+import { LogOut, ShoppingCart, Package, Settings } from 'lucide-react';
 
 export function CustomerLayout() {
   const { user, logout } = useAuth();
@@ -27,6 +27,9 @@ export function CustomerLayout() {
             </Link>
             <Link to="/me/cart" className="p-2 text-slate-500 hover:text-primary-600 hover:bg-slate-50 rounded-full transition-all">
               <ShoppingCart className="w-5 h-5" />
+            </Link>
+            <Link to="/me/settings" className="p-2 text-slate-500 hover:text-primary-600 hover:bg-slate-50 rounded-full transition-all">
+              <Settings className="w-5 h-5" />
             </Link>
             <div className="hidden sm:block text-sm text-slate-700 font-medium px-2">
               {user?.fullName}
