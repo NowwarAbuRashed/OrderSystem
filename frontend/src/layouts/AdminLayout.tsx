@@ -1,12 +1,17 @@
+import { useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../app/store/auth-context';
-import { LogOut, Activity, AlertTriangle, Settings } from 'lucide-react';
+import { useI18n } from '../app/i18n/i18n-context';
+import { LanguageSwitcher } from '../shared/components/LanguageSwitcher';
+import { LogOut, Activity, AlertTriangle, Settings, Menu, X } from 'lucide-react';
 import clsx from 'clsx';
 
 export function AdminLayout() {
   const { user, logout } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -14,44 +19,95 @@ export function AdminLayout() {
   };
 
   const navLinks = [
-    { to: '/admin/inventory/status', label: 'Inventory Status', icon: Activity },
-    { to: '/admin/inventory/low-stock', label: 'Low Stock Alerts', icon: AlertTriangle },
-    { to: '/admin/settings', label: 'Settings', icon: Settings },
+    { to: '/admin/inventory/status', label: t.nav.inventoryStatus, icon: Activity },
+    { to: '/admin/inventory/low-stock', label: t.nav.lowStock, icon: AlertTriangle },
+    { to: '/admin/settings', label: t.nav.settings, icon: Settings },
   ];
+
+  const SidebarContent = () => (
+    <>
+      <div className="p-6 border-b border-slate-100">
+        <Link to="/admin/inventory/status" className="flex items-center gap-2.5">
+          <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm">
+            M
+          </div>
+          <div>
+            <div className="text-base font-bold text-slate-900">{t.nav.admin}</div>
+          </div>
+        </Link>
+        <div className="mt-3 flex items-center gap-2">
+          <div className="w-7 h-7 bg-primary-100 rounded-full flex items-center justify-center text-primary-700 font-bold text-xs">
+            {user?.fullName?.[0]?.toUpperCase() || 'A'}
+          </div>
+          <span className="text-xs font-medium text-slate-500 truncate">{user?.fullName}</span>
+        </div>
+      </div>
+      <nav className="flex-1 px-3 py-4 space-y-1">
+        {navLinks.map((link) => {
+          const Icon = link.icon;
+          const isActive = location.pathname.startsWith(link.to);
+          return (
+            <Link
+              key={link.to}
+              to={link.to}
+              onClick={() => setSidebarOpen(false)}
+              className={clsx(
+                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                isActive
+                  ? "bg-primary-50 text-primary-700 shadow-sm"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+              )}
+            >
+              <Icon className={clsx("w-4 h-4", isActive ? "text-primary-600" : "text-slate-400")} />
+              {link.label}
+            </Link>
+          );
+        })}
+      </nav>
+      <div className="p-3 border-t border-slate-100 space-y-1">
+        <LanguageSwitcher className="w-full justify-start" />
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:text-danger-600 hover:bg-danger-50 rounded-xl w-full transition-all"
+        >
+          <LogOut className="w-4 h-4" /> {t.nav.logout}
+        </button>
+      </div>
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      <aside className="w-64 bg-white border-r border-slate-200/60 hidden md:flex flex-col">
-        <div className="p-6">
-          <Link to="/admin/inventory/status" className="text-xl font-bold text-primary-600">Admin Portal</Link>
-          <div className="text-xs font-medium text-slate-500 mt-1">{user?.fullName}</div>
-        </div>
-        <nav className="flex-1 px-4 space-y-1 mt-2">
-          {navLinks.map((link) => {
-            const Icon = link.icon;
-            const isActive = location.pathname.startsWith(link.to);
-            return (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={clsx(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
-                  isActive ? "bg-primary-50 text-primary-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                )}
-              >
-                <Icon className={clsx("w-4 h-4", isActive ? "text-primary-600" : "text-slate-400")} />
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="p-4 border-t border-slate-200/60">
-          <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg w-full transition-all">
-            <LogOut className="w-4 h-4" /> Logout
-          </button>
-        </div>
+      {/* Desktop Sidebar */}
+      <aside className="w-64 bg-white border-r border-slate-200/60 hidden md:flex flex-col flex-shrink-0">
+        <SidebarContent />
       </aside>
+
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="fixed inset-0 bg-black/30" onClick={() => setSidebarOpen(false)} />
+          <aside className="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl flex flex-col z-50">
+            <div className="flex items-center justify-end p-3">
+              <button onClick={() => setSidebarOpen(false)} className="p-2 text-slate-400 hover:text-slate-600 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <SidebarContent />
+          </aside>
+        </div>
+      )}
+
+      {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
+        {/* Mobile header */}
+        <div className="md:hidden bg-white border-b border-slate-200/60 px-4 h-14 flex items-center gap-3 sticky top-0 z-40">
+          <button onClick={() => setSidebarOpen(true)} className="p-2 text-slate-500 hover:text-primary-600 rounded-lg">
+            <Menu className="w-5 h-5" />
+          </button>
+          <span className="font-bold text-slate-900">Marto</span>
+          <span className="text-xs text-slate-400 font-medium">{t.nav.admin}</span>
+        </div>
         <div className="flex-1 p-4 md:p-8 overflow-auto">
           <Outlet />
         </div>

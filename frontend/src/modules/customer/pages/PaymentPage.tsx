@@ -2,55 +2,70 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
 import { useMyOrderPaymentQuery, usePayByCard } from '../hooks/useOrders';
+import { useI18n } from '../../../app/i18n/i18n-context';
 import { PaymentStatus, PaymentMethod } from '../../../shared/types/orders';
 import { PageHeader } from '../../../shared/components/PageHeader';
 import { getApiErrorMessage } from '../../../shared/utils/error';
 import { ErrorState } from '../../../shared/components/ErrorState';
 import { PriceText } from '../../../shared/components/PriceText';
 import { LoadingBlock } from '../../../shared/components/LoadingBlock';
-
-const paymentSchema = z.object({
-  cardHolderName: z.string().min(2, 'Name is required'),
-  cardNumber: z.string().length(16, 'Card number must be 16 digits').regex(/^\d+$/, 'Numbers only'),
-  expiryMonth: z.coerce.number().min(1).max(12),
-  expiryYear: z.coerce.number().min(new Date().getFullYear()),
-  cvv: z.string().length(3, 'CVV must be 3 digits').regex(/^\d+$/, 'Numbers only'),
-});
-
-type PaymentForm = z.infer<typeof paymentSchema>;
+import { Button } from '../../../shared/components/Button';
+import { Input } from '../../../shared/components/Input';
+import { Card, CardContent } from '../../../shared/components/Card';
+import { CheckCircle2, CreditCard, ShieldCheck } from 'lucide-react';
 
 export function PaymentPage() {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const id = Number(orderId);
+  const { t } = useI18n();
+
+  const currentYear = new Date().getFullYear();
+
+  const paymentSchema = useMemo(() => z.object({
+    cardHolderName: z.string().trim()
+      .min(2, t.validation?.minLength?.replace('{{min}}', '2') || 'Name is required'),
+    cardNumber: z.string()
+      .length(16, '16 digits required')
+      .regex(/^\d+$/, 'Numbers only'),
+    expiryMonth: z.number({ message: t.validation?.required || 'Required' })
+      .min(1, 'Min 1').max(12, 'Max 12'),
+    expiryYear: z.number({ message: t.validation?.required || 'Required' })
+      .min(currentYear, `Min year ${currentYear}`),
+    cvv: z.string()
+      .length(3, 'CVV must be 3 digits')
+      .regex(/^\d+$/, 'Numbers only'),
+  }), [t, currentYear]);
+
+  type PaymentForm = z.infer<typeof paymentSchema>;
 
   const { data: paymentInfo, isLoading, error } = useMyOrderPaymentQuery(id);
   const { mutate: pay, isPending: isPaying, error: payError } = usePayByCard();
 
   const { register, handleSubmit, formState: { errors } } = useForm<PaymentForm>({
-    resolver: zodResolver(paymentSchema) as any,
+    resolver: zodResolver(paymentSchema),
   });
 
+  if (isNaN(id)) return <ErrorState message="Invalid order reference" />;
   if (isLoading) return <LoadingBlock />;
   if (error || !paymentInfo) return <ErrorState message={error ? getApiErrorMessage(error) : 'Payment info not found'} />;
 
   if (paymentInfo.status === PaymentStatus.PAID) {
     return (
-      <div className="max-w-xl mx-auto text-center space-y-6 mt-10 p-8 bg-white rounded-lg shadow-sm border border-slate-200/60">
-        <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
-          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+      <div className="max-w-xl mx-auto text-center space-y-6 mt-10 p-8 bg-white rounded-2xl shadow-xl border border-slate-200/60">
+        <div className="w-16 h-16 bg-success-100 text-success-600 rounded-full flex items-center justify-center mx-auto">
+          <CheckCircle2 className="w-8 h-8" />
         </div>
         <h2 className="text-2xl font-bold text-slate-900">Payment Successful!</h2>
         <p className="text-slate-500">Your payment of <PriceText amount={paymentInfo.amount} /> has been processed.</p>
-        <button
+        <Button
           onClick={() => navigate(`/me/orders/${id}`)}
-          className="mt-4 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500"
+          className="rounded-xl"
         >
-          View Order Details
-        </button>
+          {t.actions.viewDetails}
+        </Button>
       </div>
     );
   }
@@ -65,95 +80,92 @@ export function PaymentPage() {
 
   return (
     <div className="max-w-xl mx-auto space-y-6">
-      <PageHeader title="Pay by Card" />
+      <PageHeader title={t.payment.securePayment} />
 
       {payError && <ErrorState message={getApiErrorMessage(payError)} />}
 
-      <div className="bg-slate-50 p-6 rounded-lg mb-6 border border-slate-200/60">
+      {/* Amount Due */}
+      <div className="bg-gradient-to-r from-primary-50 to-primary-100/50 p-6 rounded-2xl border border-primary-200/60">
         <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-slate-500">Amount Due</span>
-          <span className="text-2xl font-bold text-slate-900"><PriceText amount={paymentInfo.amount} /></span>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary-100 rounded-xl">
+              <CreditCard className="w-5 h-5 text-primary-600" />
+            </div>
+            <span className="text-sm font-medium text-primary-700">{t.payment.orderRecap}</span>
+          </div>
+          <span className="text-2xl font-bold text-primary-700"><PriceText amount={paymentInfo.amount} /></span>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white p-6 rounded-lg shadow-sm border border-slate-200/60">
-        <div>
-          <label className="block text-sm font-medium leading-6 text-slate-900">Cardholder Name</label>
-          <div className="mt-2">
-            <input
-              {...register('cardHolderName')}
+      {/* Payment Form */}
+      <Card className="rounded-2xl shadow-xl border-slate-200/60">
+        <CardContent className="p-6 md:p-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <Input
+              label={t.payment.cardHolderName}
               type="text"
-              className="block w-full rounded-lg border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-primary-600 sm:text-sm sm:leading-6 px-3"
+              placeholder="John Doe"
+              {...register('cardHolderName')}
+              error={errors.cardHolderName?.message}
             />
-            {errors.cardHolderName && <p className="mt-1 text-sm text-red-600">{errors.cardHolderName.message}</p>}
-          </div>
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium leading-6 text-slate-900">Card Number</label>
-          <div className="mt-2">
-            <input
-              {...register('cardNumber')}
+            <Input
+              label={t.payment.cardNumber}
               type="text"
               maxLength={16}
-              className="block w-full rounded-lg border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-primary-600 sm:text-sm sm:leading-6 px-3"
+              placeholder="1234 5678 9012 3456"
+              {...register('cardNumber')}
+              error={errors.cardNumber?.message}
             />
-            {errors.cardNumber && <p className="mt-1 text-sm text-red-600">{errors.cardNumber.message}</p>}
-          </div>
-        </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium leading-6 text-slate-900">Month</label>
-            <div className="mt-2">
-              <input
-                {...register('expiryMonth')}
+            <div className="grid grid-cols-3 gap-4">
+              <Input
+                label={t.payment.expiryMonth}
                 type="number"
                 min={1}
                 max={12}
                 placeholder="MM"
-                className="block w-full rounded-lg border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-primary-600 sm:text-sm sm:leading-6 px-3"
+                {...register('expiryMonth', { valueAsNumber: true })}
+                error={errors.expiryMonth?.message}
               />
-              {errors.expiryMonth && <p className="mt-1 text-sm text-red-600">{errors.expiryMonth.message}</p>}
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium leading-6 text-slate-900">Year</label>
-            <div className="mt-2">
-              <input
-                {...register('expiryYear')}
+              <Input
+                label={t.payment.expiryYear}
                 type="number"
                 min={new Date().getFullYear()}
                 placeholder="YYYY"
-                className="block w-full rounded-lg border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-primary-600 sm:text-sm sm:leading-6 px-3"
+                {...register('expiryYear', { valueAsNumber: true })}
+                error={errors.expiryYear?.message}
               />
-              {errors.expiryYear && <p className="mt-1 text-sm text-red-600">{errors.expiryYear.message}</p>}
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium leading-6 text-slate-900">CVV</label>
-            <div className="mt-2">
-              <input
-                {...register('cvv')}
+              <Input
+                label={t.payment.cvv}
                 type="text"
                 maxLength={3}
-                className="block w-full rounded-lg border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-primary-600 sm:text-sm sm:leading-6 px-3"
+                placeholder="123"
+                {...register('cvv')}
+                error={errors.cvv?.message}
               />
-              {errors.cvv && <p className="mt-1 text-sm text-red-600">{errors.cvv.message}</p>}
             </div>
-          </div>
-        </div>
 
-        <div className="pt-4">
-          <button
-            type="submit"
-            disabled={isPaying}
-            className="w-full rounded-lg bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 disabled:opacity-50"
-          >
-            {isPaying ? 'Processing Payment...' : 'Pay Now'}
-          </button>
-        </div>
-      </form>
+            <div className="pt-3">
+              <Button
+                type="submit"
+                disabled={isPaying}
+                isLoading={isPaying}
+                className="w-full py-4 text-base rounded-xl shadow-md shadow-primary-600/20"
+                size="lg"
+              >
+                {isPaying ? 'Processing...' : t.actions.payNow}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Trust bar */}
+      <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
+        <ShieldCheck className="w-4 h-4" />
+        <span>256-bit SSL encryption • Your card details are secure</span>
+      </div>
     </div>
   );
 }
