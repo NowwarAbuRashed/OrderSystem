@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
+import { useForm, Path } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -15,8 +15,8 @@ import { useI18n } from '../../../app/i18n/i18n-context';
 import { PageHeader } from '../../../shared/components/PageHeader';
 import { LoadingBlock } from '../../../shared/components/LoadingBlock';
 import { ErrorState } from '../../../shared/components/ErrorState';
-import { getApiErrorMessage } from '../../../shared/utils/error';
-import { ChevronLeft, Trash2, Image as ImageIcon, ImageOff } from 'lucide-react';
+import { getApiErrorMessage, getApiErrorMap } from '../../../shared/utils/error';
+import { ChevronLeft, Trash2, Image as ImageIcon, ImageOff, CheckCircle2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/Card';
 import { Input } from '../../../shared/components/Input';
 import { Button } from '../../../shared/components/Button';
@@ -38,24 +38,33 @@ export function ManagerProductEditPage() {
   const { mutate: addImage, isPending: isAddingImage } = useAddProductImage();
   const { mutate: deleteImage } = useDeleteProductImage();
 
+  const location = useLocation();
   const [newImageUrl, setNewImageUrl] = useState('');
+  const [isSuccess, setIsSuccess] = useState(location.state?.created || false);
+
+  useEffect(() => {
+    if (location.state?.created) {
+      setTimeout(() => setIsSuccess(false), 3000);
+      navigate('.', { replace: true, state: {} });
+    }
+  }, [location.state?.created, navigate]);
 
   const productSchema = useMemo(() => z.object({
-    name: z.string().trim().min(1, t.validation?.required || 'Name is required'),
-    description: z.string().trim().min(1, t.validation?.required || 'Description is required'),
-    price: z.number({ message: 'Must be a number' })
-      .min(0.01, t.validation?.minNumber?.replace('{{min}}', '0.01') || 'Price must be at least 0.01'),
-    quantity: z.number({ message: 'Must be a number' }).min(0).optional(),
-    minQuantity: z.number({ message: 'Must be a number' })
-      .min(0, t.validation?.minNumber?.replace('{{min}}', '0') || 'Min quantity must be positive'),
-    categoryId: z.number({ message: t.validation?.required || 'Category is required' })
-      .min(1, t.validation?.required || 'Category is required'),
+    name: z.string().trim().min(1, t.validation?.required as string),
+    description: z.string().trim().min(1, t.validation?.required as string),
+    price: z.number({ message: t.validation?.required as string })
+      .min(0.01, t.validation?.minNumber?.replace('{{min}}', '0.01') as string),
+    quantity: z.number({ message: t.validation?.required as string }).min(0).optional(),
+    minQuantity: z.number({ message: t.validation?.required as string })
+      .min(0, t.validation?.minNumber?.replace('{{min}}', '0') as string),
+    categoryId: z.number({ message: t.validation?.required as string })
+      .min(1, t.validation?.required as string),
     status: z.string().optional(),
   }), [t]);
 
   type ProductForm = z.infer<typeof productSchema>;
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProductForm>({
+  const { register, handleSubmit, reset, setError, formState: { errors } } = useForm<ProductForm>({
     resolver: zodResolver(productSchema),
     defaultValues: { status: 'ACTIVE', quantity: 0 }
   });
@@ -77,16 +86,36 @@ export function ManagerProductEditPage() {
   if (!isNew && isLoadingProduct) return <LoadingBlock />;
   if (!isNew && loadError) return <ErrorState message={getApiErrorMessage(loadError)} />;
 
+  const handleServerError = (err: any) => {
+    const map = getApiErrorMap(err);
+    if (Object.keys(map).length > 0) {
+      for (const [key, msg] of Object.entries(map)) {
+        setError(key as Path<ProductForm>, { type: 'server', message: msg });
+      }
+    } else {
+      alert(getApiErrorMessage(err));
+    }
+  };
+
   const onSubmit = (data: ProductForm) => {
     if (isNew) {
       createProduct(
         { name: data.name, description: data.description, price: data.price, quantity: data.quantity || 0, minQuantity: data.minQuantity, categoryId: data.categoryId },
-        { onSuccess: (res) => navigate(`/manager/products/${res.id}`) }
+        { 
+          onSuccess: (res) => navigate(`/manager/products/${res.id}`, { state: { created: true } }),
+          onError: handleServerError
+        }
       );
     } else {
       updateProduct(
         { id, name: data.name, description: data.description, price: data.price, minQuantity: data.minQuantity, categoryId: data.categoryId, status: data.status },
-        { onSuccess: () => alert('Product updated!') }
+        { 
+          onSuccess: () => {
+            setIsSuccess(true);
+            setTimeout(() => setIsSuccess(false), 3000);
+          },
+          onError: handleServerError
+        }
       );
     }
   };
@@ -117,6 +146,14 @@ export function ManagerProductEditPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="col-span-2 space-y-6">
+          {isSuccess && (
+            <div className="p-4 rounded-xl bg-success-50 border border-success-200 flex items-center text-success-700">
+              <CheckCircle2 className="w-5 h-5 mr-3" />
+              <span className="font-medium">
+                {location.state?.created ? "Product created successfully!" : "Product updated successfully!"}
+              </span>
+            </div>
+          )}
           <form id="product-form" onSubmit={handleSubmit(onSubmit)}>
             <Card className="rounded-2xl shadow-sm border-slate-200/60">
               <CardHeader className="bg-slate-50 border-b border-slate-100 pb-4">

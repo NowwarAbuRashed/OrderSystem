@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, Path } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRegister } from '../../auth/hooks/useRegister';
@@ -17,25 +17,25 @@ export function RegisterPage() {
 
   const registerSchema = useMemo(() => z.object({
     fullName: z.string()
-      .min(2, t.validation?.minLength?.replace('{{min}}', '2') || 'Full name is required')
+      .min(2, t.validation?.minLength?.replace('{{min}}', '2') as string)
       .trim(),
     email: z.string()
-      .min(1, t.validation?.required || 'Email is required')
-      .email(t.validation?.invalidEmail || 'Invalid email address')
+      .min(1, t.validation?.required as string)
+      .email(t.validation?.invalidEmail as string)
       .trim()
       .toLowerCase(),
     password: z.string()
-      .min(8, t.validation?.passwordStrength || 'Password must be exactly 8 chars')
-      .regex(/[a-z]/, t.validation?.passwordStrength || 'Requires lowercase')
-      .regex(/[A-Z]/, t.validation?.passwordStrength || 'Requires uppercase')
-      .regex(/[0-9]/, t.validation?.passwordStrength || 'Requires number')
-      .regex(/[^a-zA-Z0-9]/, t.validation?.passwordStrength || 'Requires special character'),
+      .min(8, t.validation?.passwordStrength as string)
+      .regex(/[a-z]/, t.validation?.passwordStrength as string)
+      .regex(/[A-Z]/, t.validation?.passwordStrength as string)
+      .regex(/[0-9]/, t.validation?.passwordStrength as string)
+      .regex(/[^a-zA-Z0-9]/, t.validation?.passwordStrength as string),
     confirmPassword: z.string()
   }).superRefine((data, ctx) => {
     if (data.confirmPassword !== data.password) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: t.validation?.passwordNoMatch || 'Passwords do not match',
+        message: t.validation?.passwordNoMatch as string,
         path: ['confirmPassword']
       });
     }
@@ -55,8 +55,7 @@ export function RegisterPage() {
         onError: (err) => {
           const map = getApiErrorMap(err);
           for (const [key, msg] of Object.entries(map)) {
-            // @ts-ignore
-            setError(key as any, { type: 'server', message: msg });
+            setError(key as Path<RegisterForm>, { type: 'server', message: msg });
           }
         }
       }

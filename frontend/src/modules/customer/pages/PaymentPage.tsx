@@ -26,17 +26,32 @@ export function PaymentPage() {
 
   const paymentSchema = useMemo(() => z.object({
     cardHolderName: z.string().trim()
-      .min(2, t.validation?.minLength?.replace('{{min}}', '2') || 'Name is required'),
+      .min(2, t.validation?.minLength?.replace('{{min}}', '2') as string),
     cardNumber: z.string()
-      .length(16, '16 digits required')
-      .regex(/^\d+$/, 'Numbers only'),
-    expiryMonth: z.number({ message: t.validation?.required || 'Required' })
-      .min(1, 'Min 1').max(12, 'Max 12'),
-    expiryYear: z.number({ message: t.validation?.required || 'Required' })
-      .min(currentYear, `Min year ${currentYear}`),
+      .length(16, t.validation?.exactLength?.replace('{{length}}', '16') as string)
+      .regex(/^\d+$/, t.validation?.numbersOnly as string),
+    expiryMonth: z.number({ message: t.validation?.required as string })
+      .min(1, t.validation?.minNumber?.replace('{{min}}', '1') as string)
+      .max(12, t.validation?.maxNumber?.replace('{{max}}', '12') as string),
+    expiryYear: z.number({ message: t.validation?.required as string })
+      .min(currentYear, t.validation?.minNumber?.replace('{{min}}', String(currentYear)) as string),
     cvv: z.string()
-      .length(3, 'CVV must be 3 digits')
-      .regex(/^\d+$/, 'Numbers only'),
+      .length(3, t.validation?.exactLength?.replace('{{length}}', '3') as string)
+      .regex(/^\d+$/, t.validation?.numbersOnly as string),
+  }).superRefine((data, ctx) => {
+    const currentMonth = new Date().getMonth() + 1;
+    if (data.expiryYear === currentYear && data.expiryMonth < currentMonth) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: t.validation?.cardExpired as string,
+        path: ['expiryMonth']
+      });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: t.validation?.cardExpired as string,
+        path: ['expiryYear']
+      });
+    }
   }), [t, currentYear]);
 
   type PaymentForm = z.infer<typeof paymentSchema>;

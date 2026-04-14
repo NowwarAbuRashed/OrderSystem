@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OrderSystem.Domain.Entities;
 using System;
@@ -29,7 +29,7 @@ namespace OrderSystem.Infrastructure.Data.Configurations
                 .HasColumnName("order_id")
                 .IsRequired();
 
-            builder.Property(x => x.productId)
+            builder.Property(x => x.ProductId)
                    .HasColumnName("product_id")
                    .IsRequired();
 
@@ -55,12 +55,12 @@ namespace OrderSystem.Infrastructure.Data.Configurations
 
             builder.HasOne(x => x.Product)
                 .WithMany(p => p.OrderItems)
-                .HasForeignKey(x => x.productId);
+                .HasForeignKey(x => x.ProductId);
 
 
 
             //// Optional Unique constraint
-            builder.HasIndex(x => new { x.OrderId, x.productId})
+            builder.HasIndex(x => new { x.OrderId, x.ProductId})
                 .IsUnique();
         }
     }

@@ -96,8 +96,12 @@ export const ar: TranslationMessages = {
     minLength: 'يجب أن يكون على الأقل {{min}} أحرف',
     maxLength: 'يجب ألا يتجاوز {{max}} حرفاً',
     minNumber: 'يجب أن تكون القيمة على الأقل {{min}}',
+    maxNumber: 'يجب أن تكون القيمة على الأكثر {{max}}',
     passwordNoMatch: 'كلمات المرور غير متطابقة',
     passwordStrength: 'يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل، وحرف كبير، وحرف صغير، ورقم، ورمز خاص.',
+    exactLength: 'يجب أن يكون بالضبط {{length}} حرفاً/رقماً',
+    numbersOnly: 'يجب أن يحتوي على أرقام فقط',
+    cardExpired: 'البطاقة منتهية الصلاحية',
   },
 
   // ── Products ──

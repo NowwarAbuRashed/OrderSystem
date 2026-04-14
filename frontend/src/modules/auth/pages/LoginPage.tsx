@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, Path } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLogin } from '../hooks/useLogin';
 import { useI18n } from '../../../app/i18n/i18n-context';
@@ -17,8 +17,8 @@ export function LoginPage() {
   const { t } = useI18n();
 
   const loginSchema = useMemo(() => z.object({
-    email: z.string().email(t.validation?.invalidEmail || 'Invalid email address'),
-    password: z.string().min(1, t.validation?.required || 'Password is required'),
+    email: z.string().email(t.validation?.invalidEmail as string),
+    password: z.string().min(1, t.validation?.required as string),
   }), [t]);
 
   type LoginForm = z.infer<typeof loginSchema>;
@@ -36,8 +36,7 @@ export function LoginPage() {
       onError: (err) => {
         const map = getApiErrorMap(err);
         for (const [key, msg] of Object.entries(map)) {
-          // @ts-ignore
-          setError(key as any, { type: 'server', message: msg });
+          setError(key as Path<LoginForm>, { type: 'server', message: msg });
         }
       }
     });

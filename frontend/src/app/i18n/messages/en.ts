@@ -96,8 +96,12 @@ export const en = {
     minLength: 'Must be at least {{min}} characters',
     maxLength: 'Must be at most {{max}} characters',
     minNumber: 'Value must be at least {{min}}',
+    maxNumber: 'Value must be at most {{max}}',
     passwordNoMatch: 'Passwords do not match',
     passwordStrength: 'Password must contain at least 8 characters, one uppercase, one lowercase, one number, and one special character.',
+    exactLength: 'Must be exactly {{length}} characters',
+    numbersOnly: 'Must contain only numbers',
+    cardExpired: 'Card has expired',
   },
 
   // ── Products ──

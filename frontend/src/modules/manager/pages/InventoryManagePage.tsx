@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useManagerProductQuery } from '../hooks/useManagerProducts';
 import { useAddInventory, useRemoveInventory, useInventoryHistoryQuery } from '../hooks/useManagerInventory';
 import { useI18n } from '../../../app/i18n/i18n-context';
 import { PageHeader } from '../../../shared/components/PageHeader';
 import { ErrorState } from '../../../shared/components/ErrorState';
+import { getApiErrorMessage, getApiErrorMap } from '../../../shared/utils/error';
 import { LoadingBlock } from '../../../shared/components/LoadingBlock';
 import { AppTable, Column } from '../../../shared/components/AppTable';
 import { formatDateTime } from '../../../shared/utils/date';
 import { InventoryMovement } from '../../../shared/types/inventory';
-import { ChevronLeft, Plus, Minus, TrendingUp, TrendingDown, BarChart3, AlertCircle } from 'lucide-react';
+import { ChevronLeft, Plus, Minus, TrendingUp, TrendingDown, BarChart3, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/Card';
 import { Input } from '../../../shared/components/Input';
 import { Button } from '../../../shared/components/Button';
@@ -18,6 +22,7 @@ export function ManagerInventoryManagePage() {
   const { productId } = useParams();
   const id = Number(productId);
   const { t } = useI18n();
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const { data: product, isLoading: isLoadingProduct, error: loadError } = useManagerProductQuery(id);
   const { data: history, isLoading: isLoadingHistory } = useInventoryHistoryQuery(id);
@@ -25,39 +30,59 @@ export function ManagerInventoryManagePage() {
   const { mutate: addStock, isPending: isAdding } = useAddInventory();
   const { mutate: removeStock, isPending: isRemoving } = useRemoveInventory();
 
-  const [qty, setQty] = useState('');
-  const [reason, setReason] = useState('');
-  const [action, setAction] = useState<'add' | 'remove'>('add');
-  const [validationError, setValidationError] = useState('');
+  const inventorySchema = useMemo(() => z.object({
+    action: z.enum(['add', 'remove']),
+    qty: z.number({ message: t.validation?.required as string }).min(1, t.validation?.minNumber?.replace('{{min}}', '1') as string),
+    reason: z.string().trim().min(1, t.validation?.required as string)
+  }).superRefine((data, ctx) => {
+    if (data.action === 'remove' && product && data.qty > product.quantity) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: t.validation?.maxNumber?.replace('{{max}}', String(product.quantity)) as string,
+        path: ['qty']
+      });
+    }
+  }), [t, product]);
+
+  type InventoryFormType = z.infer<typeof inventorySchema>;
+
+  const { register, handleSubmit, reset, watch, setValue, setError, formState: { errors } } = useForm<InventoryFormType>({
+    resolver: zodResolver(inventorySchema),
+    defaultValues: { action: 'add', reason: '' }
+  });
+
+  const actionValue = watch('action');
 
   if (isLoadingProduct) return <LoadingBlock />;
   if (loadError) return <ErrorState message="Could not load product." />;
   if (!product || isNaN(id)) return <ErrorState message="Invalid product." />;
 
-  const handleAdjust = (e: React.FormEvent) => {
-    e.preventDefault();
-    setValidationError('');
-    
-    const amount = parseInt(qty, 10);
-    if (!amount || amount <= 0) {
-      setValidationError('Amount must be positive');
-      return;
-    }
-    if (!reason.trim()) {
-      setValidationError('Reason is required');
-      return;
-    }
-    
-    if (action === 'remove' && amount > product.quantity) {
-      setValidationError(`Cannot remove more than ${product.quantity} items`);
-      return;
-    }
+  const onSubmit = (data: InventoryFormType) => {
+    const delta = data.action === 'add' ? data.qty : -data.qty;
+    const payload = { quantityDelta: delta, reason: data.reason };
+    const opts = { 
+      onSuccess: () => {
+        setSuccessMessage(t.common.success);
+        reset();
+        setTimeout(() => setSuccessMessage(null), 3000);
+      },
+      onError: (err: any) => {
+        const map = getApiErrorMap(err);
+        if (Object.keys(map).length > 0) {
+          for (const [key, msg] of Object.entries(map)) {
+            if (key === 'quantityDelta' || key === 'quantity') {
+              setError('qty', { type: 'server', message: msg });
+            } else {
+              setError(key as keyof InventoryFormType, { type: 'server', message: msg });
+            }
+          }
+        } else {
+          setError('root.serverError', { type: 'server', message: getApiErrorMessage(err) });
+        }
+      }
+    };
 
-    const delta = action === 'add' ? amount : -amount;
-    const payload = { quantityDelta: delta, reason: reason.trim() };
-    const opts = { onSuccess: () => { setQty(''); setReason(''); setValidationError(''); } };
-
-    if (action === 'add') {
+    if (data.action === 'add') {
       addStock({ productId: id, ...payload }, opts);
     } else {
       removeStock({ productId: id, ...payload }, opts);
@@ -87,6 +112,16 @@ export function ManagerInventoryManagePage() {
       </Link>
 
       <PageHeader title={`${t.manager.manageInventory}: ${product.name}`} />
+
+      {successMessage && (
+        <div className="bg-success-50 text-success-700 p-4 rounded-2xl border border-success-100 font-medium flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-300 mb-6 shadow-sm">
+          <div className="flex items-center">
+            <CheckCircle2 className="w-5 h-5 mr-2" />
+            {successMessage}
+          </div>
+          <button onClick={() => setSuccessMessage(null)} className="text-success-500 hover:text-success-700 transition-colors bg-white/50 w-6 h-6 rounded-full flex items-center justify-center">✕</button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Stock Overview Card */}
@@ -123,25 +158,25 @@ export function ManagerInventoryManagePage() {
             <CardTitle>{t.manager.adjustInventory}</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <form onSubmit={handleAdjust} className="space-y-4">
-              {validationError && (
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {errors.root?.serverError?.message && (
                 <div className="bg-danger-50 text-danger-700 p-3 rounded-xl border border-danger-100 text-sm font-medium flex gap-2 items-start">
                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                   {validationError}
+                   {errors.root.serverError.message}
                 </div>
               )}
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setAction('add')}
-                  className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border-2 transition-all ${action === 'add' ? 'border-success-500 bg-success-50 text-success-700' : 'border-slate-200 text-slate-500 hover:border-slate-300'}`}
+                  onClick={() => setValue('action', 'add')}
+                  className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border-2 transition-all ${actionValue === 'add' ? 'border-success-500 bg-success-50 text-success-700' : 'border-slate-200 text-slate-500 hover:border-slate-300'}`}
                 >
                   <Plus className="w-4 h-4" /> Add Stock
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAction('remove')}
-                  className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border-2 transition-all ${action === 'remove' ? 'border-danger-500 bg-danger-50 text-danger-700' : 'border-slate-200 text-slate-500 hover:border-slate-300'}`}
+                  onClick={() => setValue('action', 'remove')}
+                  className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border-2 transition-all ${actionValue === 'remove' ? 'border-danger-500 bg-danger-50 text-danger-700' : 'border-slate-200 text-slate-500 hover:border-slate-300'}`}
                 >
                   <Minus className="w-4 h-4" /> Remove
                 </button>
@@ -151,24 +186,22 @@ export function ManagerInventoryManagePage() {
                 label={t.common.quantity}
                 type="number"
                 min="1"
-                value={qty}
-                onChange={e => setQty(e.target.value)}
-                required
+                {...register('qty', { valueAsNumber: true })}
+                error={errors.qty?.message}
               />
 
               <Input
                 label={t.manager.reason}
                 type="text"
-                value={reason}
-                onChange={e => setReason(e.target.value)}
-                placeholder={action === 'add' ? 'e.g. Received new shipment' : 'e.g. Damaged goods'}
-                required
+                {...register('reason')}
+                error={errors.reason?.message}
+                placeholder={actionValue === 'add' ? 'e.g. Received new shipment' : 'e.g. Damaged goods'}
               />
 
               <Button
                 type="submit"
                 className="w-full rounded-xl"
-                disabled={isAdding || isRemoving || !qty || !reason.trim()}
+                disabled={isAdding || isRemoving}
                 isLoading={isAdding || isRemoving}
               >
                 {t.actions.confirm}

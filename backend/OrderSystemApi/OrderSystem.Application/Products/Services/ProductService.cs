@@ -1,4 +1,4 @@
-﻿using OrderSystem.Application.Categories.Interfaces;
+using OrderSystem.Application.Categories.Interfaces;
 using OrderSystem.Application.Common.Models;
 using OrderSystem.Application.ProductImage.DTOs.Responses;
 using OrderSystem.Application.Products.DTOs.Requests;
@@ -91,7 +91,7 @@ public class ProductService : IProductService
             Quantity = request.Quantity,
             MinQuantity = request.MinQuantity,
             CategoryId = request.CategoryId,
-            Status = (request.Quantity >= request.MinQuantity) ? ProductStatus.ACTIVE : ProductStatus.INACTIVE
+            Status = (request.Quantity > 0 && request.Quantity >= request.MinQuantity) ? ProductStatus.ACTIVE : ProductStatus.INACTIVE
         };  
 
         return await _productRepository.AddAsync(product, ct);
@@ -129,8 +129,21 @@ public class ProductService : IProductService
         if (request.CategoryId.HasValue)
             product.CategoryId = request.CategoryId.Value;
 
-        //if (!string.IsNullOrWhiteSpace(request.Status))
-         //   product.Status = request.Status.Trim();
+        if (!string.IsNullOrWhiteSpace(request.Status))
+        {
+            if (Enum.TryParse<ProductStatus>(request.Status.Trim(), true, out var status))
+            {
+                if (product.Quantity == 0 && status == ProductStatus.ACTIVE)
+                {
+                    throw new ArgumentException("Cannot set status to Active when current stock is zero.");
+                }
+                product.Status = status;
+            }
+            else
+            {
+                throw new ArgumentException("Invalid status provided.");
+            }
+        }
 
         var updated = await _productRepository.Update(product);
 

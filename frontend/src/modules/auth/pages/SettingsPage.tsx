@@ -4,7 +4,7 @@ import { useI18n } from '../../../app/i18n/i18n-context';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../shared/components/Card';
 import { Input } from '../../../shared/components/Input';
 import { Button } from '../../../shared/components/Button';
-import { useForm } from 'react-hook-form';
+import { useForm, Path } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { User, Lock, CheckCircle2, AlertCircle, Shield } from 'lucide-react';
@@ -26,24 +26,24 @@ export function SettingsPage() {
 
   const profileSchema = useMemo(() => z.object({
     fullName: z.string()
-      .min(2, t.validation?.minLength?.replace('{{min}}', '2') || 'Full name is required')
+      .min(2, t.validation?.minLength?.replace('{{min}}', '2') as string)
       .trim(),
   }), [t]);
 
   const passwordSchema = useMemo(() => z.object({
-    currentPassword: z.string().min(1, t.validation?.required || 'Current password is required'),
+    currentPassword: z.string().min(1, t.validation?.required as string),
     newPassword: z.string()
-      .min(8, t.validation?.passwordStrength || 'Password must be exactly 8 chars')
-      .regex(/[a-z]/, t.validation?.passwordStrength || 'Requires lowercase')
-      .regex(/[A-Z]/, t.validation?.passwordStrength || 'Requires uppercase')
-      .regex(/[0-9]/, t.validation?.passwordStrength || 'Requires number')
-      .regex(/[^a-zA-Z0-9]/, t.validation?.passwordStrength || 'Requires special character'),
+      .min(8, t.validation?.passwordStrength as string)
+      .regex(/[a-z]/, t.validation?.passwordStrength as string)
+      .regex(/[A-Z]/, t.validation?.passwordStrength as string)
+      .regex(/[0-9]/, t.validation?.passwordStrength as string)
+      .regex(/[^a-zA-Z0-9]/, t.validation?.passwordStrength as string),
     confirmNewPassword: z.string()
   }).superRefine((data, ctx) => {
     if (data.newPassword !== data.confirmNewPassword) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: t.validation?.passwordNoMatch || 'Passwords do not match',
+        message: t.validation?.passwordNoMatch as string,
         path: ['confirmNewPassword']
       });
     }
@@ -87,11 +87,10 @@ export function SettingsPage() {
       onError: (err) => {
         const errorMsg = getApiErrorMessage(err);
         setProfileError(errorMsg);
-        
+
         const map = getApiErrorMap(err);
         for (const [key, msg] of Object.entries(map)) {
-          // @ts-ignore
-          profileForm.setError(key as any, { type: 'server', message: msg });
+          profileForm.setError(key as Path<ProfileForm>, { type: 'server', message: msg });
         }
       }
     });
@@ -109,11 +108,10 @@ export function SettingsPage() {
       onError: (err) => {
         const errorMsg = getApiErrorMessage(err);
         setPasswordError(errorMsg);
-        
+
         const map = getApiErrorMap(err);
         for (const [key, msg] of Object.entries(map)) {
-          // @ts-ignore
-          passwordForm.setError(key as any, { type: 'server', message: msg });
+          passwordForm.setError(key as Path<PasswordForm>, { type: 'server', message: msg });
         }
       }
     });

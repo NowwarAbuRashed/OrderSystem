@@ -40,11 +40,20 @@ namespace OrderSystem.Application.Inventorys.Services
             if (request.QuantityDelta.HasValue)
             {
                 var newQty = product.Quantity + request.QuantityDelta.Value;
-
                 if (newQty < 0)
-                    throw new Exception("Inventory cannot be negative");
+                    throw new ArgumentException("Insufficient inventory to perform this adjustment.");
 
                 product.Quantity = newQty;
+
+                // Automatic Status Management
+                if (product.Quantity == 0)
+                {
+                    product.Status = ProductStatus.INACTIVE;
+                }
+                else if (product.Quantity > 0 && product.Status == ProductStatus.INACTIVE)
+                {
+                    product.Status = ProductStatus.ACTIVE;
+                }
             }
 
             if (request.MinQuantity.HasValue)

@@ -1,4 +1,4 @@
-﻿using OrderSystem.Application.Carts.Interfaces;
+using OrderSystem.Application.Carts.Interfaces;
 using OrderSystem.Application.Common.Models;
 using OrderSystem.Application.Inventorys.Interfaces;
 using OrderSystem.Application.Orders.DTOs.Requests;
@@ -94,7 +94,7 @@ namespace OrderSystem.Application.Orders.Services
                 return new OrderItem
                 {
                     OrderId = order.Id,
-                    productId = ci.ProductId,
+                    ProductId = ci.ProductId,
                     Quantity = ci.Quantity,
                     UnitPrice = unitPrice,
                     LineTotal = unitPrice * ci.Quantity
@@ -335,7 +335,7 @@ namespace OrderSystem.Application.Orders.Services
             return new OrderItemResponse
             {
                 OrderItemId = item.Id,
-                ProductId = item.productId,
+                ProductId = item.ProductId,
                 Quantity = item.Quantity,
                 UnitPrice = item.UnitPrice,
                 LineTotal = item.LineTotal
