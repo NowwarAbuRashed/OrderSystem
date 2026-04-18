@@ -6,6 +6,19 @@ import { LoadingBlock } from '../../../shared/components/LoadingBlock';
 import { Activity, Search } from 'lucide-react';
 import { ensureUtc } from '../../../shared/utils/date';
 
+type ActivityLogEntry = {
+  id: number;
+  actionType: string;
+  entityType: string;
+  entityId: string;
+  performedByUserId: number | null;
+  performedByUser?: {
+    fullName?: string | null;
+  } | null;
+  timestamp: string;
+  details: string;
+};
+
 export function AdminActivityLogPage() {
   const { t, locale } = useI18n();
   const [entityFilter, setEntityFilter] = useState('');
@@ -13,11 +26,113 @@ export function AdminActivityLogPage() {
     locale === 'ar' ? 'ar-SA-u-ca-gregory' : 'en-US',
     { dateStyle: 'medium', timeStyle: 'short' }
   );
+  const statusLabelMap: Record<string, string> = {
+    PROCESSING: t.orders.processing,
+    READY: t.orders.ready,
+    OUT_FOR_DELIVERY: t.orders.outForDelivery,
+    DELIVERED: t.orders.delivered,
+    ACTIVE: t.manager.active,
+    INACTIVE: t.manager.inactive,
+  };
 
   const { data: logs, isLoading, isError } = useAdminActivityQuery({
     count: 100,
     entityType: entityFilter || undefined
   });
+
+  const parseDetails = (rawDetails: string) => {
+    if (!rawDetails) return null;
+
+    try {
+      const parsed = JSON.parse(rawDetails);
+      return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const getActionLabel = (actionType: string) => {
+    switch (actionType) {
+      case 'ORDER_STATUS_CHANGE':
+        return t.admin.statusChangedAction;
+      case 'PRODUCT_BULK_STATUS':
+        return t.admin.bulkStatusAction;
+      case 'PRODUCT_BULK_PRICE':
+        return t.admin.bulkPriceAction;
+      case 'PRODUCT_EDIT':
+        return t.admin.productUpdatedAction;
+      default:
+        return actionType.replaceAll('_', ' ');
+    }
+  };
+
+  const getEntityLabel = (log: ActivityLogEntry) => {
+    if (log.entityType === 'Order') {
+      return `${t.orders.orderId} #${log.entityId}`;
+    }
+
+    if (log.entityType === 'Product' && log.entityId === 'Multiple') {
+      return t.admin.productsLabel;
+    }
+
+    if (log.entityType === 'Product') {
+      return `${t.admin.productName} #${log.entityId}`;
+    }
+
+    if (log.entityType === 'User') {
+      return `${t.admin.userLabel} #${log.entityId}`;
+    }
+
+    if (log.entityId === 'Multiple') {
+      return `${log.entityType} ${t.admin.multiple}`;
+    }
+
+    return `${log.entityType} #${log.entityId}`;
+  };
+
+  const getDetailsLabel = (log: ActivityLogEntry) => {
+    const details = parseDetails(log.details);
+
+    if (!details) {
+      return log.details || t.admin.noDetails;
+    }
+
+    if (log.actionType === 'ORDER_STATUS_CHANGE') {
+      const oldStatus = typeof details.OldStatus === 'string' ? details.OldStatus : null;
+      const newStatus = typeof details.NewStatus === 'string' ? details.NewStatus : null;
+
+      if (oldStatus && newStatus) {
+        return `${statusLabelMap[oldStatus] || oldStatus} -> ${statusLabelMap[newStatus] || newStatus}`;
+      }
+    }
+
+    if (log.actionType === 'PRODUCT_BULK_STATUS') {
+      const count = typeof details.Count === 'number' ? details.Count : null;
+      const isActive = typeof details.IsActive === 'boolean' ? details.IsActive : null;
+
+      if (count !== null && isActive !== null) {
+        const productLabel = count === 1 ? t.admin.productName : t.admin.productsLabel;
+        const statusLabel = isActive ? t.manager.active : t.manager.inactive;
+        return `${count} ${productLabel} ${t.admin.setTo} ${statusLabel}`;
+      }
+    }
+
+    if (log.actionType === 'PRODUCT_BULK_PRICE') {
+      const count = typeof details.Count === 'number' ? details.Count : null;
+      const percentage = typeof details.Percentage === 'number' ? details.Percentage : null;
+
+      if (count !== null && percentage !== null) {
+        const productLabel = count === 1 ? t.admin.productName : t.admin.productsLabel;
+        return `${count} ${productLabel} ${t.admin.priceAdjustedBy} ${percentage}%`;
+      }
+    }
+
+    if (log.actionType === 'PRODUCT_EDIT' && typeof details.message === 'string') {
+      return details.message;
+    }
+
+    return log.details;
+  };
 
   return (
     <div className="space-y-6">
@@ -42,8 +157,8 @@ export function AdminActivityLogPage() {
               className="pl-9 pr-8 py-2 text-sm border-neutral-200 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-white"
             >
               <option value="">{t.admin.allEntities}</option>
-              <option value="Order">{t.nav.orders}</option>
-              <option value="Product">{t.nav.products}</option>
+              <option value="Order">{t.admin.ordersLabel}</option>
+              <option value="Product">{t.admin.productsLabel}</option>
               <option value="User">{t.admin.usersLabel}</option>
             </select>
           </div>
@@ -63,23 +178,26 @@ export function AdminActivityLogPage() {
                   <th className="px-6 py-4 font-medium">{t.admin.timestamp}</th>
                   <th className="px-6 py-4 font-medium">{t.admin.action}</th>
                   <th className="px-6 py-4 font-medium">{t.admin.entity}</th>
-                  <th className="px-6 py-4 font-medium">{t.admin.userId}</th>
+                  <th className="px-6 py-4 font-medium">{t.admin.userLabel}</th>
                   <th className="px-6 py-4 font-medium max-w-xs">{t.admin.detailsLabel}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
-                {logs?.map((log: any) => (
+                {logs?.map((log: ActivityLogEntry) => {
+                  const detailsLabel = getDetailsLabel(log);
+
+                  return (
                   <tr key={log.id} className="hover:bg-neutral-50/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-neutral-500">
                       {dateTimeFormatter.format(new Date(ensureUtc(log.timestamp)))}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-700 border border-primary-100">
-                        {log.actionType}
+                        {getActionLabel(log.actionType)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap font-medium text-neutral-900">
-                      {log.entityType} <span className="text-neutral-400 font-normal">#{log.entityId}</span>
+                      {getEntityLabel(log)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {log.performedByUserId ? (
@@ -95,13 +213,13 @@ export function AdminActivityLogPage() {
                         <span className="text-neutral-400 italic">{t.admin.system}</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-xs text-neutral-500 font-mono overflow-hidden">
-                      <div className="max-w-xs truncate" title={log.details}>
-                        {log.details.length > 50 ? log.details.substring(0, 50) + '...' : log.details}
+                    <td className="px-6 py-4 text-sm text-neutral-500 overflow-hidden">
+                      <div className="max-w-sm truncate" title={detailsLabel}>
+                        {detailsLabel}
                       </div>
                     </td>
                   </tr>
-                ))}
+                )})}
                 {(!logs || logs.length === 0) && (
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center text-neutral-500">
