@@ -6,17 +6,20 @@ using OrderSystem.Application.Products.DTOs.Responses;
 using OrderSystem.Application.Products.Interfaces;
 using OrderSystem.Domain.Entities;
 using OrderSystem.Domain.Enums;
+using OrderSystem.Application.Admin.Interfaces;
 
 namespace OrderSystem.Application.Products.Services;
 public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IActivityLogService _activityLogService;
 
-    public ProductService(IProductRepository productRepository, ICategoryRepository CategoryRepository)
+    public ProductService(IProductRepository productRepository, ICategoryRepository CategoryRepository, IActivityLogService activityLogService)
     {
         _productRepository = productRepository;
         _categoryRepository= CategoryRepository;
+        _activityLogService = activityLogService;
     }
 
     public async Task<PagedResult<ProductResponse>> GetProductsAsync(ProductQueryRequest request, CancellationToken ct)
@@ -156,6 +159,50 @@ public class ProductService : IProductService
 
         if (!updated)
             throw new Exception("Failed to update product.");
+            
+        await _activityLogService.LogActionAsync("PRODUCT_EDIT", "Product", product.Id.ToString(), null, new { message = "Product updated." }, ct);
+    }
+
+    public async Task<int> BulkUpdateStatusAsync(List<long> productIds, bool isActive, CancellationToken ct)
+    {
+        var products = await _productRepository.GetByIdsAsync(productIds, ct);
+        if (!products.Any()) return 0;
+
+        var status = isActive ? ProductStatus.ACTIVE : ProductStatus.INACTIVE;
+        foreach (var p in products)
+        {
+            if (isActive && p.Quantity == 0) continue; // Can't activate empty stock
+            p.Status = status;
+        }
+
+        var success = await _productRepository.UpdateBulk(products);
+        if (success)
+        {
+            await _activityLogService.LogActionAsync("PRODUCT_BULK_STATUS", "Product", "Multiple", null, new { Count = products.Count, IsActive = isActive }, ct);
+            return products.Count;
+        }
+        return 0;
+    }
+
+    public async Task<int> BulkUpdatePriceAsync(List<long> productIds, decimal percentageChange, CancellationToken ct)
+    {
+        var products = await _productRepository.GetByIdsAsync(productIds, ct);
+        if (!products.Any()) return 0;
+
+        foreach (var p in products)
+        {
+            var change = p.Price * (percentageChange / 100m);
+            p.Price += change;
+            if (p.Price < 0) p.Price = 0;
+        }
+
+        var success = await _productRepository.UpdateBulk(products);
+        if (success)
+        {
+            await _activityLogService.LogActionAsync("PRODUCT_BULK_PRICE", "Product", "Multiple", null, new { Count = products.Count, Percentage = percentageChange }, ct);
+            return products.Count;
+        }
+        return 0;
     }
 
     private static void ValidateProductQueryRequest(ProductQueryRequest request)

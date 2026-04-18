@@ -29,15 +29,21 @@ namespace OrderSystem.Infrastructure.Repositories
             return await _context.Products.Include(p => p.Images).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
-        public Task<List<Product>> GetByIdsAsync(IEnumerable<long> ids, CancellationToken ct)
+        public async Task<List<Product>> GetByIdsAsync(IEnumerable<long> ids, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            return await _context.Products.Where(p => ids.Contains(p.Id)).ToListAsync(ct);
         }
 
         public async Task<bool> Update(Product product)
         {
             _context.Products.Update(product);
-           return  await _context.SaveChangesAsync()>0;
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> UpdateBulk(IEnumerable<Product> products)
+        {
+            _context.Products.UpdateRange(products);
+            return await _context.SaveChangesAsync() > 0;
         }
         public async Task<bool> DeleteAsync(long productId)
         {

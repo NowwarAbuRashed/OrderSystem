@@ -8,6 +8,12 @@ import {
   updateUserStatus,
   getAdminOrders,
   getAdminRevenue,
+  getAdminActivity,
+  updateCatalogBulkStatus,
+  updateCatalogBulkPrice,
+  getAdminNotificationsUnread,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
 } from '../api/admin.api';
 
 export const adminKeys = {
@@ -17,6 +23,7 @@ export const adminKeys = {
   users: (params?: any) => ['admin', 'users', params] as const,
   orders: (params?: any) => ['admin', 'orders', params] as const,
   revenue: (days?: number) => ['admin', 'revenue', days] as const,
+  activity: (params?: any) => ['admin', 'activity', params] as const,
 };
 
 // ── Existing ──
@@ -87,5 +94,65 @@ export function useAdminRevenueQuery(days: number = 30) {
   return useQuery({
     queryKey: adminKeys.revenue(days),
     queryFn: () => getAdminRevenue({ days }),
+  });
+}
+
+// ── Activity Log ──
+export function useAdminActivityQuery(params?: { count?: number; entityType?: string; userId?: number }) {
+  return useQuery({
+    queryKey: adminKeys.activity(params),
+    queryFn: () => getAdminActivity(params),
+  });
+}
+
+// ── Catalog ──
+export function useUpdateCatalogBulkStatusMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ productIds, isActive }: { productIds: number[]; isActive: boolean }) =>
+      updateCatalogBulkStatus(productIds, isActive),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
+}
+
+export function useUpdateCatalogBulkPriceMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ productIds, percentageChange }: { productIds: number[]; percentageChange: number }) =>
+      updateCatalogBulkPrice(productIds, percentageChange),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
+}
+
+// ── Notifications ──
+
+export function useAdminNotificationsQuery(limit: number = 50) {
+  return useQuery({
+    queryKey: ['admin', 'notifications', { limit }],
+    queryFn: () => getAdminNotificationsUnread(limit),
+  });
+}
+
+export function useMarkNotificationAsReadMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => markNotificationAsRead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'notifications'] });
+    },
+  });
+}
+
+export function useMarkAllNotificationsAsReadMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => markAllNotificationsAsRead(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'notifications'] });
+    },
   });
 }

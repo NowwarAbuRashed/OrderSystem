@@ -294,6 +294,15 @@ export const ar: TranslationMessages = {
     totalProducts: 'إجمالي المنتجات',
     healthyStock: 'مخزون جيد',
     productsNeedReordering: 'منتجات تحتاج إعادة طلب',
+    
+    // Activity Log
+    activityLog: 'سجل النشاطات',
+    activityLogDesc: 'سجل تدقيق لتتبع الإجراءات الهامة في النظام',
+
+    // Catalog
+    catalogOverview: 'نظرة عامة على الكتالوج',
+    catalogDesc: 'إدارة المنتجات وتنفيذ الإجراءات الجماعية',
+    searchCatalog: 'البحث عن منتجات...',
 
     // Dashboard
     dashboard: 'لوحة التحكم',

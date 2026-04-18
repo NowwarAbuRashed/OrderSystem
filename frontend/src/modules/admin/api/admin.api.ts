@@ -46,3 +46,36 @@ export async function getAdminRevenue(params?: { days?: number }) {
   const { data } = await http.get('/api/v1/admin/revenue', { params });
   return data;
 }
+
+// ── Activity Log ──
+export async function getAdminActivity(params?: { count?: number; entityType?: string; userId?: number }) {
+  const { data } = await http.get('/api/v1/admin/activity', { params });
+  return data;
+}
+
+// ── Catalog ──
+export async function updateCatalogBulkStatus(productIds: number[], isActive: boolean) {
+  const { data } = await http.put('/api/v1/admin/catalog/bulk-status', { productIds, isActive });
+  return data;
+}
+
+export async function updateCatalogBulkPrice(productIds: number[], percentageChange: number) {
+  const { data } = await http.put('/api/v1/admin/catalog/bulk-price', { productIds, percentageChange });
+  return data;
+}
+
+// ── Notifications ──
+export async function getAdminNotificationsUnread(limit: number = 50) {
+  const { data } = await http.get('/api/v1/admin/notifications/unread', { params: { limit } });
+  return data;
+}
+
+export async function markNotificationAsRead(id: number) {
+  const { data } = await http.put(`/api/v1/admin/notifications/${id}/read`);
+  return data;
+}
+
+export async function markAllNotificationsAsRead() {
+  const { data } = await http.put('/api/v1/admin/notifications/read-all');
+  return data;
+}

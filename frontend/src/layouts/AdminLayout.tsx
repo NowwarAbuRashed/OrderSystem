@@ -3,7 +3,8 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../app/store/auth-context';
 import { useI18n } from '../app/i18n/i18n-context';
 import { LanguageSwitcher } from '../shared/components/LanguageSwitcher';
-import { LogOut, Activity, AlertTriangle, Settings, Menu, X, LayoutDashboard, Users, ShoppingCart, DollarSign } from 'lucide-react';
+import { LogOut, Activity, AlertTriangle, Settings, Menu, X, LayoutDashboard, Users, ShoppingCart, DollarSign, ClipboardList, Package, FolderTree } from 'lucide-react';
+import { NotificationBell } from '../modules/admin/components/NotificationBell';
 import clsx from 'clsx';
 
 export function AdminLayout() {
@@ -22,7 +23,10 @@ export function AdminLayout() {
     { to: '/admin/dashboard', label: t.admin.dashboard, icon: LayoutDashboard },
     { to: '/admin/users', label: t.admin.userManagement, icon: Users },
     { to: '/admin/orders', label: t.admin.orderOverview, icon: ShoppingCart },
+    { to: '/admin/catalog', label: t.admin?.catalogOverview || 'Catalog', icon: Package },
+    { to: '/admin/categories', label: t.nav?.categories || 'Categories', icon: FolderTree },
     { to: '/admin/revenue', label: t.admin.revenueReport, icon: DollarSign },
+    { to: '/admin/activity', label: t.admin?.activityLog || 'Activity Log', icon: ClipboardList },
     { to: '/admin/inventory/status', label: t.nav.inventoryStatus, icon: Activity },
     { to: '/admin/inventory/low-stock', label: t.nav.lowStock, icon: AlertTriangle },
     { to: '/admin/settings', label: t.nav.settings, icon: Settings },
@@ -104,14 +108,18 @@ export function AdminLayout() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
-        {/* Mobile header */}
-        <div className="md:hidden bg-white border-b border-slate-200/60 px-4 h-14 flex items-center gap-3 sticky top-0 z-40">
-          <button onClick={() => setSidebarOpen(true)} className="p-2 text-slate-500 hover:text-primary-600 rounded-lg">
-            <Menu className="w-5 h-5" />
-          </button>
-          <span className="font-bold text-slate-900">Marto</span>
-          <span className="text-xs text-slate-400 font-medium">{t.nav.admin}</span>
-        </div>
+        <header className="bg-white border-b border-slate-200/60 px-4 h-14 flex items-center justify-between sticky top-0 z-40">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2 text-slate-500 hover:text-primary-600 rounded-lg">
+              <Menu className="w-5 h-5" />
+            </button>
+            <span className="font-bold text-slate-900 md:hidden">Marto</span>
+            <span className="text-xs text-slate-400 font-medium md:hidden">{t.nav.admin}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+          </div>
+        </header>
         <div className="flex-1 p-4 md:p-8 overflow-auto">
           <Outlet />
         </div>

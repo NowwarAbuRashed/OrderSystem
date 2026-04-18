@@ -294,6 +294,15 @@ export const en = {
     totalProducts: 'Total Products',
     healthyStock: 'Healthy Stock',
     productsNeedReordering: 'Products Need Reordering',
+    
+    // Activity Log
+    activityLog: 'Activity Log',
+    activityLogDesc: 'Audit trail of important system actions',
+
+    // Catalog
+    catalogOverview: 'Catalog Overview',
+    catalogDesc: 'Manage products and perform bulk actions',
+    searchCatalog: 'Search products...',
 
     // Dashboard
     dashboard: 'Dashboard',

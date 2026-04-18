@@ -22,9 +22,12 @@ using OrderSystem.Application.ProductImage.Interfaces;
 using OrderSystem.Application.ProductImage.Services;
 using OrderSystem.Application.Products.Interfaces;
 using OrderSystem.Application.Products.Services;
+using OrderSystem.Domain.Enums;
 using OrderSystem.Infrastructure.Data;
 using OrderSystem.Infrastructure.Repositories;
 using OrderSystem.Infrastructure.Security;
+using OrderSystemApi.Hubs;
+using OrderSystemApi.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -73,6 +76,12 @@ namespace OrderSystemApi
 
             builder.Services.AddScoped<IAdminRepository, AdminRepository>();
             builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddScoped<IActivityLogRepository, ActivityLogRepository>();
+            builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
+
+            builder.Services.AddScoped<ISystemNotificationRepository, SystemNotificationRepository>();
+            builder.Services.AddScoped<IAdminNotificationDispatcher, AdminNotificationDispatcher>();
+            builder.Services.AddScoped<ISystemNotificationService, SystemNotificationService>();
 
             var jwtKey = builder.Configuration["Jwt:Key"]
                          ?? throw new InvalidOperationException("Jwt:Key is missing");
@@ -100,6 +109,7 @@ namespace OrderSystemApi
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSignalR();
             builder.Services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
@@ -163,6 +173,7 @@ namespace OrderSystemApi
             app.UseAuthorization();
 
             app.MapControllers();
+            app.MapHub<AdminHub>("/hub/admin");
 
             app.Run();
         }
