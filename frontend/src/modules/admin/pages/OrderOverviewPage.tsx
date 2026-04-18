@@ -8,7 +8,8 @@ import { StatCard } from '../../../shared/components/StatCard';
 import { StatusBadge } from '../../../shared/components/StatusBadge';
 import { Card } from '../../../shared/components/Card';
 import { AppTable, Column } from '../../../shared/components/AppTable';
-import { ShoppingCart, Clock, Truck, CheckCircle2, Package, CreditCard, Banknote } from 'lucide-react';
+import { ShoppingCart, Clock, Truck, CheckCircle2, Package, CreditCard, Banknote, Download } from 'lucide-react';
+import { downloadCSV } from '../../../shared/utils/exportUtils';
 
 type AdminOrder = {
   orderId: number;
@@ -134,7 +135,28 @@ export function AdminOrderOverviewPage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader title={t.admin.orderOverview} description={t.admin.orderOverviewDesc} />
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <PageHeader title={t.admin.orderOverview} description={t.admin.orderOverviewDesc} />
+        <button
+          onClick={() => {
+            const headers = ['Order #', 'Customer', 'Amount', 'Items', 'Status', 'Payment', 'Payment Status', 'Date'];
+            const rows = orders.map((o: AdminOrder) => [
+              String(o.orderId),
+              o.customerName,
+              o.totalAmount.toFixed(2),
+              String(o.itemCount),
+              o.status,
+              o.paymentMethod,
+              o.paymentStatus,
+              new Date(o.createdAt).toLocaleDateString(),
+            ]);
+            downloadCSV('orders_report', headers, rows);
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-neutral-200 text-neutral-700 rounded-lg text-sm font-medium hover:bg-neutral-50 transition-colors shadow-sm"
+        >
+          <Download className="w-4 h-4" /> Export CSV
+        </button>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard icon={<ShoppingCart className="w-5 h-5" />} label={t.admin.totalOrders} value={totalCount} variant="default" />

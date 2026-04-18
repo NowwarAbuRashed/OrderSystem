@@ -34,5 +34,7 @@ namespace OrderSystem.Application.Admin.Interfaces
         Task<RevenueReportResponse> GetRevenueReportAsync(
             int days,
             CancellationToken cancellationToken);
+
+        Task<List<ManagerPerformanceDto>> GetManagerPerformanceAsync(CancellationToken cancellationToken);
     }
 }

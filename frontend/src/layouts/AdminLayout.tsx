@@ -29,7 +29,8 @@ export function AdminLayout() {
     { to: '/admin/activity', label: t.admin?.activityLog || 'Activity Log', icon: ClipboardList },
     { to: '/admin/inventory/status', label: t.nav.inventoryStatus, icon: Activity },
     { to: '/admin/inventory/low-stock', label: t.nav.lowStock, icon: AlertTriangle },
-    { to: '/admin/settings', label: t.nav.settings, icon: Settings },
+    { to: '/admin/manager-performance', label: t.admin?.managerPerformance || 'Manager Performance', icon: Users },
+    { to: '/admin/settings', label: t.admin?.systemSettings || 'System Settings', icon: Settings },
   ];
 
   const SidebarContent = () => (

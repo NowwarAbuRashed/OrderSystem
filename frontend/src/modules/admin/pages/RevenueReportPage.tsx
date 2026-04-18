@@ -6,7 +6,8 @@ import { ErrorState } from '../../../shared/components/ErrorState';
 import { StatCard } from '../../../shared/components/StatCard';
 import { Card } from '../../../shared/components/Card';
 import { AppTable, Column } from '../../../shared/components/AppTable';
-import { DollarSign, CheckCircle2, Clock, XCircle, CreditCard, Banknote, TrendingUp } from 'lucide-react';
+import { DollarSign, CheckCircle2, Clock, XCircle, CreditCard, Banknote, TrendingUp, Download } from 'lucide-react';
+import { downloadCSV } from '../../../shared/utils/exportUtils';
 
 type DailyRevenue = {
   date: string;
@@ -61,7 +62,23 @@ export function AdminRevenueReportPage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader title={t.admin.revenueReport} description={t.admin.revenueReportDesc} />
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <PageHeader title={t.admin.revenueReport} description={t.admin.revenueReportDesc} />
+        <button
+          onClick={() => {
+            const headers = ['Date', 'Orders', 'Revenue'];
+            const rows = d.dailyRevenue.map((r: DailyRevenue) => [
+              r.date,
+              String(r.orderCount),
+              r.amount.toFixed(2),
+            ]);
+            downloadCSV('revenue_report', headers, rows);
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-neutral-200 text-neutral-700 rounded-lg text-sm font-medium hover:bg-neutral-50 transition-colors shadow-sm"
+        >
+          <Download className="w-4 h-4" /> Export CSV
+        </button>
+      </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -83,6 +83,9 @@ namespace OrderSystemApi
             builder.Services.AddScoped<IAdminNotificationDispatcher, AdminNotificationDispatcher>();
             builder.Services.AddScoped<ISystemNotificationService, SystemNotificationService>();
 
+            builder.Services.AddScoped<ISystemSettingsRepository, SystemSettingsRepository>();
+            builder.Services.AddScoped<ISystemSettingsService, SystemSettingsService>();
+
             var jwtKey = builder.Configuration["Jwt:Key"]
                          ?? throw new InvalidOperationException("Jwt:Key is missing");
 

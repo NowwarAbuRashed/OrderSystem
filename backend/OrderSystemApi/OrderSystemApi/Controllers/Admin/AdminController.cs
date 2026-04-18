@@ -75,5 +75,12 @@ namespace OrderSystem.Api.Controllers.Admin
             var result = await _adminService.GetRevenueReportAsync(days, cancellationToken);
             return Ok(result);
         }
+
+        [HttpGet("manager-performance")]
+        public async Task<IActionResult> GetManagerPerformance(CancellationToken cancellationToken)
+        {
+            var result = await _adminService.GetManagerPerformanceAsync(cancellationToken);
+            return Ok(result);
+        }
     }
 }

@@ -79,3 +79,20 @@ export async function markAllNotificationsAsRead() {
   const { data } = await http.put('/api/v1/admin/notifications/read-all');
   return data;
 }
+
+// ── System Settings ──
+export async function getSystemSettings() {
+  const { data } = await http.get('/api/v1/admin/system-settings');
+  return data;
+}
+
+export async function updateSystemSettings(settings: Record<string, string>) {
+  const { data } = await http.put('/api/v1/admin/system-settings', settings);
+  return data;
+}
+
+// ── Manager Performance ──
+export async function getManagerPerformance() {
+  const { data } = await http.get('/api/v1/admin/manager-performance');
+  return data;
+}

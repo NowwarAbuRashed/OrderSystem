@@ -358,6 +358,14 @@ export const ar: TranslationMessages = {
     paymentSummary: 'ملخص المدفوعات',
     dailyRevenue: 'الإيرادات اليومية (آخر 30 يوم)',
     ordersCount: 'الطلبات',
+
+    // System Settings
+    systemSettings: 'إعدادات النظام',
+    systemSettingsDesc: 'تكوين إعدادات التطبيق العامة',
+
+    // Manager Performance
+    managerPerformance: 'أداء المديرين',
+    managerPerformanceDesc: 'تتبع نشاط معالجة الطلبات من قبل المديرين',
   },
 
   // ── States ──

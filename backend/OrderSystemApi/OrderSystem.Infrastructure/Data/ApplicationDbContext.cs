@@ -34,5 +34,6 @@ namespace OrderSystem.Infrastructure.Data
         public DbSet<InventoryMovement> InventoryMovements { get; set; }
         public DbSet<SystemActivityLog> SystemActivityLogs { get; set; }
         public DbSet<SystemNotification> SystemNotifications { get; set; }
+        public DbSet<SystemSetting> SystemSettings { get; set; }
     }
 }

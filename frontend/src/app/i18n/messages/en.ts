@@ -358,6 +358,14 @@ export const en = {
     paymentSummary: 'Payment Summary',
     dailyRevenue: 'Daily Revenue (Last 30 Days)',
     ordersCount: 'Orders',
+
+    // System Settings
+    systemSettings: 'System Settings',
+    systemSettingsDesc: 'Configure application-wide settings',
+
+    // Manager Performance
+    managerPerformance: 'Manager Performance',
+    managerPerformanceDesc: 'Track manager order processing activity',
   },
 
   // ── States ──

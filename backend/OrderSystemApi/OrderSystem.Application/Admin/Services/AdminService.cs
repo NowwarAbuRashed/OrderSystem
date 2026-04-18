@@ -120,5 +120,10 @@ namespace OrderSystem.Application.Admin.Services
                 DailyRevenue = dailyRevenue
             };
         }
+
+        public async Task<List<DTOs.Responses.ManagerPerformanceDto>> GetManagerPerformanceAsync(CancellationToken cancellationToken)
+        {
+            return await _adminRepository.GetManagerPerformanceAsync(cancellationToken);
+        }
     }
 }

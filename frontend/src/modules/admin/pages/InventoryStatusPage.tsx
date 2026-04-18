@@ -8,7 +8,8 @@ import { AppTable, Column } from '../../../shared/components/AppTable';
 import { StatCard } from '../../../shared/components/StatCard';
 import { AdminInventoryStatusDto } from '../../../shared/types/inventory';
 import { Card } from '../../../shared/components/Card';
-import { Package, AlertTriangle, XCircle, CheckCircle2 } from 'lucide-react';
+import { Package, AlertTriangle, XCircle, CheckCircle2, Download } from 'lucide-react';
+import { downloadCSV } from '../../../shared/utils/exportUtils';
 
 export function AdminInventoryStatusPage() {
   const { data, isLoading, error } = useAdminInventoryStatusQuery();
@@ -39,7 +40,24 @@ export function AdminInventoryStatusPage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader title={t.admin.inventoryStatus} description={t.admin.inventoryStatusDesc} />
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <PageHeader title={t.admin.inventoryStatus} description={t.admin.inventoryStatusDesc} />
+        <button
+          onClick={() => {
+            const headers = ['Product', 'Quantity', 'Min Qty', 'Status'];
+            const rows = data.map((i: AdminInventoryStatusDto) => [
+              i.name,
+              String(i.quantity),
+              String(i.minQuantity),
+              i.quantity <= 0 ? 'Out of Stock' : i.quantity <= i.minQuantity ? 'Low Stock' : 'Healthy',
+            ]);
+            downloadCSV('inventory_status', headers, rows);
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-neutral-200 text-neutral-700 rounded-lg text-sm font-medium hover:bg-neutral-50 transition-colors shadow-sm"
+        >
+          <Download className="w-4 h-4" /> Export CSV
+        </button>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={<Package className="w-5 h-5" />} label={t.admin.totalProducts} value={totalProducts} variant="default" />

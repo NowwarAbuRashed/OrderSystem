@@ -34,5 +34,8 @@ namespace OrderSystem.Application.Admin.Interfaces
         Task<int> GetPendingCountAsync(CancellationToken cancellationToken);
         Task<int> GetFailedCountAsync(CancellationToken cancellationToken);
         Task<List<DailyRevenueDto>> GetDailyRevenueAsync(int days, CancellationToken cancellationToken);
+
+        // Manager Performance
+        Task<List<ManagerPerformanceDto>> GetManagerPerformanceAsync(CancellationToken cancellationToken);
     }
 }

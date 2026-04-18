@@ -253,5 +253,41 @@ namespace OrderSystem.Infrastructure.Repositories
                 .OrderBy(d => d.Date)
                 .ToList();
         }
+
+        // ── Manager Performance ──
+
+        public async Task<List<ManagerPerformanceDto>> GetManagerPerformanceAsync(CancellationToken cancellationToken)
+        {
+            // Get all managers
+            var managers = await _context.Users
+                .Where(u => u.Role == UserRole.MANAGER && u.IsActive)
+                .ToListAsync(cancellationToken);
+
+            // Get order-related activity logs by managers
+            var managerIds = managers.Select(m => m.Id).ToList();
+            var activityLogs = await _context.SystemActivityLogs
+                .Where(a => a.PerformedByUserId != null
+                    && managerIds.Contains(a.PerformedByUserId.Value)
+                    && a.EntityType == "Order")
+                .ToListAsync(cancellationToken);
+
+            var result = managers.Select(m =>
+            {
+                var managerLogs = activityLogs.Where(a => a.PerformedByUserId == m.Id).ToList();
+                return new ManagerPerformanceDto
+                {
+                    ManagerId = m.Id,
+                    ManagerName = m.FullName,
+                    Email = m.Email,
+                    OrdersProcessed = managerLogs.Select(a => a.EntityId).Distinct().Count(),
+                    AverageProcessingTimeMinutes = 0, // Could be calculated if we track start/end
+                    LastActiveAt = managerLogs.Any() ? managerLogs.Max(a => a.Timestamp) : null
+                };
+            })
+            .OrderByDescending(m => m.OrdersProcessed)
+            .ToList();
+
+            return result;
+        }
     }
 }

@@ -29,6 +29,8 @@ import { AdminOrderOverviewPage } from '../../modules/admin/pages/OrderOverviewP
 import { AdminRevenueReportPage } from '../../modules/admin/pages/RevenueReportPage';
 import { AdminActivityLogPage } from '../../modules/admin/pages/ActivityLogPage';
 import { AdminCatalogPage } from '../../modules/admin/pages/AdminCatalogPage';
+import { AdminSystemSettingsPage } from '../../modules/admin/pages/AdminSystemSettingsPage';
+import { ManagerPerformancePage } from '../../modules/admin/pages/ManagerPerformancePage';
 import { SettingsPage } from '../../modules/auth/pages/SettingsPage';
 
 export const router = createBrowserRouter([
@@ -104,7 +106,8 @@ export const router = createBrowserRouter([
                   { path: 'activity', element: <AdminActivityLogPage /> },
                   { path: 'inventory/status', element: <AdminInventoryStatusPage /> },
                   { path: 'inventory/low-stock', element: <AdminLowStockPage /> },
-                  { path: 'settings', element: <SettingsPage /> },
+                  { path: 'manager-performance', element: <ManagerPerformancePage /> },
+                  { path: 'settings', element: <AdminSystemSettingsPage /> },
                 ]
               }
             ]

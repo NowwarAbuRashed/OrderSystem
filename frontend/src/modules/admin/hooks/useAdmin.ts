@@ -14,6 +14,9 @@ import {
   getAdminNotificationsUnread,
   markNotificationAsRead,
   markAllNotificationsAsRead,
+  getSystemSettings,
+  updateSystemSettings,
+  getManagerPerformance,
 } from '../api/admin.api';
 
 export const adminKeys = {
@@ -154,5 +157,31 @@ export function useMarkAllNotificationsAsReadMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'notifications'] });
     },
+  });
+}
+
+// ── System Settings ──
+export function useSystemSettingsQuery() {
+  return useQuery({
+    queryKey: ['admin', 'settings'],
+    queryFn: () => getSystemSettings(),
+  });
+}
+
+export function useUpdateSystemSettingsMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (settings: Record<string, string>) => updateSystemSettings(settings),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'settings'] });
+    },
+  });
+}
+
+// ── Manager Performance ──
+export function useManagerPerformanceQuery() {
+  return useQuery({
+    queryKey: ['admin', 'managerPerformance'],
+    queryFn: () => getManagerPerformance(),
   });
 }
