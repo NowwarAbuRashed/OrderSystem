@@ -23,6 +23,10 @@ import { ManagerInventoryListPage } from '../../modules/manager/pages/InventoryL
 import { ManagerInventoryManagePage } from '../../modules/manager/pages/InventoryManagePage';
 import { AdminInventoryStatusPage } from '../../modules/admin/pages/InventoryStatusPage';
 import { AdminLowStockPage } from '../../modules/admin/pages/LowStockPage';
+import { AdminDashboardPage } from '../../modules/admin/pages/DashboardPage';
+import { AdminUsersPage } from '../../modules/admin/pages/UsersPage';
+import { AdminOrderOverviewPage } from '../../modules/admin/pages/OrderOverviewPage';
+import { AdminRevenueReportPage } from '../../modules/admin/pages/RevenueReportPage';
 import { SettingsPage } from '../../modules/auth/pages/SettingsPage';
 
 export const router = createBrowserRouter([
@@ -89,6 +93,10 @@ export const router = createBrowserRouter([
               {
                 element: <AdminLayout />,
                 children: [
+                  { path: 'dashboard', element: <AdminDashboardPage /> },
+                  { path: 'users', element: <AdminUsersPage /> },
+                  { path: 'orders', element: <AdminOrderOverviewPage /> },
+                  { path: 'revenue', element: <AdminRevenueReportPage /> },
                   { path: 'inventory/status', element: <AdminInventoryStatusPage /> },
                   { path: 'inventory/low-stock', element: <AdminLowStockPage /> },
                   { path: 'settings', element: <SettingsPage /> },

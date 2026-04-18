@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OrderSystem.Api.Seed;
+using OrderSystem.Application.Admin.Interfaces;
+using OrderSystem.Application.Admin.Services;
 using OrderSystem.Application.Auth.Interfaces;
 using OrderSystem.Application.Auth.Services;
 using OrderSystem.Application.Carts.Interfaces;
@@ -68,6 +70,9 @@ namespace OrderSystemApi
             builder.Services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
             builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+
+            builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
 
             var jwtKey = builder.Configuration["Jwt:Key"]
                          ?? throw new InvalidOperationException("Jwt:Key is missing");

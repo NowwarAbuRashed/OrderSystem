@@ -3,7 +3,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../app/store/auth-context';
 import { useI18n } from '../app/i18n/i18n-context';
 import { LanguageSwitcher } from '../shared/components/LanguageSwitcher';
-import { LogOut, Activity, AlertTriangle, Settings, Menu, X } from 'lucide-react';
+import { LogOut, Activity, AlertTriangle, Settings, Menu, X, LayoutDashboard, Users, ShoppingCart, DollarSign } from 'lucide-react';
 import clsx from 'clsx';
 
 export function AdminLayout() {
@@ -19,6 +19,10 @@ export function AdminLayout() {
   };
 
   const navLinks = [
+    { to: '/admin/dashboard', label: t.admin.dashboard, icon: LayoutDashboard },
+    { to: '/admin/users', label: t.admin.userManagement, icon: Users },
+    { to: '/admin/orders', label: t.admin.orderOverview, icon: ShoppingCart },
+    { to: '/admin/revenue', label: t.admin.revenueReport, icon: DollarSign },
     { to: '/admin/inventory/status', label: t.nav.inventoryStatus, icon: Activity },
     { to: '/admin/inventory/low-stock', label: t.nav.lowStock, icon: AlertTriangle },
     { to: '/admin/settings', label: t.nav.settings, icon: Settings },
