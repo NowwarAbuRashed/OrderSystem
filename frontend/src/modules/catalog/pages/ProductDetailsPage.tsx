@@ -76,17 +76,17 @@ export function ProductDetailsPage() {
                 </>
               )}
             </div>
-            {/* Dot Indicators + Thumbnails */}
+            {/* Thumbnails */}
             {product.images && product.images.length > 1 && (
-              <div className="flex items-center gap-2 px-4 pb-4 justify-center">
+              <div className="flex items-center gap-2 px-4 pb-4 justify-center overflow-x-auto max-w-full scrollbar-hide">
                 {product.images.map((img: any, idx: number) => (
                   <button
                     key={img.id || idx}
                     onClick={() => setSelectedImage(idx)}
-                    className={`w-16 h-16 rounded-lg border-2 overflow-hidden transition-all flex-shrink-0 ${
+                    className={`w-12 h-12 md:w-14 md:h-14 rounded-lg border-2 overflow-hidden transition-all flex-shrink-0 ${
                       idx === selectedImage
-                        ? 'border-primary-500 ring-2 ring-primary-200 shadow-md'
-                        : 'border-slate-200 hover:border-slate-300 opacity-70 hover:opacity-100'
+                        ? 'border-primary-500 ring-2 ring-primary-200 shadow-md scale-110'
+                        : 'border-slate-200 hover:border-slate-300 opacity-60 hover:opacity-100'
                     }`}
                   >
                     <ImageFallback src={img.imageUrl} alt={img.altText || product.name} className="w-full h-full object-cover" />

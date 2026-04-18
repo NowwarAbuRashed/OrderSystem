@@ -154,3 +154,12 @@ html {
   animation: shimmer 1.5s infinite ease-in-out;
   border-radius: var(--radius-md);
 }
+
+/* ── Scrollbar Hide Utility ── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
