@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Bell, Inbox, AlertTriangle, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { Bell, Inbox, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAdminNotificationsQuery, useMarkNotificationAsReadMutation, useMarkAllNotificationsAsReadMutation } from '../hooks/useAdmin';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { useAuth } from '../../../app/store/auth-context';
 import { useQueryClient } from '@tanstack/react-query';
 import { useI18n } from '../../../app/i18n/i18n-context';
 import clsx from 'clsx';
+import { formatDateTime } from '../../../shared/utils/date';
 
 export const NotificationBell: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +15,8 @@ export const NotificationBell: React.FC = () => {
   const markAllAsRead = useMarkAllNotificationsAsReadMutation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { t } = useI18n();
+  const { locale } = useI18n();
+  const dateLocale = locale === 'ar' ? 'ar-SA-u-ca-gregory' : 'en-US';
   const popupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -134,7 +136,7 @@ export const NotificationBell: React.FC = () => {
                         {notif.message}
                       </p>
                       <p className="text-[10px] text-slate-400 mt-2 font-medium">
-                        {new Date(notif.createdAt).toLocaleString()}
+                        {formatDateTime(notif.createdAt, undefined, dateLocale)}
                       </p>
                     </div>
                     {!notif.isRead && (

@@ -258,6 +258,7 @@ export const en = {
     markReady: 'Mark as Ready',
     markOutForDelivery: 'Mark Out for Delivery',
     markDelivered: 'Mark as Delivered',
+    markCashCollected: 'Mark Cash Collected',
     productName: 'Product Name',
     productDesc: 'Description',
     productPrice: 'Price',
@@ -298,11 +299,24 @@ export const en = {
     // Activity Log
     activityLog: 'Activity Log',
     activityLogDesc: 'Audit trail of important system actions',
+    monitoring: 'Monitoring',
+    recentActions: 'recent actions',
+    allEntities: 'All Entities',
+    entities: 'Entities',
+    usersLabel: 'Users',
+    timestamp: 'Timestamp',
+    action: 'Action',
+    entity: 'Entity',
+    userId: 'User ID',
+    detailsLabel: 'Details',
+    system: 'System',
+    noActivityLogs: 'No activity logs found',
 
     // Catalog
     catalogOverview: 'Catalog Overview',
     catalogDesc: 'Manage products and perform bulk actions',
     searchCatalog: 'Search products...',
+    stock: 'Stock',
 
     // Dashboard
     dashboard: 'Dashboard',
@@ -366,6 +380,15 @@ export const en = {
     // Manager Performance
     managerPerformance: 'Manager Performance',
     managerPerformanceDesc: 'Track manager order processing activity',
+    totalManagers: 'Total Managers',
+    totalOrdersProcessed: 'Total Orders Processed',
+    topPerformer: 'Top Performer',
+    rank: 'Rank',
+    ordersProcessed: 'Orders Processed',
+    lastActive: 'Last Active',
+    never: 'Never',
+    noManagers: 'No managers found',
+    exportCsv: 'Export CSV',
   },
 
   // ── States ──

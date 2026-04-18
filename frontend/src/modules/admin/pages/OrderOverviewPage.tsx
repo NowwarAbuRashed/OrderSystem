@@ -10,6 +10,7 @@ import { Card } from '../../../shared/components/Card';
 import { AppTable, Column } from '../../../shared/components/AppTable';
 import { ShoppingCart, Clock, Truck, CheckCircle2, Package, CreditCard, Banknote, Download } from 'lucide-react';
 import { downloadCSV } from '../../../shared/utils/exportUtils';
+import { formatDate } from '../../../shared/utils/date';
 
 type AdminOrder = {
   orderId: number;
@@ -36,8 +37,9 @@ const paymentStatusVariantMap: Record<string, 'success' | 'warning' | 'error' | 
 };
 
 export function AdminOrderOverviewPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const dateLocale = locale === 'ar' ? 'ar-SA-u-ca-gregory' : 'en-US';
   const params = {
     page: 1,
     pageSize: 50,
@@ -127,7 +129,7 @@ export function AdminOrderOverviewPage() {
       header: t.admin.date,
       accessor: (row) => (
         <span className="text-sm text-slate-500">
-          {new Date(row.createdAt).toLocaleDateString()}
+          {formatDate(row.createdAt, undefined, dateLocale)}
         </span>
       ),
     },
@@ -148,7 +150,7 @@ export function AdminOrderOverviewPage() {
               o.status,
               o.paymentMethod,
               o.paymentStatus,
-              new Date(o.createdAt).toLocaleDateString(),
+              formatDate(o.createdAt, undefined, dateLocale),
             ]);
             downloadCSV('orders_report', headers, rows);
           }}

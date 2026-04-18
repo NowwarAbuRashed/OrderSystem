@@ -17,6 +17,7 @@ import {
   CreditCard,
   Banknote,
 } from 'lucide-react';
+import { formatDate } from '../../../shared/utils/date';
 
 type RecentOrder = {
   orderId: number;
@@ -57,7 +58,8 @@ const statusLabelMap: Record<string, string> = {
 
 export function AdminDashboardPage() {
   const { data, isLoading, error } = useAdminDashboardQuery();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const dateLocale = locale === 'ar' ? 'ar-SA-u-ca-gregory' : 'en-US';
 
   if (isLoading) return <LoadingBlock />;
   if (error) return <ErrorState message="Could not load dashboard." />;
@@ -108,7 +110,7 @@ export function AdminDashboardPage() {
       header: t.admin.date,
       accessor: (row) => (
         <span className="text-slate-500 text-sm">
-          {new Date(row.createdAt).toLocaleDateString()}
+          {formatDate(row.createdAt, undefined, dateLocale)}
         </span>
       ),
     },

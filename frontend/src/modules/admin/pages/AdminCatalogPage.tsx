@@ -4,8 +4,8 @@ import { PageHeader } from '../../../shared/components/PageHeader';
 import { LoadingBlock } from '../../../shared/components/LoadingBlock';
 import { useManagerProductsQuery } from '../../manager/hooks/useManagerProducts';
 import { useUpdateCatalogBulkStatusMutation, useUpdateCatalogBulkPriceMutation } from '../hooks/useAdmin';
-import { Package, Search, Filter, CheckSquare, Settings2, Percent, Tag, X } from 'lucide-react';
-import { ProductStatusLabel } from '../../../shared/types/products';
+import { Package, Search, CheckSquare, Percent, X } from 'lucide-react';
+import { ImageFallback } from '../../../shared/components/ImageFallback';
 import clsx from 'clsx';
 
 export function AdminCatalogPage() {
@@ -136,10 +136,10 @@ export function AdminCatalogPage() {
                       onChange={handleSelectAll}
                     />
                   </th>
-                  <th className="px-6 py-4 font-medium">Product</th>
-                  <th className="px-6 py-4 font-medium">Price</th>
-                  <th className="px-6 py-4 font-medium">Stock</th>
-                  <th className="px-6 py-4 font-medium">Status</th>
+                  <th className="px-6 py-4 font-medium">{t.admin.productName}</th>
+                  <th className="px-6 py-4 font-medium">{t.common.price}</th>
+                  <th className="px-6 py-4 font-medium">{t.admin.stock}</th>
+                  <th className="px-6 py-4 font-medium">{t.common.status}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
@@ -160,14 +160,13 @@ export function AdminCatalogPage() {
                       <div className="flex items-center">
                         <div className="w-10 h-10 rounded-lg bg-neutral-100 mr-3 flex-shrink-0 flex items-center justify-center overflow-hidden border border-neutral-200">
                            {product.images && product.images.length > 0 ? (
-                              <img src={product.images[0].imageUrl} alt="" className="w-full h-full object-cover" />
+                              <ImageFallback src={product.images[0].imageUrl} alt="" className="w-full h-full object-cover" fallbackIconSize={16} />
                             ) : (
                               <Package className="w-5 h-5 text-neutral-400" />
                             )}
                         </div>
                         <div>
                           <div className="font-medium text-neutral-900">{product.name}</div>
-                          <div className="text-xs text-neutral-500 hidden sm:block truncate max-w-[200px]">{product.description}</div>
                         </div>
                       </div>
                     </td>
@@ -184,7 +183,7 @@ export function AdminCatalogPage() {
                           ? "bg-emerald-50 text-emerald-700 border-emerald-100" 
                           : "bg-red-50 text-red-700 border-red-100"
                       )}>
-                        {product.status}
+                        {product.status === 'ACTIVE' ? t.manager.active : t.manager.inactive}
                       </span>
                     </td>
                   </tr>
@@ -192,7 +191,7 @@ export function AdminCatalogPage() {
                 {products.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center text-neutral-500">
-                      No products found.
+                      {t.products.noProducts}
                     </td>
                   </tr>
                 )}

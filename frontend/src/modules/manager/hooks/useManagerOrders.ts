@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '../../../app/api/query-client';
-import { getManagerOrders, getManagerOrderById, markOrderReady, markOrderOutForDelivery, markOrderDelivered } from '../api/orders.api';
+import { getManagerOrders, getManagerOrderById, markOrderReady, markOrderOutForDelivery, markOrderDelivered, markCashCollected } from '../api/orders.api';
 import { OrderQuery } from '../../../shared/types/orders';
 
 export const managerOrderKeys = {
@@ -49,3 +49,9 @@ export function useMarkOrderDelivered() {
   });
 }
 
+export function useMarkCashCollected() {
+  return useMutation({
+    mutationFn: (orderId: number) => markCashCollected(orderId),
+    onSuccess: (_, orderId) => invalidateOrders(orderId),
+  });
+}

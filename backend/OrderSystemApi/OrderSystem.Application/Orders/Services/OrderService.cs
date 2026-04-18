@@ -253,6 +253,7 @@ namespace OrderSystem.Application.Orders.Services
 
         public async Task<OrderStatusChangeResponse> MarkReadyAsync(
             long orderId,
+            long performedByUserId,
             CancellationToken cancellationToken)
         {
             var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
@@ -268,7 +269,7 @@ namespace OrderSystem.Application.Orders.Services
 
             _orderRepository.Update(order);
             
-            await _activityLogService.LogActionAsync("ORDER_STATUS_CHANGE", "Order", order.Id.ToString(), null, new { OldStatus = OrderStatus.PROCESSING.ToString(), NewStatus = OrderStatus.READY.ToString() }, cancellationToken);
+            await _activityLogService.LogActionAsync("ORDER_STATUS_CHANGE", "Order", order.Id.ToString(), performedByUserId, new { OldStatus = OrderStatus.PROCESSING.ToString(), NewStatus = OrderStatus.READY.ToString() }, cancellationToken);
 
 
             return new OrderStatusChangeResponse
@@ -281,6 +282,7 @@ namespace OrderSystem.Application.Orders.Services
 
         public async Task<OrderStatusChangeResponse> MarkOutForDeliveryAsync(
             long orderId,
+            long performedByUserId,
             CancellationToken cancellationToken)
         {
             var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
@@ -296,7 +298,7 @@ namespace OrderSystem.Application.Orders.Services
 
             _orderRepository.Update(order);
 
-            await _activityLogService.LogActionAsync("ORDER_STATUS_CHANGE", "Order", order.Id.ToString(), null, new { OldStatus = OrderStatus.READY.ToString(), NewStatus = OrderStatus.OUT_FOR_DELIVERY.ToString() }, cancellationToken);
+            await _activityLogService.LogActionAsync("ORDER_STATUS_CHANGE", "Order", order.Id.ToString(), performedByUserId, new { OldStatus = OrderStatus.READY.ToString(), NewStatus = OrderStatus.OUT_FOR_DELIVERY.ToString() }, cancellationToken);
 
             return new OrderStatusChangeResponse
             {
@@ -308,6 +310,7 @@ namespace OrderSystem.Application.Orders.Services
 
         public async Task<OrderDeliveredResponse> MarkDeliveredAsync(
             long orderId,
+            long performedByUserId,
             CancellationToken cancellationToken)
         {
             var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
@@ -323,7 +326,7 @@ namespace OrderSystem.Application.Orders.Services
 
             _orderRepository.Update(order);
             
-            await _activityLogService.LogActionAsync("ORDER_STATUS_CHANGE", "Order", order.Id.ToString(), null, new { OldStatus = OrderStatus.OUT_FOR_DELIVERY.ToString(), NewStatus = OrderStatus.DELIVERED.ToString() }, cancellationToken);
+            await _activityLogService.LogActionAsync("ORDER_STATUS_CHANGE", "Order", order.Id.ToString(), performedByUserId, new { OldStatus = OrderStatus.OUT_FOR_DELIVERY.ToString(), NewStatus = OrderStatus.DELIVERED.ToString() }, cancellationToken);
 
             return new OrderDeliveredResponse
             {
@@ -354,6 +357,7 @@ namespace OrderSystem.Application.Orders.Services
                 CustomerId = order.CustomerId,
                 Status = order.Status,
                 PaymentMethod = order.PaymentMethod,
+                PaymentStatus = order.Payments != null ? order.Payments.Status : PaymentStatus.PENDING,
                 TotalAmount = order.TotalAmount,
                 CreatedAt = order.CreatedAt,
                 ReadyAt = order.ReadyAt,

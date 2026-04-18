@@ -258,6 +258,7 @@ export const ar: TranslationMessages = {
     markReady: 'تعليم كجاهز',
     markOutForDelivery: 'تعليم في الطريق',
     markDelivered: 'تعليم كمُوصَّل',
+    markCashCollected: 'تعليم النقد كمستلم',
     productName: 'اسم المنتج',
     productDesc: 'الوصف',
     productPrice: 'السعر',
@@ -298,11 +299,24 @@ export const ar: TranslationMessages = {
     // Activity Log
     activityLog: 'سجل النشاطات',
     activityLogDesc: 'سجل تدقيق لتتبع الإجراءات الهامة في النظام',
+    monitoring: 'مراقبة',
+    recentActions: 'إجراء حديث',
+    allEntities: 'كل الكيانات',
+    entities: 'الكيانات',
+    usersLabel: 'المستخدمون',
+    timestamp: 'الوقت',
+    action: 'الإجراء',
+    entity: 'الكيان',
+    userId: 'المستخدم',
+    detailsLabel: 'التفاصيل',
+    system: 'النظام',
+    noActivityLogs: 'لم يتم العثور على سجلات نشاط',
 
     // Catalog
     catalogOverview: 'نظرة عامة على الكتالوج',
     catalogDesc: 'إدارة المنتجات وتنفيذ الإجراءات الجماعية',
     searchCatalog: 'البحث عن منتجات...',
+    stock: 'المخزون',
 
     // Dashboard
     dashboard: 'لوحة التحكم',
@@ -366,6 +380,15 @@ export const ar: TranslationMessages = {
     // Manager Performance
     managerPerformance: 'أداء المديرين',
     managerPerformanceDesc: 'تتبع نشاط معالجة الطلبات من قبل المديرين',
+    totalManagers: 'إجمالي المديرين',
+    totalOrdersProcessed: 'إجمالي الطلبات المعالجة',
+    topPerformer: 'أفضل مدير',
+    rank: 'الترتيب',
+    ordersProcessed: 'الطلبات المعالجة',
+    lastActive: 'آخر نشاط',
+    never: 'أبدًا',
+    noManagers: 'لم يتم العثور على مديرين',
+    exportCsv: 'تصدير CSV',
   },
 
   // ── States ──

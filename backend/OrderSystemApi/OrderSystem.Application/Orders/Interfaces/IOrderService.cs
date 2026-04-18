@@ -35,14 +35,17 @@ namespace OrderSystem.Application.Orders.Interfaces
 
         Task<OrderStatusChangeResponse> MarkReadyAsync(
             long orderId,
+            long performedByUserId,
             CancellationToken cancellationToken);
 
         Task<OrderStatusChangeResponse> MarkOutForDeliveryAsync(
             long orderId,
+            long performedByUserId,
             CancellationToken cancellationToken);
 
         Task<OrderDeliveredResponse> MarkDeliveredAsync(
             long orderId,
+            long performedByUserId,
             CancellationToken cancellationToken);
     }
 }

@@ -21,7 +21,7 @@ namespace OrderSystem.Application.Payments.Interfaces
             PayByCardRequest request,
             CancellationToken cancellationToken);
 
-        Task MarkCashPaidAsync(
+        Task<PaymentResponse> MarkCashPaidAsync(
             long orderId,
             CancellationToken cancellationToken);
     }

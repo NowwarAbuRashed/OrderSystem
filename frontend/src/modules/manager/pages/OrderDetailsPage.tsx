@@ -1,5 +1,6 @@
+import type { ReactNode } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useManagerOrderQuery, useMarkOrderReady, useMarkOrderOutForDelivery, useMarkOrderDelivered } from '../hooks/useManagerOrders';
+import { useManagerOrderQuery, useMarkOrderReady, useMarkOrderOutForDelivery, useMarkOrderDelivered, useMarkCashCollected } from '../hooks/useManagerOrders';
 import { useI18n } from '../../../app/i18n/i18n-context';
 import { PageHeader } from '../../../shared/components/PageHeader';
 import { LoadingBlock } from '../../../shared/components/LoadingBlock';
@@ -7,12 +8,13 @@ import { ErrorState } from '../../../shared/components/ErrorState';
 import { getApiErrorMessage } from '../../../shared/utils/error';
 import { PriceText } from '../../../shared/components/PriceText';
 import { DetailList } from '../../../shared/components/DetailList';
-import { orderStatusLabelMap, paymentMethodLabelMap, OrderStatus } from '../../../shared/types/orders';
+import { orderStatusLabelMap, paymentMethodLabelMap, paymentStatusLabelMap, OrderStatus, PaymentMethod, PaymentStatus } from '../../../shared/types/orders';
 import { formatDate } from '../../../shared/utils/date';
-import { ChevronLeft, Package, Clock, Truck, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, Package, Clock, Truck, CheckCircle2, Banknote } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/Card';
 import { Button } from '../../../shared/components/Button';
 import { useProductQuery } from '../../catalog/hooks/useCatalog';
+import { StatusBadge } from '../../../shared/components/StatusBadge';
 
 function OrderItemRow({ item }: { item: any }) {
   const { data: product } = useProductQuery(item.productId);
@@ -38,23 +40,79 @@ export function ManagerOrderDetailsPage() {
   const { mutate: markReady, isPending: isMarkingReady } = useMarkOrderReady();
   const { mutate: markOutForDelivery, isPending: isMarkingOfd } = useMarkOrderOutForDelivery();
   const { mutate: markDelivered, isPending: isMarkingDelivered } = useMarkOrderDelivered();
+  const { mutate: markCashCollected, isPending: isMarkingCashCollected } = useMarkCashCollected();
   const { t } = useI18n();
 
-  const isUpdating = isMarkingReady || isMarkingOfd || isMarkingDelivered;
+  const isUpdating = isMarkingReady || isMarkingOfd || isMarkingDelivered || isMarkingCashCollected;
 
   if (isLoading) return <LoadingBlock />;
   if (error || !order) return <ErrorState message={error ? getApiErrorMessage(error) : 'Order not found'} />;
 
-  const nextAction = () => {
+  const getPaymentStatusVariant = (status: PaymentStatus) => {
+    if (status === PaymentStatus.PAID) return 'success' as const;
+    if (status === PaymentStatus.FAILED) return 'error' as const;
+    return 'warning' as const;
+  };
+
+  const canMarkCashCollected =
+    order.status === OrderStatus.DELIVERED &&
+    order.paymentMethod === PaymentMethod.CASH &&
+    order.paymentStatus === PaymentStatus.PENDING;
+
+  const headerAction = () => {
+    const actions: ReactNode[] = [];
+
     if (order.status === OrderStatus.PROCESSING) {
-      return <Button size="sm" className="rounded-xl" onClick={() => markReady(id)} disabled={isUpdating} isLoading={isMarkingReady}>{t.manager.markReady}</Button>;
+      actions.push(
+        <Button key="ready" size="sm" className="rounded-xl" onClick={() => markReady(id)} disabled={isUpdating} isLoading={isMarkingReady}>
+          {t.manager.markReady}
+        </Button>
+      );
     }
     if (order.status === OrderStatus.READY) {
-      return <Button size="sm" className="rounded-xl" onClick={() => markOutForDelivery(id)} disabled={isUpdating} isLoading={isMarkingOfd}>{t.manager.markOutForDelivery}</Button>;
+      actions.push(
+        <Button key="out-for-delivery" size="sm" className="rounded-xl" onClick={() => markOutForDelivery(id)} disabled={isUpdating} isLoading={isMarkingOfd}>
+          {t.manager.markOutForDelivery}
+        </Button>
+      );
     }
     if (order.status === OrderStatus.OUT_FOR_DELIVERY) {
-      return <Button size="sm" variant="primary" className="bg-success-600 hover:bg-success-500 rounded-xl" onClick={() => markDelivered(id)} disabled={isUpdating} isLoading={isMarkingDelivered}>{t.manager.markDelivered}</Button>;
+      actions.push(
+        <Button
+          key="delivered"
+          size="sm"
+          variant="primary"
+          className="bg-success-600 hover:bg-success-500 rounded-xl"
+          onClick={() => markDelivered(id)}
+          disabled={isUpdating}
+          isLoading={isMarkingDelivered}
+        >
+          {t.manager.markDelivered}
+        </Button>
+      );
     }
+
+    if (canMarkCashCollected) {
+      actions.push(
+        <Button
+          key="cash-collected"
+          size="sm"
+          variant="outline"
+          className="rounded-xl"
+          onClick={() => markCashCollected(id)}
+          disabled={isUpdating}
+          isLoading={isMarkingCashCollected}
+        >
+          <Banknote className="w-4 h-4 mr-1.5" />
+          {t.manager.markCashCollected}
+        </Button>
+      );
+    }
+
+    if (actions.length > 0) {
+      return <div className="flex flex-wrap items-center justify-end gap-2">{actions}</div>;
+    }
+
     return <span className="text-sm font-bold text-success-600 flex items-center gap-1"><CheckCircle2 className="w-4 h-4"/> {t.orders.delivered}</span>;
   };
 
@@ -74,7 +132,7 @@ export function ManagerOrderDetailsPage() {
 
       <PageHeader
         title={`${t.orders.orderId} #${order.orderId}`}
-        action={nextAction()}
+        action={headerAction()}
       />
 
       {/* Status Timeline */}
@@ -124,6 +182,7 @@ export function ManagerOrderDetailsPage() {
                 { label: t.orders.orderStatus, value: <span className="text-primary-600 font-bold">{orderStatusLabelMap[order.status]}</span> },
                 { label: 'Customer ID', value: `#${order.customerId}` },
                 { label: t.orders.paymentMethod, value: paymentMethodLabelMap[order.paymentMethod] },
+                { label: t.payment.paymentStatus, value: <StatusBadge label={paymentStatusLabelMap[order.paymentStatus]} variant={getPaymentStatusVariant(order.paymentStatus)} /> },
                 { label: t.orders.orderDate, value: formatDate(order.createdAt, { year: 'numeric', month: 'short', day: 'numeric' }) },
               ]} />
               <div className="mt-4 bg-primary-50 p-4 rounded-xl border border-primary-100 flex justify-between items-baseline">

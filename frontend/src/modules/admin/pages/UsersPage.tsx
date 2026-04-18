@@ -9,6 +9,7 @@ import { StatusBadge } from '../../../shared/components/StatusBadge';
 import { Card } from '../../../shared/components/Card';
 import { AppTable, Column } from '../../../shared/components/AppTable';
 import { Users, UserCheck, UserX, Shield } from 'lucide-react';
+import { formatDate } from '../../../shared/utils/date';
 
 type AdminUser = {
   userId: number;
@@ -21,8 +22,9 @@ type AdminUser = {
 };
 
 export function AdminUsersPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [roleFilter, setRoleFilter] = useState<string>('');
+  const dateLocale = locale === 'ar' ? 'ar-SA-u-ca-gregory' : 'en-US';
   const params = {
     page: 1,
     pageSize: 50,
@@ -103,7 +105,7 @@ export function AdminUsersPage() {
       header: t.admin.joinedDate,
       accessor: (row) => (
         <span className="text-sm text-slate-500">
-          {new Date(row.createdAt).toLocaleDateString()}
+          {formatDate(row.createdAt, undefined, dateLocale)}
         </span>
       ),
     },

@@ -8,6 +8,7 @@ import { Card } from '../../../shared/components/Card';
 import { AppTable, Column } from '../../../shared/components/AppTable';
 import { DollarSign, CheckCircle2, Clock, XCircle, CreditCard, Banknote, TrendingUp, Download } from 'lucide-react';
 import { downloadCSV } from '../../../shared/utils/exportUtils';
+import { formatDate } from '../../../shared/utils/date';
 
 type DailyRevenue = {
   date: string;
@@ -28,8 +29,9 @@ type RevenueData = {
 };
 
 export function AdminRevenueReportPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { data, isLoading, error } = useAdminRevenueQuery(30);
+  const dateLocale = locale === 'ar' ? 'ar-SA-u-ca-gregory' : 'en-US';
 
   if (isLoading) return <LoadingBlock />;
   if (error) return <ErrorState message="Could not load revenue report." />;
@@ -42,7 +44,7 @@ export function AdminRevenueReportPage() {
       header: t.admin.date,
       accessor: (row) => (
         <span className="font-medium text-slate-900">
-          {new Date(row.date).toLocaleDateString()}
+          {formatDate(row.date, undefined, dateLocale)}
         </span>
       ),
     },

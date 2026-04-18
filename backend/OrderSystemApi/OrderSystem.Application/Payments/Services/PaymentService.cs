@@ -109,10 +109,18 @@ namespace OrderSystem.Application.Payments.Services
             return MapPaymentResponse(payment);
         }
 
-        public async Task MarkCashPaidAsync(
+        public async Task<PaymentResponse> MarkCashPaidAsync(
             long orderId,
             CancellationToken cancellationToken)
         {
+            var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
+
+            if (order == null)
+                throw new Exception("Order not found");
+
+            if (order.Status != OrderStatus.DELIVERED)
+                throw new Exception("Cash can only be collected for delivered orders");
+
             var payment = await _paymentRepository.GetByOrderIdAsync(orderId, cancellationToken);
 
             if (payment == null)
@@ -122,13 +130,15 @@ namespace OrderSystem.Application.Payments.Services
                 throw new Exception("This order is not configured for cash payment");
 
             if (payment.Status == PaymentStatus.PAID)
-                return;
+                return MapPaymentResponse(payment);
 
             payment.Status = PaymentStatus.PAID;
             payment.PaidAt = DateTime.UtcNow;
             payment.TransactionRef = $"CASH-{Guid.NewGuid():N}";
 
             _paymentRepository.Update(payment);
+
+            return MapPaymentResponse(payment);
         }
 
         private static PaymentResponse MapPaymentResponse(Payment payment)

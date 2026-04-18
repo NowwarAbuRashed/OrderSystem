@@ -69,6 +69,7 @@ export type OrderDetails = {
   customerId: number;
   status: OrderStatus;
   paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
   totalAmount: number;
   createdAt: string;
   readyAt: string | null;

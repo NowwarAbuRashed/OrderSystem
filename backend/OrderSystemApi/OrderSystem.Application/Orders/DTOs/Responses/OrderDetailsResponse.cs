@@ -13,6 +13,7 @@ namespace OrderSystem.Application.Orders.DTOs.Responses
         public long CustomerId { get; set; }
         public OrderStatus Status { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
+        public PaymentStatus PaymentStatus { get; set; }
         public decimal TotalAmount { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? ReadyAt { get; set; }
