@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useProductsQuery, useCategoriesQuery } from '../hooks/useCatalog';
 import { useI18n } from '../../../app/i18n/i18n-context';
 import { LoadingBlock } from '../../../shared/components/LoadingBlock';
@@ -10,14 +9,44 @@ import { PageHeader } from '../../../shared/components/PageHeader';
 import { ProductCard } from '../../../shared/components/ProductCard';
 import { useAddCartItem } from '../../cart/hooks/useCart';
 import { Search, Filter, ShoppingBag, Sparkles } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 
 export function ProductsListPage() {
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
-  const [categoryId, setCategoryId] = useState<number | undefined>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Number(searchParams.get('page')) || 1;
+  const search = searchParams.get('search') || '';
+  const categoryId = searchParams.get('categoryId') ? Number(searchParams.get('categoryId')) : undefined;
   const pageSize = 12;
   const { t } = useI18n();
 
+  const setPage = (newPage: number) => {
+    setSearchParams(prev => {
+      const params = new URLSearchParams(prev);
+      if (newPage <= 1) params.delete('page');
+      else params.set('page', String(newPage));
+      return params;
+    }, { replace: true });
+  };
+
+  const setSearch = (value: string) => {
+    setSearchParams(prev => {
+      const params = new URLSearchParams(prev);
+      if (value) params.set('search', value);
+      else params.delete('search');
+      params.delete('page');
+      return params;
+    }, { replace: true });
+  };
+
+  const setCategoryId = (id: number | undefined) => {
+    setSearchParams(prev => {
+      const params = new URLSearchParams(prev);
+      if (id) params.set('categoryId', String(id));
+      else params.delete('categoryId');
+      params.delete('page');
+      return params;
+    }, { replace: true });
+  };
   const { data, isLoading, error } = useProductsQuery({ page, pageSize, search, categoryId });
   const { data: categories } = useCategoriesQuery();
   const { mutate: addToCart, isPending: isAddingToCart } = useAddCartItem();

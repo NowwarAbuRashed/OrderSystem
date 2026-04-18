@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useProductQuery } from '../hooks/useCatalog';
 import { useAddCartItem } from '../../cart/hooks/useCart';
 import { useI18n } from '../../../app/i18n/i18n-context';
@@ -19,10 +19,31 @@ export function ProductDetailsPage() {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [addedMessage, setAddedMessage] = useState('');
+  const thumbnailsRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const { t } = useI18n();
 
   const { data: product, isLoading, error } = useProductQuery(id);
   const { mutate: addToCart, isPending } = useAddCartItem();
+
+  // Reset selected image when navigating to a different product
+  useEffect(() => {
+    setSelectedImage(0);
+    setQuantity(1);
+    setAddedMessage('');
+  }, [productId]);
+
+  // Auto-scroll thumbnails to keep selected one visible
+  useEffect(() => {
+    if (thumbnailsRef.current) {
+      const container = thumbnailsRef.current;
+      const activeThumb = container.children[selectedImage] as HTMLElement;
+      if (activeThumb) {
+        const scrollLeft = activeThumb.offsetLeft - container.offsetWidth / 2 + activeThumb.offsetWidth / 2;
+        container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+      }
+    }
+  }, [selectedImage]);
 
   if (isLoading) return <LoadingBlock />;
   if (isNaN(id)) return <ErrorState message="Invalid product reference" />;
@@ -45,9 +66,12 @@ export function ProductDetailsPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <Link to="/products" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-primary-600 transition-colors">
-        <ChevronLeft className="w-4 h-4 mr-1" /> {t.products.backToProducts}
-      </Link>
+      <button
+        onClick={() => navigate(-1)}
+        className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-primary-600 transition-colors cursor-pointer"
+      >
+        <ChevronLeft className="w-4 h-4 me-1" /> {t.products.backToProducts}
+      </button>
 
       <div className="bg-white rounded-2xl shadow-xl border border-slate-200/60 overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2">
@@ -78,7 +102,10 @@ export function ProductDetailsPage() {
             </div>
             {/* Thumbnails */}
             {product.images && product.images.length > 1 && (
-              <div className="flex items-center gap-2 px-4 pb-4 justify-center overflow-x-auto max-w-full scrollbar-hide">
+              <div
+                ref={thumbnailsRef}
+                className="flex items-center gap-2 px-4 pb-4 overflow-x-auto scrollbar-hide"
+              >
                 {product.images.map((img: any, idx: number) => (
                   <button
                     key={img.id || idx}
