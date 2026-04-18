@@ -288,9 +288,12 @@ export const ar: TranslationMessages = {
     productName: 'المنتج',
     quantity: 'الكمية',
     minQty: 'الحد الأدنى',
-    ok: 'جيد',
+    ok: 'مخزون جيد',
     low: 'منخفض',
     critical: 'حرج',
+    totalProducts: 'إجمالي المنتجات',
+    healthyStock: 'مخزون جيد',
+    productsNeedReordering: 'منتجات تحتاج إعادة طلب',
   },
 
   // ── States ──

@@ -79,7 +79,7 @@ export function AdminLayout() {
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Desktop Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-200/60 hidden md:flex flex-col flex-shrink-0">
+      <aside className="w-64 bg-white border-r border-slate-200/60 hidden md:flex flex-col flex-shrink-0 sticky top-0 h-screen overflow-y-auto">
         <SidebarContent />
       </aside>
 
@@ -87,7 +87,7 @@ export function AdminLayout() {
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="fixed inset-0 bg-black/30" onClick={() => setSidebarOpen(false)} />
-          <aside className="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl flex flex-col z-50">
+          <aside className="fixed inset-y-0 start-0 w-72 bg-white shadow-2xl flex flex-col z-50">
             <div className="flex items-center justify-end p-3">
               <button onClick={() => setSidebarOpen(false)} className="p-2 text-slate-400 hover:text-slate-600 rounded-lg">
                 <X className="w-5 h-5" />

@@ -45,7 +45,7 @@ export function AdminLowStockPage() {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <StatCard icon={<AlertTriangle className="w-5 h-5" />} label="Products Need Reordering" value={totalAlerts} variant="warning" />
+        <StatCard icon={<AlertTriangle className="w-5 h-5" />} label={t.admin.productsNeedReordering} value={totalAlerts} variant="warning" />
         <StatCard icon={<Tag className="w-5 h-5" />} label={t.products.outOfStock} value={criticalItems} variant="danger" />
       </div>
 

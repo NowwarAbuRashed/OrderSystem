@@ -9,6 +9,7 @@ import { PriceText } from '../../../shared/components/PriceText';
 import { StatusBadge } from '../../../shared/components/StatusBadge';
 import { Card } from '../../../shared/components/Card';
 import { orderStatusLabelMap, paymentMethodLabelMap, OrderStatus } from '../../../shared/types/orders';
+import { formatDate } from '../../../shared/utils/date';
 import { Eye } from 'lucide-react';
 
 type OrderListItem = NonNullable<ReturnType<typeof useManagerOrdersQuery>['data']>['items'][0];
@@ -35,7 +36,7 @@ export function ManagerOrdersPage() {
     },
     {
       header: t.orders.orderDate,
-      accessor: (row) => new Date(row.createdAt).toLocaleDateString(),
+      accessor: (row) => formatDate(row.createdAt),
     },
     {
       header: t.orders.paymentMethod,

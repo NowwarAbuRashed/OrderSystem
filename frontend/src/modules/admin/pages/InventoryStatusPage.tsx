@@ -42,8 +42,8 @@ export function AdminInventoryStatusPage() {
       <PageHeader title={t.admin.inventoryStatus} description={t.admin.inventoryStatusDesc} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={<Package className="w-5 h-5" />} label="Total Products" value={totalProducts} variant="default" />
-        <StatCard icon={<CheckCircle2 className="w-5 h-5" />} label="Healthy Stock" value={inStock} variant="success" />
+        <StatCard icon={<Package className="w-5 h-5" />} label={t.admin.totalProducts} value={totalProducts} variant="default" />
+        <StatCard icon={<CheckCircle2 className="w-5 h-5" />} label={t.admin.healthyStock} value={inStock} variant="success" />
         <StatCard icon={<AlertTriangle className="w-5 h-5" />} label={t.products.lowStock} value={lowStock} variant="warning" />
         <StatCard icon={<XCircle className="w-5 h-5" />} label={t.products.outOfStock} value={outOfStock} variant="danger" />
       </div>

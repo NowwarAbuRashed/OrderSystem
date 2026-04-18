@@ -55,6 +55,7 @@ namespace OrderSystem.Infrastructure.Repositories
                CancellationToken ct)
         {
             IQueryable<Product> query = _context.Products
+                .Include(p => p.Images)
                 .AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(search))

@@ -42,7 +42,14 @@ public class ProductService : IProductService
                 MinQuantity = x.MinQuantity,
                 Status = x.Status.ToString(),
                 CategoryId = x.CategoryId ?? 0,
-         //       Images = (x.Id, ct)
+                Images = x.Images.OrderBy(i => i.SortOrder).Select(i => new ProductImageResponse
+                {
+                    Id = i.Id,
+                    ImageUrl = i.ImageUrl,
+                    AltText = i.AltText ?? string.Empty,
+                    SortOrder = i.SortOrder,
+                    IsPrimary = i.IsPrimary
+                }).ToList()
             }).ToList(),
             TotalCount = totalCount,
             Page = page,

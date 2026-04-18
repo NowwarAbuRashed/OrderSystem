@@ -288,9 +288,12 @@ export const en = {
     productName: 'Product',
     quantity: 'Quantity',
     minQty: 'Min. Qty',
-    ok: 'OK',
+    ok: 'Healthy Stock',
     low: 'Low',
     critical: 'Critical',
+    totalProducts: 'Total Products',
+    healthyStock: 'Healthy Stock',
+    productsNeedReordering: 'Products Need Reordering',
   },
 
   // ── States ──

@@ -9,8 +9,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { User, Lock, CheckCircle2, AlertCircle, Shield } from 'lucide-react';
 import { getApiErrorMessage, getApiErrorMap } from '../../../shared/utils/error';
+import { useAuth } from '../../../app/store/auth-context';
 
 export function SettingsPage() {
+  const { updateUser } = useAuth();
   const { data: profile, isLoading } = useProfile();
   const updateProfile = useUpdateProfile();
   const changePassword = useChangePassword();
@@ -75,14 +77,7 @@ export function SettingsPage() {
     updateProfile.mutate({ fullName: data.fullName }, {
       onSuccess: (res) => {
         setProfileSuccess(t.settings.profileUpdated);
-        // Update localStorage to reflect new name in the header
-        const storedUser = localStorage.getItem('current_user');
-        if (storedUser) {
-          const parsed = JSON.parse(storedUser);
-          parsed.fullName = res.fullName;
-          localStorage.setItem('current_user', JSON.stringify(parsed));
-          window.dispatchEvent(new Event('storage'));
-        }
+        updateUser({ fullName: res.fullName });
       },
       onError: (err) => {
         const errorMsg = getApiErrorMessage(err);

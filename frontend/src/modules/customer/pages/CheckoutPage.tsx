@@ -24,9 +24,12 @@ export function CheckoutPage() {
   const { t } = useI18n();
 
   const checkoutSchema = useMemo(() => z.object({
-    paymentMethod: z.nativeEnum(PaymentMethod, {
-      message: t.validation?.required || 'Payment method is required'
-    }),
+    paymentMethod: z.preprocess(
+      (val) => Number(val),
+      z.nativeEnum(PaymentMethod, {
+        message: t.validation?.required || 'Payment method is required'
+      })
+    ),
     notes: z.string().optional()
   }), [t]);
 
@@ -37,7 +40,7 @@ export function CheckoutPage() {
     defaultValues: { notes: '', paymentMethod: PaymentMethod.CASH }
   });
 
-  const selectedPaymentMethod = watch('paymentMethod');
+  const selectedPaymentMethod = Number(watch('paymentMethod'));
 
   if (isCartLoading) return <LoadingBlock />;
   if (!cart || !cart.items.length) {

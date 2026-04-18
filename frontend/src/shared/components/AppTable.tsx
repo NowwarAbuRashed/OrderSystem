@@ -20,7 +20,7 @@ export function AppTable<T>({ columns, data, keyField, isLoading, emptyMessage }
         <thead className="bg-slate-50/50">
           <tr>
             {columns.map((col, i) => (
-              <th key={i} className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+              <th key={i} className="px-6 py-4 text-start text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
                 {col.header}
               </th>
             ))}

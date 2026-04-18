@@ -6,6 +6,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   login: (userData: CurrentUser) => void;
   logout: () => void;
+  updateUser: (updatedFields: Partial<CurrentUser>) => void;
   isInitializing: boolean;
 };
 
@@ -42,12 +43,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const updateUser = (updatedFields: Partial<CurrentUser>) => {
+    setUser(prev => {
+      if (!prev) return prev;
+      const newUser = { ...prev, ...updatedFields };
+      localStorage.setItem('current_user', JSON.stringify(newUser));
+      return newUser;
+    });
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
       isAuthenticated: !!user,
       login,
       logout,
+      updateUser,
       isInitializing
     }}>
       {children}

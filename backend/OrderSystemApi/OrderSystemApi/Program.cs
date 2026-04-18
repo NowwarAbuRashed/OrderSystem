@@ -131,6 +131,12 @@ namespace OrderSystemApi
 
             var app = builder.Build();
 
+            var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads");
+            if (!Directory.Exists(uploadsPath))
+            {
+                Directory.CreateDirectory(uploadsPath);
+            }
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -146,6 +152,7 @@ namespace OrderSystemApi
                 .AllowCredentials());
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseAuthentication();
             app.UseAuthorization();

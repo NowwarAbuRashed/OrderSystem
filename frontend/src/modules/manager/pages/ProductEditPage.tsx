@@ -8,7 +8,8 @@ import {
   useCreateProduct,
   useUpdateProduct,
   useAddProductImage,
-  useDeleteProductImage
+  useDeleteProductImage,
+  useUploadImage
 } from '../hooks/useManagerProducts';
 import { useManagerCategoriesQuery } from '../hooks/useManagerCategories';
 import { useI18n } from '../../../app/i18n/i18n-context';
@@ -35,11 +36,13 @@ export function ManagerProductEditPage() {
   const { mutate: createProduct, isPending: isCreating } = useCreateProduct();
   const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct();
 
-  const { mutate: addImage, isPending: isAddingImage } = useAddProductImage();
+  const { mutate: addImage, mutateAsync: addImageAsync, isPending: isAddingImage } = useAddProductImage();
   const { mutate: deleteImage } = useDeleteProductImage();
+  const { mutateAsync: uploadImageAsync } = useUploadImage();
 
   const location = useLocation();
   const [newImageUrl, setNewImageUrl] = useState('');
+  const [pendingFiles, setPendingFiles] = useState<{ id: string, file: File, preview: string }[]>([]);
   const [isSuccess, setIsSuccess] = useState(location.state?.created || false);
 
   useEffect(() => {
@@ -102,7 +105,26 @@ export function ManagerProductEditPage() {
       createProduct(
         { name: data.name, description: data.description, price: data.price, quantity: data.quantity || 0, minQuantity: data.minQuantity, categoryId: data.categoryId },
         { 
-          onSuccess: (res) => navigate(`/manager/products/${res.id}`, { state: { created: true } }),
+          onSuccess: async (res) => {
+            if (pendingFiles.length > 0) {
+              try {
+                let sortOrder = 1;
+                for (const pf of pendingFiles) {
+                  const uploadRes = await uploadImageAsync(pf.file);
+                  await addImageAsync({
+                    productId: res.id,
+                    imageUrl: uploadRes.url,
+                    altText: data.name,
+                    sortOrder: sortOrder++,
+                    isPrimary: sortOrder === 2
+                  });
+                }
+              } catch (err) {
+                console.error("Failed to upload all images", err);
+              }
+            }
+            navigate(`/manager/products/${res.id}`, { state: { created: true } });
+          },
           onError: handleServerError
         }
       );
@@ -131,6 +153,33 @@ export function ManagerProductEditPage() {
     }, {
       onSuccess: () => setNewImageUrl('')
     });
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    const file = e.target.files[0];
+    
+    if (isNew) {
+      setPendingFiles(prev => [...prev, {
+        id: Math.random().toString(36).substring(7),
+        file,
+        preview: URL.createObjectURL(file)
+      }]);
+    } else {
+      try {
+        const uploadRes = await uploadImageAsync(file);
+        addImage({
+          productId: id,
+          imageUrl: uploadRes.url,
+          altText: product?.name || "",
+          sortOrder: (product?.images?.length || 0) + 1,
+          isPrimary: product?.images?.length === 0,
+        });
+      } catch (err) {
+        console.error("Upload failed", err);
+      }
+    }
+    e.target.value = '';
   };
 
   const inputClass = "block w-full rounded-xl border-0 py-2.5 pl-3 pr-8 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-primary-500 sm:text-sm transition-all bg-white";
@@ -223,60 +272,84 @@ export function ManagerProductEditPage() {
         </div>
 
         <div className="space-y-6">
-          {!isNew && (
-            <Card className="rounded-2xl shadow-sm border-slate-200/60 overflow-hidden">
-              <CardHeader className="bg-slate-50 border-b border-slate-100 pb-4">
-                <CardTitle className="flex items-center gap-2">
-                  <ImageIcon className="w-5 h-5 text-primary-600" /> {t.manager.addImage}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="flex gap-2 mb-6">
-                  <div className="flex-1">
-                    <Input
-                      type="text"
-                      value={newImageUrl}
-                      onChange={e => setNewImageUrl(e.target.value)}
-                      placeholder="https://example.com/image.jpg"
-                    />
-                  </div>
-                  <Button onClick={handleAddImage} disabled={isAddingImage || !newImageUrl} variant="secondary" className="rounded-xl">{t.actions.add}</Button>
+          <Card className="rounded-2xl shadow-sm border-slate-200/60 overflow-hidden">
+            <CardHeader className="bg-slate-50 border-b border-slate-100 pb-4">
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-primary-600" /> {t.manager.addImage}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              
+              <div className="flex gap-2 mb-6 items-center">
+                <div className="flex-1">
+                  <Input
+                    type="text"
+                    value={newImageUrl}
+                    onChange={e => setNewImageUrl(e.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                  />
                 </div>
+                <Button onClick={handleAddImage} disabled={(!isNew && isAddingImage) || !newImageUrl} variant="secondary" className="rounded-xl">{t.actions.add}</Button>
+              </div>
 
-                {product?.images && product.images.length > 0 ? (
-                  <ul className="grid grid-cols-2 gap-3">
-                    {product.images.map((img, idx) => (
-                      <li key={img.id} className="relative group rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-slate-50 aspect-square">
-                        <ImageFallback src={img.imageUrl} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" fallbackIconSize={32} />
-                        <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors" />
-                        <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-700">
-                          {idx === 0 ? 'Primary' : 'Gallery'}
-                        </div>
-                        <button
-                          onClick={() => deleteImage({ imageId: img.id, productId: id })}
-                          className="absolute bottom-2 right-2 p-1.5 bg-white text-danger-500 hover:text-white hover:bg-danger-500 rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-all"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-8 text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                    <ImageOff className="w-8 h-8 mb-2 opacity-50" />
-                    <p className="text-sm">No images added yet.</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-          {isNew && (
-            <div className="bg-slate-50/80 p-8 rounded-2xl border border-dashed border-slate-300 flex flex-col items-center justify-center text-center">
-              <ImageIcon className="w-10 h-10 text-slate-400 mb-3" />
-              <h4 className="text-slate-900 font-medium mb-1">Image Gallery</h4>
-              <p className="text-sm text-slate-500 max-w-[200px]">Save this product first before you can attach any media.</p>
-            </div>
-          )}
+              <div className="relative mb-6 border-2 border-dashed border-slate-300 rounded-xl bg-slate-50/50 hover:bg-slate-50 hover:border-primary-400 transition-all flex flex-col items-center justify-center p-6 text-center cursor-pointer group">
+                <input type="file" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/*" />
+                <div className="p-3 bg-white rounded-full shadow-sm ring-1 ring-slate-200 group-hover:ring-primary-200 mb-3 text-primary-600">
+                  <ImageIcon className="w-6 h-6" />
+                </div>
+                <span className="text-sm font-semibold text-slate-700">Click to upload from device</span>
+                <span className="text-xs text-slate-500 mt-1">PNG, JPG up to 5MB</span>
+              </div>
+
+              {((product?.images && product.images.length > 0) || pendingFiles.length > 0) ? (
+                <ul className="grid grid-cols-2 gap-3">
+                  {/* Remote Server Images */}
+                  {!isNew && product?.images?.map((img, idx) => (
+                    <li key={img.id} className="relative group rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-slate-50 aspect-square">
+                      <ImageFallback src={img.imageUrl} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" fallbackIconSize={32} />
+                      <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors" />
+                      <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-700">
+                        {idx === 0 ? 'Primary' : 'Gallery'}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => deleteImage({ imageId: img.id, productId: id })}
+                        className="absolute bottom-2 right-2 p-1.5 bg-white text-danger-500 hover:text-white hover:bg-danger-500 rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-all z-20"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </li>
+                  ))}
+                  
+                  {/* Locally Pending Files (Unsaved) */}
+                  {pendingFiles.map((pf, idx) => (
+                    <li key={pf.id} className="relative group rounded-xl overflow-hidden shadow-sm border border-warning-200 bg-warning-50 aspect-square">
+                      <img src={pf.preview} alt="Pending" className="w-full h-full object-cover opacity-80" />
+                      <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors" />
+                      <div className="absolute top-2 left-2 bg-warning-100/90 backdrop-blur-sm px-2 py-0.5 rounded-md text-[10px] font-bold text-warning-800 border border-warning-200">
+                        {isNew && idx === 0 ? 'Primary' : 'Pending Upload'}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          URL.revokeObjectURL(pf.preview);
+                          setPendingFiles(prev => prev.filter(f => f.id !== pf.id));
+                        }}
+                        className="absolute bottom-2 right-2 p-1.5 bg-white text-danger-500 hover:text-white hover:bg-danger-500 rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-all z-20"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                  <ImageOff className="w-8 h-8 mb-2 opacity-50" />
+                  <p className="text-sm">No images added yet.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

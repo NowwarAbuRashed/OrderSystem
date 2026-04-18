@@ -10,6 +10,7 @@ import { Card } from '../../../shared/components/Card';
 import { PriceText } from '../../../shared/components/PriceText';
 import { EmptyState } from '../../../shared/components/EmptyState';
 import { orderStatusLabelMap, paymentMethodLabelMap } from '../../../shared/types/orders';
+import { formatDate } from '../../../shared/utils/date';
 import { Package, Eye } from 'lucide-react';
 
 type OrderListItem = NonNullable<ReturnType<typeof useMyOrdersQuery>['data']>['items'][0];
@@ -26,7 +27,7 @@ export function CustomerOrdersListPage() {
     },
     {
       header: t.orders.orderDate,
-      accessor: (row) => new Date(row.createdAt).toLocaleDateString(),
+      accessor: (row) => formatDate(row.createdAt),
     },
     {
       header: t.orders.orderStatus,

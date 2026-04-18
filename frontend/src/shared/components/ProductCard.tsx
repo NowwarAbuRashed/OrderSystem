@@ -35,17 +35,12 @@ export function ProductCard({
         className="block"
       >
         {/* Image */}
-        <div className="h-52 bg-gradient-to-b from-slate-50 to-white relative flex items-center justify-center p-6 border-b border-slate-100">
-          {primaryImage ? (
-            <ImageFallback
-              src={primaryImage.imageUrl}
-              alt={product.name}
-              className="max-h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
-              fallbackIconSize={48}
-            />
-          ) : (
-            <ImageOff className="w-12 h-12 text-slate-300" />
-          )}
+        <div className="h-52 bg-gradient-to-b from-slate-50 to-white relative flex flex-col items-center justify-center p-6 border-b border-slate-100 overflow-hidden">
+          <ImageFallback
+            src={primaryImage?.imageUrl}
+            alt={product.name}
+            className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
+          />
           <div className="absolute top-3 right-3 flex flex-col gap-2">
             {product.quantity === 0 && <StatusBadge label="Out of Stock" variant="error" />}
             {product.quantity > 0 && product.quantity <= product.minQuantity && (

@@ -8,6 +8,7 @@ import { getApiErrorMessage } from '../../../shared/utils/error';
 import { PriceText } from '../../../shared/components/PriceText';
 import { DetailList } from '../../../shared/components/DetailList';
 import { orderStatusLabelMap, paymentMethodLabelMap, PaymentMethod } from '../../../shared/types/orders';
+import { formatDate } from '../../../shared/utils/date';
 import { ChevronLeft, Package, Clock, Truck, CheckCircle2, CreditCard } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/Card';
 import { useProductQuery } from '../../catalog/hooks/useCatalog';
@@ -125,7 +126,7 @@ export function CustomerOrderDetailsPage() {
               <DetailList items={[
                 { label: t.orders.orderStatus, value: <span className="text-primary-600 font-bold">{orderStatusLabelMap[order.status]}</span> },
                 { label: t.orders.paymentMethod, value: paymentMethodLabelMap[order.paymentMethod] },
-                { label: t.orders.orderDate, value: new Date(order.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) },
+                { label: t.orders.orderDate, value: formatDate(order.createdAt, { year: 'numeric', month: 'short', day: 'numeric' }) },
               ]} />
               <div className="mt-4 bg-primary-50 p-4 rounded-xl border border-primary-100 flex justify-between items-baseline">
                 <span className="text-sm font-bold text-primary-800">{t.cart.total}</span>

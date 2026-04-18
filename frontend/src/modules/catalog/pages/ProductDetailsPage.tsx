@@ -8,7 +8,7 @@ import { ErrorState } from '../../../shared/components/ErrorState';
 import { getApiErrorMessage } from '../../../shared/utils/error';
 import { PriceText } from '../../../shared/components/PriceText';
 import { QuantityStepper } from '../../../shared/components/QuantityStepper';
-import { ChevronLeft, ShoppingCart, ImageOff, Shield, Truck, RefreshCw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart, ImageOff, Shield, Truck, RefreshCw } from 'lucide-react';
 import { Button } from '../../../shared/components/Button';
 import { StatusBadge } from '../../../shared/components/StatusBadge';
 import { ImageFallback } from '../../../shared/components/ImageFallback';
@@ -17,6 +17,7 @@ export function ProductDetailsPage() {
   const { productId } = useParams<{ productId: string }>();
   const id = Number(productId);
   const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
   const [addedMessage, setAddedMessage] = useState('');
   const { t } = useI18n();
 
@@ -51,22 +52,62 @@ export function ProductDetailsPage() {
       <div className="bg-white rounded-2xl shadow-xl border border-slate-200/60 overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* Image Gallery */}
-          <div className="h-64 md:h-full min-h-[400px] bg-gradient-to-b from-slate-50 to-white relative flex items-center justify-center p-8 border-b md:border-b-0 md:border-r border-slate-200/60">
-            {product.images?.length > 0 ? (
-              <ImageFallback src={product.images[0].imageUrl} alt={product.name} className="max-h-full object-contain mix-blend-multiply drop-shadow-md" fallbackIconSize={64} />
-            ) : (
-              <div className="flex flex-col items-center text-slate-300">
-                <ImageOff className="w-16 h-16 mb-2" />
-                <span>{t.products.noImage}</span>
+          <div className="min-h-[400px] bg-gradient-to-b from-slate-50 to-white relative flex flex-col border-b md:border-b-0 md:border-r border-slate-200/60 overflow-hidden">
+            {/* Main Image with Arrow Navigation */}
+            <div className="flex-1 flex items-center justify-center p-8 relative">
+              <ImageFallback src={product.images?.[selectedImage]?.imageUrl} alt={product.name} className="w-full h-full object-contain mix-blend-multiply drop-shadow-md max-h-[350px]" />
+              {/* Left/Right Arrow Buttons */}
+              {product.images && product.images.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setSelectedImage((prev) => prev === 0 ? product.images!.length - 1 : prev - 1)}
+                    className="absolute start-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 border border-slate-200 shadow-lg flex items-center justify-center text-slate-600 hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 transition-all backdrop-blur-sm"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => setSelectedImage((prev) => prev === product.images!.length - 1 ? 0 : prev + 1)}
+                    className="absolute end-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 border border-slate-200 shadow-lg flex items-center justify-center text-slate-600 hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 transition-all backdrop-blur-sm"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </>
+              )}
+            </div>
+            {/* Dot Indicators + Thumbnails */}
+            {product.images && product.images.length > 1 && (
+              <div className="flex items-center gap-2 px-4 pb-4 justify-center">
+                {product.images.map((img: any, idx: number) => (
+                  <button
+                    key={img.id || idx}
+                    onClick={() => setSelectedImage(idx)}
+                    className={`w-16 h-16 rounded-lg border-2 overflow-hidden transition-all flex-shrink-0 ${
+                      idx === selectedImage
+                        ? 'border-primary-500 ring-2 ring-primary-200 shadow-md'
+                        : 'border-slate-200 hover:border-slate-300 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <ImageFallback src={img.imageUrl} alt={img.altText || product.name} className="w-full h-full object-cover" />
+                  </button>
+                ))}
               </div>
             )}
-            <div className="absolute top-4 left-4 flex flex-col gap-2">
+            {/* Status Badges */}
+            <div className="absolute top-4 start-4 flex flex-col gap-2">
               {!isAvailable ? (
                 <StatusBadge label={t.products.outOfStock} variant="error" />
               ) : product.quantity <= product.minQuantity ? (
                 <StatusBadge label={t.products.lowStock} variant="warning" />
               ) : null}
             </div>
+            {/* Image Counter */}
+            {product.images && product.images.length > 1 && (
+              <div className="absolute bottom-20 end-4 bg-black/50 text-white text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm">
+                {selectedImage + 1} / {product.images.length}
+              </div>
+            )}
           </div>
 
           {/* Details */}
