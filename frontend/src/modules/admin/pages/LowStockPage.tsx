@@ -1,41 +1,35 @@
 import { useAdminLowStockQuery } from '../hooks/useAdmin';
+import { useI18n } from '../../../app/i18n/i18n-context';
 import { PageHeader } from '../../../shared/components/PageHeader';
 import { LoadingBlock } from '../../../shared/components/LoadingBlock';
 import { ErrorState } from '../../../shared/components/ErrorState';
 import { AppTable, Column } from '../../../shared/components/AppTable';
 import { StatusBadge } from '../../../shared/components/StatusBadge';
-import { Card, CardContent } from '../../../shared/components/Card';
+import { StatCard } from '../../../shared/components/StatCard';
+import { Card } from '../../../shared/components/Card';
 import { AlertTriangle, Tag } from 'lucide-react';
 import { AdminInventoryStatusDto } from '../../../shared/types/inventory';
 
 export function AdminLowStockPage() {
   const { data, isLoading, error } = useAdminLowStockQuery();
+  const { t } = useI18n();
 
   if (isLoading) return <LoadingBlock />;
   if (error) return <ErrorState message="Could not load low stock products." />;
   if (!data) return null;
 
   const columns: Column<AdminInventoryStatusDto>[] = [
-    { header: 'Product ID', accessor: (row) => row.productId },
-    { header: 'Product Name', accessor: (row) => row.name },
-    { 
-      header: 'Quantity', 
-      accessor: (row) => <span className="font-medium text-red-600">{row.quantity}</span> 
-    },
-    { header: 'Min Required', accessor: (row) => row.minQuantity },
+    { header: t.admin.productName, accessor: (row) => <span className="font-medium">{row.name}</span> },
     {
-      header: 'Stock Status',
+      header: t.admin.quantity,
+      accessor: (row) => <span className="font-bold text-danger-600">{row.quantity}</span>
+    },
+    { header: t.admin.minQty, accessor: (row) => row.minQuantity },
+    {
+      header: t.admin.stockStatus,
       accessor: (row) => {
-        let label = 'Healthy';
-        let variant: any = 'success';
-        if (row.quantity <= 0) {
-          label = 'Out of Stock';
-          variant = 'error';
-        } else if (row.quantity <= row.minQuantity) {
-          label = 'Low Stock';
-          variant = 'warning';
-        }
-        return <StatusBadge label={label} variant={variant} />;
+        if (row.quantity <= 0) return <StatusBadge label={t.products.outOfStock} variant="error" />;
+        return <StatusBadge label={t.products.lowStock} variant="warning" />;
       }
     }
   ];
@@ -45,37 +39,17 @@ export function AdminLowStockPage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader 
-        title="Low Stock Alerts" 
-        description="Products currently at or below their minimum required quantity."
+      <PageHeader
+        title={t.admin.lowStock}
+        description={t.admin.lowStockDesc}
       />
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardContent className="p-6 flex items-center gap-4">
-            <div className="p-3 bg-amber-50 text-amber-600 rounded-lg">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">Products Need Reordering</p>
-              <h4 className="text-2xl font-bold text-slate-900">{totalAlerts}</h4>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 flex items-center gap-4">
-            <div className="p-3 bg-red-50 text-red-600 rounded-lg">
-              <Tag className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">Out of Stock</p>
-              <h4 className="text-2xl font-bold text-slate-900">{criticalItems}</h4>
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard icon={<AlertTriangle className="w-5 h-5" />} label={t.admin.productsNeedReordering} value={totalAlerts} variant="warning" />
+        <StatCard icon={<Tag className="w-5 h-5" />} label={t.products.outOfStock} value={criticalItems} variant="danger" />
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200/60 overflow-hidden">
+      <Card className="rounded-2xl shadow-sm border-slate-200/60 overflow-hidden">
         <AppTable
           columns={columns}
           data={data}
@@ -83,7 +57,7 @@ export function AdminLowStockPage() {
           emptyMessage="All products have sufficient stock levels! No alerts right now."
           keyField="productId"
         />
-      </div>
+      </Card>
     </div>
   );
 }

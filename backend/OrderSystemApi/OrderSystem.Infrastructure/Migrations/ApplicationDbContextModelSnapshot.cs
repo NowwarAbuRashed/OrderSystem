@@ -264,6 +264,10 @@ namespace OrderSystem.Infrastructure.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("order_id");
 
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("product_id");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int")
                         .HasColumnName("quantity");
@@ -273,15 +277,11 @@ namespace OrderSystem.Infrastructure.Migrations
                         .HasColumnType("decimal(10,2)")
                         .HasColumnName("unit_price");
 
-                    b.Property<long>("productId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("product_id");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("productId");
+                    b.HasIndex("ProductId");
 
-                    b.HasIndex("OrderId", "productId")
+                    b.HasIndex("OrderId", "ProductId")
                         .IsUnique();
 
                     b.ToTable("OrderItem", null, t =>
@@ -380,9 +380,6 @@ namespace OrderSystem.Infrastructure.Migrations
                         .HasColumnType("varchar(200)")
                         .HasColumnName("name");
 
-                    b.Property<long>("OrderItemId")
-                        .HasColumnType("bigint");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(10,2)")
                         .HasColumnName("price");
@@ -465,6 +462,125 @@ namespace OrderSystem.Infrastructure.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("product_images", (string)null);
+                });
+
+            modelBuilder.Entity("OrderSystem.Domain.Entities.SystemActivityLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ActionType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("action_type");
+
+                    b.Property<string>("Details")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("details");
+
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("entity_id");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("entity_type");
+
+                    b.Property<long?>("PerformedByUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("timestamp");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PerformedByUserId");
+
+                    b.ToTable("system_activity_logs", (string)null);
+                });
+
+            modelBuilder.Entity("OrderSystem.Domain.Entities.SystemNotification", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NotificationType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("RelatedEntityId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("RelatedEntityType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("system_notifications", (string)null);
+                });
+
+            modelBuilder.Entity("OrderSystem.Domain.Entities.SystemSetting", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("system_settings", (string)null);
                 });
 
             modelBuilder.Entity("OrderSystem.Domain.Entities.User", b =>
@@ -599,7 +715,7 @@ namespace OrderSystem.Infrastructure.Migrations
 
                     b.HasOne("OrderSystem.Domain.Entities.Product", "Product")
                         .WithMany("OrderItems")
-                        .HasForeignKey("productId")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -638,6 +754,16 @@ namespace OrderSystem.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("OrderSystem.Domain.Entities.SystemActivityLog", b =>
+                {
+                    b.HasOne("OrderSystem.Domain.Entities.User", "PerformedByUser")
+                        .WithMany()
+                        .HasForeignKey("PerformedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("PerformedByUser");
                 });
 
             modelBuilder.Entity("OrderSystem.Domain.Entities.Cart", b =>

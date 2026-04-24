@@ -49,15 +49,15 @@ export interface CreateProductImageRequest {
 }
 
 export async function addProductImage(payload: CreateProductImageRequest) {
-  const { data } = await http.post('/api/ManagerProductImages', payload, {
-    params: { productId: payload.productId }
-  });
+  const { imageUrl, altText, sortOrder, isPrimary } = payload;
+  const { data } = await http.post(
+    `/api/v1/manager/products/${payload.productId}/images`,
+    { imageUrl, altText, sortOrder, isPrimary }
+  );
   return data;
 }
 
 export async function deleteProductImage(imageId: number, productId: number) {
-  await http.delete(`/api/ManagerProductImages/${imageId}`, {
-    params: { productId }
-  });
+  await http.delete(`/api/v1/manager/products/${productId}/images/${imageId}`);
 }
 

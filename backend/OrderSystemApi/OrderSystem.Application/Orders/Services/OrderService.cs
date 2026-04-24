@@ -1,4 +1,4 @@
-﻿using OrderSystem.Application.Carts.Interfaces;
+using OrderSystem.Application.Carts.Interfaces;
 using OrderSystem.Application.Common.Models;
 using OrderSystem.Application.Inventorys.Interfaces;
 using OrderSystem.Application.Orders.DTOs.Requests;
@@ -8,7 +8,7 @@ using OrderSystem.Application.Payments.Interfaces;
 using OrderSystem.Application.Products.Interfaces;
 using OrderSystem.Domain.Entities;
 using OrderSystem.Domain.Enums;
-
+using OrderSystem.Application.Admin.Interfaces;
 
 namespace OrderSystem.Application.Orders.Services
 {
@@ -21,6 +21,8 @@ namespace OrderSystem.Application.Orders.Services
         private readonly IProductRepository _productRepository;
         private readonly IPaymentRepository _paymentRepository;
         private readonly IInventoryMovementRepository _inventoryMovementRepository;
+        private readonly IActivityLogService _activityLogService;
+        private readonly ISystemNotificationService _notificationService;
       
         public OrderService(
             IOrderRepository orderRepository,
@@ -29,7 +31,9 @@ namespace OrderSystem.Application.Orders.Services
             ICartItemRepository cartItemRepository,
             IProductRepository productRepository,
             IPaymentRepository paymentRepository,
-            IInventoryMovementRepository inventoryMovementRepository)
+            IInventoryMovementRepository inventoryMovementRepository,
+            IActivityLogService activityLogService,
+            ISystemNotificationService notificationService)
         {
             _orderRepository = orderRepository;
             _orderItemRepository = orderItemRepository;
@@ -38,6 +42,8 @@ namespace OrderSystem.Application.Orders.Services
             _productRepository = productRepository;
             _paymentRepository = paymentRepository;
             _inventoryMovementRepository = inventoryMovementRepository;
+            _activityLogService = activityLogService;
+            _notificationService = notificationService;
         }
 
         public async Task<CheckoutResponse> CheckoutAsync(
@@ -94,7 +100,7 @@ namespace OrderSystem.Application.Orders.Services
                 return new OrderItem
                 {
                     OrderId = order.Id,
-                    productId = ci.ProductId,
+                    ProductId = ci.ProductId,
                     Quantity = ci.Quantity,
                     UnitPrice = unitPrice,
                     LineTotal = unitPrice * ci.Quantity
@@ -135,11 +141,32 @@ namespace OrderSystem.Application.Orders.Services
                 };
 
                 await _inventoryMovementRepository.AddAsync(movement, cancellationToken);
+
+                if (product.Quantity < product.MinQuantity)
+                {
+                    await _notificationService.SendNotificationAsync(
+                        type: "LOW_STOCK",
+                        title: "Low Stock Alert",
+                        message: $"Product '{product.Name}' has fallen below minimum quantity. Current stock: {product.Quantity}.",
+                        entityType: "Product",
+                        entityId: product.Id.ToString(),
+                        ct: cancellationToken
+                    );
+                }
             }
 
             cart.Status = CartStatus.CHECKED_OUT;
             cart.UpdatedAt = DateTime.UtcNow;
             _cartRepository.Update(cart);
+
+            await _notificationService.SendNotificationAsync(
+                type: "NEW_ORDER",
+                title: "New Order Received",
+                message: $"Order #{order.Id} has been placed for {order.TotalAmount:C}.",
+                entityType: "Order",
+                entityId: order.Id.ToString(),
+                ct: cancellationToken
+            );
 
             return new CheckoutResponse
             {
@@ -226,6 +253,7 @@ namespace OrderSystem.Application.Orders.Services
 
         public async Task<OrderStatusChangeResponse> MarkReadyAsync(
             long orderId,
+            long performedByUserId,
             CancellationToken cancellationToken)
         {
             var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
@@ -240,6 +268,9 @@ namespace OrderSystem.Application.Orders.Services
             order.ReadyAt = DateTime.UtcNow;
 
             _orderRepository.Update(order);
+            
+            await _activityLogService.LogActionAsync("ORDER_STATUS_CHANGE", "Order", order.Id.ToString(), performedByUserId, new { OldStatus = OrderStatus.PROCESSING.ToString(), NewStatus = OrderStatus.READY.ToString() }, cancellationToken);
+
 
             return new OrderStatusChangeResponse
             {
@@ -251,6 +282,7 @@ namespace OrderSystem.Application.Orders.Services
 
         public async Task<OrderStatusChangeResponse> MarkOutForDeliveryAsync(
             long orderId,
+            long performedByUserId,
             CancellationToken cancellationToken)
         {
             var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
@@ -266,6 +298,8 @@ namespace OrderSystem.Application.Orders.Services
 
             _orderRepository.Update(order);
 
+            await _activityLogService.LogActionAsync("ORDER_STATUS_CHANGE", "Order", order.Id.ToString(), performedByUserId, new { OldStatus = OrderStatus.READY.ToString(), NewStatus = OrderStatus.OUT_FOR_DELIVERY.ToString() }, cancellationToken);
+
             return new OrderStatusChangeResponse
             {
                 OrderId = order.Id,
@@ -276,6 +310,7 @@ namespace OrderSystem.Application.Orders.Services
 
         public async Task<OrderDeliveredResponse> MarkDeliveredAsync(
             long orderId,
+            long performedByUserId,
             CancellationToken cancellationToken)
         {
             var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
@@ -290,6 +325,8 @@ namespace OrderSystem.Application.Orders.Services
             order.DeliveredAt = DateTime.UtcNow;
 
             _orderRepository.Update(order);
+            
+            await _activityLogService.LogActionAsync("ORDER_STATUS_CHANGE", "Order", order.Id.ToString(), performedByUserId, new { OldStatus = OrderStatus.OUT_FOR_DELIVERY.ToString(), NewStatus = OrderStatus.DELIVERED.ToString() }, cancellationToken);
 
             return new OrderDeliveredResponse
             {
@@ -320,6 +357,7 @@ namespace OrderSystem.Application.Orders.Services
                 CustomerId = order.CustomerId,
                 Status = order.Status,
                 PaymentMethod = order.PaymentMethod,
+                PaymentStatus = order.Payments != null ? order.Payments.Status : PaymentStatus.PENDING,
                 TotalAmount = order.TotalAmount,
                 CreatedAt = order.CreatedAt,
                 ReadyAt = order.ReadyAt,
@@ -335,7 +373,7 @@ namespace OrderSystem.Application.Orders.Services
             return new OrderItemResponse
             {
                 OrderItemId = item.Id,
-                ProductId = item.productId,
+                ProductId = item.ProductId,
                 Quantity = item.Quantity,
                 UnitPrice = item.UnitPrice,
                 LineTotal = item.LineTotal

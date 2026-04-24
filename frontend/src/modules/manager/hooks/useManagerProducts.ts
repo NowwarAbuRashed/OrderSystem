@@ -8,6 +8,7 @@ import {
   addProductImage,
   deleteProductImage
 } from '../api/products.api';
+import { uploadImage } from '../api/upload.api';
 import { ProductQuery } from '../../../shared/types/products';
 
 export const managerProductKeys = {
@@ -64,5 +65,11 @@ export function useDeleteProductImage() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: managerProductKeys.product(variables.productId) });
     },
+  });
+}
+
+export function useUploadImage() {
+  return useMutation({
+    mutationFn: uploadImage,
   });
 }

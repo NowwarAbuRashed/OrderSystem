@@ -1,6 +1,7 @@
 import { http } from '../../../app/api/http';
 import { PagedResult } from '../../../shared/types/common';
 import { OrderQuery, OrderListItem, OrderDetails, OrderStatusChangeResponse } from '../../../shared/types/orders';
+import { PaymentDetails } from '../../../shared/types/payments';
 
 export async function getManagerOrders(params: OrderQuery) {
   const { data } = await http.get<PagedResult<OrderListItem>>('/api/v1/manager/orders', { params });
@@ -27,3 +28,7 @@ export async function markOrderDelivered(orderId: number) {
   return data;
 }
 
+export async function markCashCollected(orderId: number) {
+  const { data } = await http.post<PaymentDetails>(`/api/v1/manager/orders/${orderId}/cash-collected`);
+  return data;
+}

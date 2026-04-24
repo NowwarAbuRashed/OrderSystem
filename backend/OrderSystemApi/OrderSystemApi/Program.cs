@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OrderSystem.Api.Seed;
+using OrderSystem.Application.Admin.Interfaces;
+using OrderSystem.Application.Admin.Services;
 using OrderSystem.Application.Auth.Interfaces;
 using OrderSystem.Application.Auth.Services;
 using OrderSystem.Application.Carts.Interfaces;
@@ -20,9 +22,12 @@ using OrderSystem.Application.ProductImage.Interfaces;
 using OrderSystem.Application.ProductImage.Services;
 using OrderSystem.Application.Products.Interfaces;
 using OrderSystem.Application.Products.Services;
+using OrderSystem.Domain.Enums;
 using OrderSystem.Infrastructure.Data;
 using OrderSystem.Infrastructure.Repositories;
 using OrderSystem.Infrastructure.Security;
+using OrderSystemApi.Hubs;
+using OrderSystemApi.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -69,6 +74,18 @@ namespace OrderSystemApi
             builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             builder.Services.AddScoped<IAuthService, AuthService>();
 
+            builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddScoped<IActivityLogRepository, ActivityLogRepository>();
+            builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
+
+            builder.Services.AddScoped<ISystemNotificationRepository, SystemNotificationRepository>();
+            builder.Services.AddScoped<IAdminNotificationDispatcher, AdminNotificationDispatcher>();
+            builder.Services.AddScoped<ISystemNotificationService, SystemNotificationService>();
+
+            builder.Services.AddScoped<ISystemSettingsRepository, SystemSettingsRepository>();
+            builder.Services.AddScoped<ISystemSettingsService, SystemSettingsService>();
+
             var jwtKey = builder.Configuration["Jwt:Key"]
                          ?? throw new InvalidOperationException("Jwt:Key is missing");
 
@@ -95,6 +112,7 @@ namespace OrderSystemApi
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSignalR();
             builder.Services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
@@ -131,6 +149,12 @@ namespace OrderSystemApi
 
             var app = builder.Build();
 
+            var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads");
+            if (!Directory.Exists(uploadsPath))
+            {
+                Directory.CreateDirectory(uploadsPath);
+            }
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -146,11 +170,13 @@ namespace OrderSystemApi
                 .AllowCredentials());
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
+            app.MapHub<AdminHub>("/hub/admin");
 
             app.Run();
         }

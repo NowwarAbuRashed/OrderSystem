@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OrderSystem.Application.Categories.DTOs.Requests;
 using OrderSystem.Application.Categories.Interfaces;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace OrderSystem.Api.Controllers.Manager
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
+    [Authorize(Roles = "MANAGER,ADMIN")]
     public class ManagerCategoriesController : ControllerBase
     {
         readonly ICategoryService _categoryService;

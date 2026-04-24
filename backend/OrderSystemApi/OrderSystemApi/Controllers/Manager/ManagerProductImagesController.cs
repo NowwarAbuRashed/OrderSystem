@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OrderSystem.Application.ProductImage.DTOs.Requests;
@@ -6,7 +6,7 @@ using OrderSystem.Application.ProductImage.Interfaces;
 
 namespace OrderSystem.Api.Controllers.Manager
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/manager/products/{productId:long}/images")]
     [ApiController]
     [Authorize(Roles = "MANAGER,ADMIN")]
     public class ManagerProductImagesController : ControllerBase
@@ -25,7 +25,7 @@ namespace OrderSystem.Api.Controllers.Manager
 
         [HttpPost]
         public async Task<IActionResult> AddImage(
-            long productId,
+            [FromRoute] long productId,
             [FromBody] AddProductImageRequest request,
             CancellationToken ct)
         {
@@ -35,8 +35,8 @@ namespace OrderSystem.Api.Controllers.Manager
 
         [HttpPut("{imageId:long}")]
         public async Task<IActionResult> UpdateImage(
-            long productId,
-            long imageId,
+            [FromRoute] long productId,
+            [FromRoute] long imageId,
             [FromBody] UpdateProductImageRequest request,
             CancellationToken ct)
         {
@@ -46,8 +46,8 @@ namespace OrderSystem.Api.Controllers.Manager
 
         [HttpDelete("{imageId:long}")]
         public async Task<IActionResult> DeleteImage(
-            long productId,
-            long imageId,
+            [FromRoute] long productId,
+            [FromRoute] long imageId,
             CancellationToken ct)
         {
             var deleted = await _productImageService.DeleteImageAsync(imageId, ct);

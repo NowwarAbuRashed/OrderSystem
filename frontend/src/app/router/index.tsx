@@ -4,6 +4,7 @@ import { CustomerLayout } from '../../layouts/CustomerLayout';
 import { ManagerLayout } from '../../layouts/ManagerLayout';
 import { AdminLayout } from '../../layouts/AdminLayout';
 import { GuestGuard, AuthGuard, RoleGuard } from './guards';
+import { NotFoundPage } from '../../modules/error/pages/NotFoundPage';
 import { LoginPage } from '../../modules/auth/pages/LoginPage';
 import { RegisterPage } from '../../modules/customer/pages/RegisterPage';
 import { ProductsListPage } from '../../modules/catalog/pages/ProductsListPage';
@@ -22,76 +23,101 @@ import { ManagerInventoryListPage } from '../../modules/manager/pages/InventoryL
 import { ManagerInventoryManagePage } from '../../modules/manager/pages/InventoryManagePage';
 import { AdminInventoryStatusPage } from '../../modules/admin/pages/InventoryStatusPage';
 import { AdminLowStockPage } from '../../modules/admin/pages/LowStockPage';
+import { AdminDashboardPage } from '../../modules/admin/pages/DashboardPage';
+import { AdminUsersPage } from '../../modules/admin/pages/UsersPage';
+import { AdminOrderOverviewPage } from '../../modules/admin/pages/OrderOverviewPage';
+import { AdminRevenueReportPage } from '../../modules/admin/pages/RevenueReportPage';
+import { AdminActivityLogPage } from '../../modules/admin/pages/ActivityLogPage';
+import { AdminCatalogPage } from '../../modules/admin/pages/AdminCatalogPage';
+import { AdminSystemSettingsPage } from '../../modules/admin/pages/AdminSystemSettingsPage';
+import { ManagerPerformancePage } from '../../modules/admin/pages/ManagerPerformancePage';
 import { SettingsPage } from '../../modules/auth/pages/SettingsPage';
 
 export const router = createBrowserRouter([
   {
-    element: <GuestGuard />,
+    errorElement: <NotFoundPage />,
     children: [
       {
-        element: <PublicLayout />,
+        element: <GuestGuard />,
         children: [
-          { path: '/login', element: <LoginPage /> },
-          { path: '/register', element: <RegisterPage /> },
-          { path: '/', element: <Navigate to="/login" replace /> }
+          {
+            element: <PublicLayout />,
+            children: [
+              { path: '/login', element: <LoginPage /> },
+              { path: '/register', element: <RegisterPage /> },
+              { path: '/', element: <Navigate to="/login" replace /> }
+            ]
+          }
+        ]
+      },
+      {
+        element: <AuthGuard />,
+        children: [
+          {
+            element: <RoleGuard allowedRoles={['CUSTOMER']} />,
+            children: [
+              {
+                element: <CustomerLayout />,
+                children: [
+                  { path: '/products', element: <ProductsListPage /> },
+                  { path: '/products/:productId', element: <ProductDetailsPage /> },
+                  { path: '/me/cart', element: <CartPage /> },
+                  { path: '/me/checkout', element: <CheckoutPage /> },
+                  { path: '/me/orders', element: <CustomerOrdersListPage /> },
+                  { path: '/me/orders/:orderId', element: <CustomerOrderDetailsPage /> },
+                  { path: '/me/orders/:orderId/payment', element: <PaymentPage /> },
+                  { path: '/me/settings', element: <SettingsPage /> },
+                ]
+              }
+            ]
+          },
+          {
+            path: '/manager',
+            element: <RoleGuard allowedRoles={['MANAGER', 'ADMIN']} />,
+            children: [
+              {
+                element: <ManagerLayout />,
+                children: [
+                  { path: 'orders', element: <ManagerOrdersPage /> },
+                  { path: 'orders/:orderId', element: <ManagerOrderDetailsPage /> },
+                  { path: 'products', element: <ManagerProductsPage /> },
+                  { path: 'products/:productId', element: <ManagerProductEditPage /> },
+                  { path: 'categories', element: <ManagerCategoriesPage /> },
+                  { path: 'inventory', element: <ManagerInventoryListPage /> },
+                  { path: 'inventory/:productId', element: <ManagerInventoryManagePage /> },
+                  { path: 'settings', element: <SettingsPage /> },
+                ]
+              }
+            ]
+          },
+          {
+            path: '/admin',
+            element: <RoleGuard allowedRoles={['ADMIN']} />,
+            children: [
+              {
+                element: <AdminLayout />,
+                children: [
+                  { path: 'dashboard', element: <AdminDashboardPage /> },
+                  { path: 'users', element: <AdminUsersPage /> },
+                  { path: 'orders', element: <AdminOrderOverviewPage /> },
+                  { path: 'revenue', element: <AdminRevenueReportPage /> },
+                  { path: 'catalog', element: <AdminCatalogPage /> },
+                  { path: 'categories', element: <ManagerCategoriesPage /> },
+                  { path: 'activity', element: <AdminActivityLogPage /> },
+                  { path: 'inventory/status', element: <AdminInventoryStatusPage /> },
+                  { path: 'inventory/low-stock', element: <AdminLowStockPage /> },
+                  { path: 'manager-performance', element: <ManagerPerformancePage /> },
+                  { path: 'settings', element: <AdminSystemSettingsPage /> },
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
   },
   {
-    element: <AuthGuard />,
-    children: [
-      {
-        element: <RoleGuard allowedRoles={['CUSTOMER']} />,
-        children: [
-          {
-            element: <CustomerLayout />,
-            children: [
-              { path: '/products', element: <ProductsListPage /> },
-              { path: '/products/:productId', element: <ProductDetailsPage /> },
-              { path: '/me/cart', element: <CartPage /> },
-              { path: '/me/checkout', element: <CheckoutPage /> },
-              { path: '/me/orders', element: <CustomerOrdersListPage /> },
-              { path: '/me/orders/:orderId', element: <CustomerOrderDetailsPage /> },
-              { path: '/me/orders/:orderId/payment', element: <PaymentPage /> },
-              { path: '/me/settings', element: <SettingsPage /> },
-            ]
-          }
-        ]
-      },
-      {
-        path: '/manager',
-        element: <RoleGuard allowedRoles={['MANAGER', 'ADMIN']} />,
-        children: [
-          {
-            element: <ManagerLayout />,
-            children: [
-              { path: 'orders', element: <ManagerOrdersPage /> },
-              { path: 'orders/:orderId', element: <ManagerOrderDetailsPage /> },
-              { path: 'products', element: <ManagerProductsPage /> },
-              { path: 'products/:productId', element: <ManagerProductEditPage /> },
-              { path: 'categories', element: <ManagerCategoriesPage /> },
-              { path: 'inventory', element: <ManagerInventoryListPage /> },
-              { path: 'inventory/:productId', element: <ManagerInventoryManagePage /> },
-              { path: 'settings', element: <SettingsPage /> },
-            ]
-          }
-        ]
-      },
-      {
-        path: '/admin',
-        element: <RoleGuard allowedRoles={['ADMIN']} />,
-        children: [
-          {
-            element: <AdminLayout />,
-            children: [
-              { path: 'inventory/status', element: <AdminInventoryStatusPage /> },
-              { path: 'inventory/low-stock', element: <AdminLowStockPage /> },
-              { path: 'settings', element: <SettingsPage /> },
-            ]
-          }
-        ]
-      }
-    ]
+    path: '*',
+    element: <NotFoundPage />
   }
 ]);

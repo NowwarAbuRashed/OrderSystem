@@ -1,4 +1,4 @@
-﻿using OrderSystem.Domain.Enums;
+using OrderSystem.Domain.Enums;
 namespace OrderSystem.Domain.Entities
 {
     public class Product
@@ -6,7 +6,6 @@ namespace OrderSystem.Domain.Entities
 
         public long Id { get; set; }
 
-        public long OrderItemId { get; set; }
 
         public string  Name { get; set; } =string.Empty;
 

@@ -1,8 +1,9 @@
-﻿using OrderSystem.Application.Payments.DTOs.Requests;
+using OrderSystem.Application.Payments.DTOs.Requests;
 using OrderSystem.Application.Payments.DTOs.Responses;
 using OrderSystem.Application.Payments.Interfaces;
 using OrderSystem.Domain.Entities;
 using OrderSystem.Domain.Enums;
+using OrderSystem.Application.Admin.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,13 +16,16 @@ namespace OrderSystem.Application.Payments.Services
     {
         private readonly IPaymentRepository _paymentRepository;
         private readonly OrderSystem.Application.Orders.Interfaces.IOrderRepository _orderRepository;
+        private readonly ISystemNotificationService _notificationService;
 
         public PaymentService(
             IPaymentRepository paymentRepository,
-            OrderSystem.Application.Orders.Interfaces.IOrderRepository orderRepository)
+            OrderSystem.Application.Orders.Interfaces.IOrderRepository orderRepository,
+            ISystemNotificationService notificationService)
         {
             _paymentRepository = paymentRepository;
             _orderRepository = orderRepository;
+            _notificationService = notificationService;
         }
 
         public async Task<PaymentResponse> GetPaymentForOrderAsync(
@@ -81,6 +85,18 @@ namespace OrderSystem.Application.Payments.Services
                 request.ExpiryMonth > 12 ||
                 request.ExpiryYear <= 0)
             {
+                payment.Status = PaymentStatus.FAILED;
+                _paymentRepository.Update(payment);
+                
+                await _notificationService.SendNotificationAsync(
+                    type: "FAILED_PAYMENT",
+                    title: "Payment Failed",
+                    message: $"Card payment failed for Order #{orderId}. Amount: {payment.Amount:C}.",
+                    entityType: "Payment",
+                    entityId: payment.Id.ToString(),
+                    ct: cancellationToken
+                );
+                
                 throw new Exception("Invalid card details");
             }
 
@@ -93,10 +109,18 @@ namespace OrderSystem.Application.Payments.Services
             return MapPaymentResponse(payment);
         }
 
-        public async Task MarkCashPaidAsync(
+        public async Task<PaymentResponse> MarkCashPaidAsync(
             long orderId,
             CancellationToken cancellationToken)
         {
+            var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
+
+            if (order == null)
+                throw new Exception("Order not found");
+
+            if (order.Status != OrderStatus.DELIVERED)
+                throw new Exception("Cash can only be collected for delivered orders");
+
             var payment = await _paymentRepository.GetByOrderIdAsync(orderId, cancellationToken);
 
             if (payment == null)
@@ -106,13 +130,15 @@ namespace OrderSystem.Application.Payments.Services
                 throw new Exception("This order is not configured for cash payment");
 
             if (payment.Status == PaymentStatus.PAID)
-                return;
+                return MapPaymentResponse(payment);
 
             payment.Status = PaymentStatus.PAID;
             payment.PaidAt = DateTime.UtcNow;
             payment.TransactionRef = $"CASH-{Guid.NewGuid():N}";
 
             _paymentRepository.Update(payment);
+
+            return MapPaymentResponse(payment);
         }
 
         private static PaymentResponse MapPaymentResponse(Payment payment)

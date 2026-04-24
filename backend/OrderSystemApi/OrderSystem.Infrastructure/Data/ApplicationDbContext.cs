@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using OrderSystem.Domain.Entities;
 using OrderSystem.Infrastructure.Data.Configurations;
 using System;
@@ -32,5 +32,8 @@ namespace OrderSystem.Infrastructure.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<InventoryMovement> InventoryMovements { get; set; }
+        public DbSet<SystemActivityLog> SystemActivityLogs { get; set; }
+        public DbSet<SystemNotification> SystemNotifications { get; set; }
+        public DbSet<SystemSetting> SystemSettings { get; set; }
     }
 }

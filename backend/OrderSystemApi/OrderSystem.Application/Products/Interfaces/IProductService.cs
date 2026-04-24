@@ -1,4 +1,4 @@
-﻿using OrderSystem.Application.Common.Models;
+using OrderSystem.Application.Common.Models;
 using OrderSystem.Application.Products.DTOs.Requests;
 using OrderSystem.Application.Products.DTOs.Responses;
 using System;
@@ -15,6 +15,8 @@ namespace OrderSystem.Application.Products.Interfaces
         Task<ProductDetailsResponse> GetProductByIdAsync(long productId, CancellationToken ct);
         Task<long> CreateProductAsync(CreateProductRequest request, CancellationToken ct);
         Task UpdateProductAsync(long productId, UpdateProductRequest request, CancellationToken ct);
-    }
+        Task<int> BulkUpdateStatusAsync(List<long> productIds, bool isActive, CancellationToken ct);
+        Task<int> BulkUpdatePriceAsync(List<long> productIds, decimal percentageChange, CancellationToken ct);
    
     }
+}

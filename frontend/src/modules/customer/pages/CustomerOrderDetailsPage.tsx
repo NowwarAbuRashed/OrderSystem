@@ -1,28 +1,32 @@
 import { useParams, Link } from 'react-router-dom';
 import { useMyOrderQuery } from '../hooks/useOrders';
+import { useI18n } from '../../../app/i18n/i18n-context';
 import { PageHeader } from '../../../shared/components/PageHeader';
 import { LoadingBlock } from '../../../shared/components/LoadingBlock';
 import { ErrorState } from '../../../shared/components/ErrorState';
 import { getApiErrorMessage } from '../../../shared/utils/error';
 import { PriceText } from '../../../shared/components/PriceText';
+import { DetailList } from '../../../shared/components/DetailList';
 import { orderStatusLabelMap, paymentMethodLabelMap, PaymentMethod } from '../../../shared/types/orders';
-import { ChevronLeft, Package, Clock, Truck, CheckCircle2 } from 'lucide-react';
+import { formatDate } from '../../../shared/utils/date';
+import { ChevronLeft, Package, Clock, Truck, CheckCircle2, CreditCard } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/Card';
 import { useProductQuery } from '../../catalog/hooks/useCatalog';
+import { Button } from '../../../shared/components/Button';
 
 function OrderItemRow({ item }: { item: any }) {
   const { data: product } = useProductQuery(item.productId);
   const productName = product ? product.name : `Product #${item.productId}`;
 
   return (
-    <li className="py-4 flex justify-between items-center group">
+    <li className="py-4 flex justify-between items-center">
       <div className="flex flex-col">
         <Link to={`/products/${item.productId}`} className="font-semibold text-slate-900 hover:text-primary-600 transition-colors">
           {productName}
         </Link>
-        <span className="text-sm text-slate-500 mt-1">Quantity: {item.quantity}</span>
+        <span className="text-sm text-slate-500 mt-0.5">Qty: {item.quantity}</span>
       </div>
-      <div className="text-base font-bold text-slate-900 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+      <div className="text-sm font-bold text-slate-900">
         <PriceText amount={item.lineTotal} />
       </div>
     </li>
@@ -33,34 +37,77 @@ export function CustomerOrderDetailsPage() {
   const { orderId } = useParams();
   const id = Number(orderId);
   const { data: order, isLoading, error } = useMyOrderQuery(id);
+  const { t } = useI18n();
 
+  if (isNaN(id)) return <ErrorState message="Invalid order reference" />;
   if (isLoading) return <LoadingBlock />;
   if (error || !order) return <ErrorState message={error ? getApiErrorMessage(error) : 'Order not found'} />;
 
+  const statusSteps = [
+    { key: 0, label: t.orders.processing, icon: Clock },
+    { key: 1, label: t.orders.ready, icon: Package },
+    { key: 2, label: t.orders.outForDelivery, icon: Truck },
+    { key: 3, label: t.orders.delivered, icon: CheckCircle2 },
+  ];
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <Link to="/me/orders" className="inline-flex items-center text-sm text-primary-600 hover:underline">
-        <ChevronLeft className="w-4 h-4 mr-1" /> Back to orders
+      <Link to="/me/orders" className="inline-flex items-center text-sm text-slate-500 hover:text-primary-600 transition-colors font-medium">
+        <ChevronLeft className="w-4 h-4 mr-1" /> {t.orders.title}
       </Link>
 
-      <PageHeader 
-        title={`Order #${order.orderId}`} 
+      <PageHeader
+        title={`${t.orders.orderId} #${order.orderId}`}
         action={
           order.paymentMethod === PaymentMethod.CARD ? (
-            <Link to={`/me/orders/${order.orderId}/payment`} className="inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none rounded-lg border border-slate-300 bg-transparent hover:bg-slate-50 text-slate-700 px-2.5 py-1.5 text-xs">
-              View Payment
+            <Link to={`/me/orders/${order.orderId}/payment`}>
+              <Button variant="outline" size="sm" className="rounded-xl">
+                <CreditCard className="w-4 h-4 mr-1.5" />
+                {t.orders.payNow}
+              </Button>
             </Link>
           ) : undefined
         }
       />
 
+      {/* Status Timeline */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
+        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-5">{t.orders.timeline}</h3>
+        <div className="flex items-center justify-between relative">
+          <div className="absolute top-4 left-0 right-0 h-0.5 bg-slate-200 z-0" />
+          <div
+            className="absolute top-4 left-0 h-0.5 bg-primary-500 z-0 transition-all"
+            style={{ width: `${(order.status / 3) * 100}%` }}
+          />
+          {statusSteps.map((step) => {
+            const Icon = step.icon;
+            const isCompleted = order.status >= step.key;
+            const isCurrent = order.status === step.key;
+            return (
+              <div key={step.key} className="relative z-10 flex flex-col items-center">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
+                  isCompleted
+                    ? 'bg-primary-600 border-primary-600 text-white'
+                    : 'bg-white border-slate-300 text-slate-400'
+                } ${isCurrent ? 'ring-4 ring-primary-100' : ''}`}>
+                  <Icon className="w-4 h-4" />
+                </div>
+                <span className={`text-xs mt-2 font-medium ${isCompleted ? 'text-primary-600' : 'text-slate-400'}`}>
+                  {step.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="col-span-2 space-y-6">
-          <Card className="shadow-sm border-slate-200/60">
+          <Card className="shadow-sm border-slate-200/60 rounded-2xl">
             <CardHeader className="bg-slate-50 border-b border-slate-100 pb-4">
-              <CardTitle className="text-lg flex items-center gap-2 text-primary-900">
+              <CardTitle className="text-base flex items-center gap-2">
                 <Package className="w-5 h-5 text-primary-600" />
-                Order Items
+                {t.orders.items}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
@@ -74,48 +121,27 @@ export function CustomerOrderDetailsPage() {
         </div>
 
         <div className="space-y-6">
-          <Card className="shadow-sm border-slate-200/60">
-            <CardHeader className="bg-slate-50 border-b border-slate-100 pb-4">
-              <CardTitle className="text-lg text-primary-900">Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6 space-y-5">
-              
-              <div className="pb-5 border-b border-slate-100">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center border border-primary-100 shrink-0">
-                    {order.status === 0 ? <Clock className="w-4 h-4" /> : order.status === 1 ? <Package className="w-4 h-4" /> : order.status === 2 ? <Truck className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-slate-900 leading-tight">{orderStatusLabelMap[order.status]}</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">Current order status</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-500 font-medium tracking-wide">Payment Method</span>
-                <span className="font-bold text-slate-900">{paymentMethodLabelMap[order.paymentMethod]}</span>
-              </div>
-
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-500 font-medium tracking-wide">Order Date</span>
-                <span className="font-bold text-slate-900">{new Date(order.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric'})}</span>
-              </div>
-
-              <div className="pt-5 mt-2 border-t border-slate-100 flex justify-between items-baseline bg-slate-50 p-4 rounded-xl">
-                <span className="text-base font-bold text-slate-700">Total Amount</span>
-                <span className="text-2xl font-black text-primary-600 drop-shadow-sm"><PriceText amount={order.totalAmount} /></span>
+          <Card className="shadow-sm border-slate-200/60 rounded-2xl">
+            <CardContent className="p-5">
+              <DetailList items={[
+                { label: t.orders.orderStatus, value: <span className="text-primary-600 font-bold">{orderStatusLabelMap[order.status]}</span> },
+                { label: t.orders.paymentMethod, value: paymentMethodLabelMap[order.paymentMethod] },
+                { label: t.orders.orderDate, value: formatDate(order.createdAt, { year: 'numeric', month: 'short', day: 'numeric' }) },
+              ]} />
+              <div className="mt-4 bg-primary-50 p-4 rounded-xl border border-primary-100 flex justify-between items-baseline">
+                <span className="text-sm font-bold text-primary-800">{t.cart.total}</span>
+                <span className="text-2xl font-extrabold text-primary-600"><PriceText amount={order.totalAmount} /></span>
               </div>
             </CardContent>
           </Card>
 
           {order.notes && (
-            <Card className="shadow-sm border border-yellow-200 bg-yellow-50/30">
+            <Card className="shadow-sm border border-warning-200 bg-warning-50/30 rounded-2xl">
               <CardContent className="p-4">
-                <h3 className="text-xs font-bold text-yellow-800 uppercase tracking-wider mb-2 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> Notes
+                <h3 className="text-xs font-bold text-warning-800 uppercase tracking-wider mb-2 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-warning-500"></span> {t.orders.notes}
                 </h3>
-                <p className="text-sm text-yellow-900/80 leading-relaxed font-medium">{order.notes}</p>
+                <p className="text-sm text-warning-900/80 leading-relaxed font-medium">{order.notes}</p>
               </CardContent>
             </Card>
           )}

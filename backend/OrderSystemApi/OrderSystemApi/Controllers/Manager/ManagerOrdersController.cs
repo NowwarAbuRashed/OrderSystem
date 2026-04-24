@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OrderSystem.Api.Extensions;
 using OrderSystem.Application.Orders.DTOs.Requests;
 using OrderSystem.Application.Orders.Interfaces;
+using OrderSystem.Application.Payments.Interfaces;
 
 namespace OrderSystem.Api.Controllers.Manager
 {
@@ -11,10 +13,12 @@ namespace OrderSystem.Api.Controllers.Manager
     public class ManagerOrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly IPaymentService _paymentService;
 
-        public ManagerOrdersController(IOrderService orderService)
+        public ManagerOrdersController(IOrderService orderService, IPaymentService paymentService)
         {
             _orderService = orderService;
+            _paymentService = paymentService;
         }
 
         [HttpGet]
@@ -40,7 +44,8 @@ namespace OrderSystem.Api.Controllers.Manager
             long orderId,
             CancellationToken cancellationToken)
         {
-            var result = await _orderService.MarkReadyAsync(orderId, cancellationToken);
+            var performedByUserId = User.GetUserId();
+            var result = await _orderService.MarkReadyAsync(orderId, performedByUserId, cancellationToken);
             return Ok(result);
         }
 
@@ -49,7 +54,8 @@ namespace OrderSystem.Api.Controllers.Manager
             long orderId,
             CancellationToken cancellationToken)
         {
-            var result = await _orderService.MarkOutForDeliveryAsync(orderId, cancellationToken);
+            var performedByUserId = User.GetUserId();
+            var result = await _orderService.MarkOutForDeliveryAsync(orderId, performedByUserId, cancellationToken);
             return Ok(result);
         }
 
@@ -58,7 +64,17 @@ namespace OrderSystem.Api.Controllers.Manager
             long orderId,
             CancellationToken cancellationToken)
         {
-            var result = await _orderService.MarkDeliveredAsync(orderId, cancellationToken);
+            var performedByUserId = User.GetUserId();
+            var result = await _orderService.MarkDeliveredAsync(orderId, performedByUserId, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPost("{orderId:long}/cash-collected")]
+        public async Task<IActionResult> MarkCashCollected(
+            long orderId,
+            CancellationToken cancellationToken)
+        {
+            var result = await _paymentService.MarkCashPaidAsync(orderId, cancellationToken);
             return Ok(result);
         }
     }

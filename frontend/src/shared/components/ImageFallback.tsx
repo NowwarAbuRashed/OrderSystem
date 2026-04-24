@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ImageOff } from 'lucide-react';
+import { env } from '../../app/config/env';
 
 interface ImageFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   fallbackIconSize?: number;
@@ -8,17 +9,26 @@ interface ImageFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {
 export function ImageFallback({ fallbackIconSize = 24, className, alt, ...props }: ImageFallbackProps) {
   const [hasError, setHasError] = useState(false);
 
-  if (hasError || !props.src) {
+  let finalSrc = props.src;
+  if (finalSrc && finalSrc.startsWith('/uploads/')) {
+    finalSrc = `${env.apiBaseUrl}${finalSrc}`;
+  }
+
+  if (hasError || !finalSrc) {
     return (
-      <div className={`flex flex-col items-center justify-center bg-slate-100 text-slate-400 ${className}`}>
-        <ImageOff size={fallbackIconSize} className="opacity-50" />
-      </div>
+      <img
+        {...props}
+        src="/default-product.png"
+        alt={alt || "Product placeholder"}
+        className={className}
+      />
     );
   }
 
   return (
     <img
       {...props}
+      src={finalSrc}
       alt={alt}
       className={className}
       onError={() => setHasError(true)}

@@ -1,0 +1,48 @@
+# Order Management System - Team Setup & Execution Guide
+
+This guide contains everything your team needs to run and test the project locally.
+
+## 1. Prerequisites
+Before starting, ensure everyone has the following installed:
+- **.NET 8.0 SDK** (for the Backend)
+- **Node.js (LTS version)** (for the Frontend)
+- **SQL Server** (LocalDB or full instance)
+
+---
+
+## 2. Backend Setup (.NET 8.0)
+The backend is a Web API that connects to an SQL Server database.
+
+1.  **Check Connection String**:
+    - Open `backend\OrderSystemApi\OrderSystemApi\appsettings.json`.
+    - Ensure `DefaultConnection` matches your SQL Server instance.
+2.  **Run the Backend**:
+    Open a terminal and run:
+    ```powershell
+    cd "d:\Project For UN\backend\OrderSystemApi\OrderSystemApi"
+    dotnet run
+    ```
+- **Port**: http://localhost:5034
+- **Swagger UI**: Visit http://localhost:5034/swagger to test the API endpoints directly.
+
+---
+
+## 3. Frontend Setup (React + Vite)
+The frontend is a React application that communicates with the API.
+
+1.  **Install & Run**:
+    Open a **new** terminal window and run:
+    ```powershell
+    cd "d:\Project For UN\frontend"
+    npm install    # Run this only once to install packages
+    npm run dev
+    ```
+- **Port**: http://localhost:5173
+- **Connection**: The frontend is pre-configured to connect to the backend on **port 5034**.
+
+---
+
+## 4. Summary for Testing
+- **Front-end Access**: http://localhost:5173
+- **API Base URL**: http://localhost:5034
+- **Database Name**: `OrderSystemDB` (configured in appsettings.json)
