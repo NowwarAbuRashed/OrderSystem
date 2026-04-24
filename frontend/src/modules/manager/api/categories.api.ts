@@ -12,14 +12,14 @@ export async function getManagerCategoryById(id: number) {
 }
 
 export async function createManagerCategory(payload: { name: string }) {
-  const { data } = await http.post('/api/ManagerCategories', payload);
+  const { data } = await http.post('/api/v1/ManagerCategories', payload);
   return data;
 }
 
 export async function updateManagerCategory(id: number, payload: { name: string }) {
-  await http.put(`/api/ManagerCategories/${id}`, payload);
+  await http.put(`/api/v1/ManagerCategories/${id}`, payload);
 }
 
 export async function deleteManagerCategory(id: number) {
-  await http.delete(`/api/ManagerCategories/${id}`);
+  await http.delete(`/api/v1/ManagerCategories/${id}`);
 }

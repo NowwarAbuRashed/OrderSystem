@@ -12,6 +12,7 @@ import { Trash2, ArrowRight, ShoppingBag } from 'lucide-react';
 import { Card, CardContent } from '../../../shared/components/Card';
 import { Button } from '../../../shared/components/Button';
 import { ConfirmDialog } from '../../../shared/components/ConfirmDialog';
+import { ImageFallback } from '../../../shared/components/ImageFallback';
 import { useProductQuery } from '../../catalog/hooks/useCatalog';
 import { CartItem } from '../../../shared/types/cart';
 import { useState } from 'react';
@@ -22,6 +23,13 @@ function CartItemRow({ item, updateItem, deleteItem, t }: { item: CartItem; upda
 
   return (
     <li className="p-5 flex flex-col sm:flex-row sm:items-center gap-4 hover:bg-slate-50/50 transition-colors">
+      <div className="w-16 h-16 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 border border-slate-200/60 shadow-sm flex items-center justify-center text-slate-400">
+        {product?.images?.[0]?.imageUrl ? (
+          <ImageFallback src={product.images[0].imageUrl} alt={item.productName} className="w-full h-full object-cover" />
+        ) : (
+          <ShoppingBag className="w-6 h-6 opacity-50" />
+        )}
+      </div>
       <div className="flex-1 min-w-0">
         <Link to={`/products/${item.productId}`} className="text-base font-semibold text-slate-900 hover:text-primary-600 transition-colors truncate block">
           {item.productName}
@@ -30,7 +38,7 @@ function CartItemRow({ item, updateItem, deleteItem, t }: { item: CartItem; upda
           <span className="text-slate-500 font-medium text-sm"><PriceText amount={item.unitPrice} /></span>
           <span className="text-slate-300">·</span>
           <span className="text-slate-500 text-xs">
-            {product ? `${product.quantity} ${t.products.inStock}` : t.products.inStock}
+            {product && product.quantity === 0 ? t.products.outOfStock : t.products.inStock}
           </span>
         </div>
       </div>

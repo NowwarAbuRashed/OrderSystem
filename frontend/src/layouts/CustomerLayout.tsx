@@ -52,15 +52,28 @@ export function CustomerLayout() {
 
           {/* Center: Search */}
           <div className="flex-1 max-w-lg hidden lg:block">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <form 
+              className="relative" 
+              onSubmit={(e) => {
+                e.preventDefault();
+                const search = new FormData(e.currentTarget).get('search') as string;
+                if (search) {
+                  navigate(`/products?search=${encodeURIComponent(search)}`);
+                } else {
+                  navigate('/products');
+                }
+              }}
+            >
+              <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary-600 transition-colors z-10">
+                <Search className="w-4 h-4" />
+              </button>
               <input
                 type="text"
+                name="search"
                 placeholder={t.products.searchPlaceholder}
                 className="w-full rounded-xl border-0 py-2.5 pl-10 pr-4 text-sm text-slate-900 bg-slate-50 ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all"
-                onFocus={() => navigate('/products')}
               />
-            </div>
+            </form>
           </div>
 
           {/* Right: Actions */}

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useProductsQuery, useCategoriesQuery } from '../hooks/useCatalog';
 import { useI18n } from '../../../app/i18n/i18n-context';
 import { LoadingBlock } from '../../../shared/components/LoadingBlock';
@@ -18,6 +19,21 @@ export function ProductsListPage() {
   const categoryId = searchParams.get('categoryId') ? Number(searchParams.get('categoryId')) : undefined;
   const pageSize = 12;
   const { t } = useI18n();
+
+  const [localSearch, setLocalSearch] = useState(search);
+
+  useEffect(() => {
+    setLocalSearch(search);
+  }, [search]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== search) {
+        setSearch(localSearch);
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [localSearch]);
 
   const setPage = (newPage: number) => {
     setSearchParams(prev => {
@@ -53,7 +69,7 @@ export function ProductsListPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setPage(1);
+    setSearch(localSearch);
   };
 
   const handleAddToCart = (productId: number) => {
@@ -72,10 +88,6 @@ export function ProductsListPage() {
           <div className="absolute bottom-4 left-12 w-20 h-20 border-4 border-white rounded-full" />
         </div>
         <div className="relative z-10 max-w-2xl">
-          <div className="flex items-center gap-2 text-primary-200 text-sm font-medium mb-3">
-            <Sparkles className="w-4 h-4" />
-            <span>Marto</span>
-          </div>
           <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">
             {t.products.heroTitle}
           </h1>
@@ -94,12 +106,14 @@ export function ProductsListPage() {
 
         <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary-600 transition-colors z-10">
+              <Search className="w-4 h-4" />
+            </button>
             <input
               type="text"
               placeholder={t.products.searchPlaceholder}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
               className="w-full sm:w-64 rounded-xl border-0 py-2.5 pl-10 pr-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-primary-500 sm:text-sm transition-all bg-white"
             />
           </div>
@@ -109,7 +123,6 @@ export function ProductsListPage() {
               value={categoryId || ''}
               onChange={(e) => {
                 setCategoryId(e.target.value ? Number(e.target.value) : undefined);
-                setPage(1);
               }}
               className="w-full sm:w-48 rounded-xl border-0 py-2.5 pl-10 pr-8 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-primary-500 sm:text-sm transition-all cursor-pointer bg-white"
             >

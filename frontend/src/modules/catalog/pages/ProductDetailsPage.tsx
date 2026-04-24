@@ -157,7 +157,7 @@ export function ProductDetailsPage() {
                 {isAvailable ? (
                   <span className="font-bold text-success-600 flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-success-500 animate-pulse"></span>
-                    {product.quantity} {t.products.inStock}
+                    {t.products.inStock}
                   </span>
                 ) : (
                   <span className="font-bold text-danger-600">{t.products.outOfStock}</span>

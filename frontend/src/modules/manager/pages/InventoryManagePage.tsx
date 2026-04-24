@@ -32,8 +32,7 @@ export function ManagerInventoryManagePage() {
 
   const inventorySchema = useMemo(() => z.object({
     action: z.enum(['add', 'remove']),
-    qty: z.number({ message: t.validation?.required as string }).min(1, t.validation?.minNumber?.replace('{{min}}', '1') as string),
-    reason: z.string().trim().min(1, t.validation?.required as string)
+    qty: z.number({ message: t.validation?.required as string }).min(1, t.validation?.minNumber?.replace('{{min}}', '1') as string)
   }).superRefine((data, ctx) => {
     if (data.action === 'remove' && product && data.qty > product.quantity) {
       ctx.addIssue({
@@ -48,7 +47,7 @@ export function ManagerInventoryManagePage() {
 
   const { register, handleSubmit, reset, watch, setValue, setError, formState: { errors } } = useForm<InventoryFormType>({
     resolver: zodResolver(inventorySchema),
-    defaultValues: { action: 'add', reason: '' }
+    defaultValues: { action: 'add' }
   });
 
   const actionValue = watch('action');
@@ -59,7 +58,7 @@ export function ManagerInventoryManagePage() {
 
   const onSubmit = (data: InventoryFormType) => {
     const delta = data.action === 'add' ? data.qty : -data.qty;
-    const payload = { quantityDelta: delta, reason: data.reason };
+    const payload = { quantityDelta: delta };
     const opts = { 
       onSuccess: () => {
         setSuccessMessage(t.common.success);
@@ -188,14 +187,6 @@ export function ManagerInventoryManagePage() {
                 min="1"
                 {...register('qty', { valueAsNumber: true })}
                 error={errors.qty?.message}
-              />
-
-              <Input
-                label={t.manager.reason}
-                type="text"
-                {...register('reason')}
-                error={errors.reason?.message}
-                placeholder={actionValue === 'add' ? 'e.g. Received new shipment' : 'e.g. Damaged goods'}
               />
 
               <Button

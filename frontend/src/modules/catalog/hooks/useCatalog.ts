@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { getProducts, getProductById, getCategories } from '../api/catalog.api';
 import { ProductQuery } from '../../../shared/types/products';
 
@@ -12,6 +12,7 @@ export function useProductsQuery(params: ProductQuery) {
   return useQuery({
     queryKey: catalogKeys.products(params),
     queryFn: () => getProducts(params),
+    placeholderData: keepPreviousData,
   });
 }
 
