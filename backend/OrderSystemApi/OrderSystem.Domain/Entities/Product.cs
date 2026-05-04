@@ -13,6 +13,8 @@ namespace OrderSystem.Domain.Entities
 
   
         public decimal Price { get; set; }
+        
+        public decimal Cost { get; set; }
 
   
         public int Quantity { get; set; }

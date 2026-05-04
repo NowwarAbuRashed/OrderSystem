@@ -21,6 +21,8 @@ namespace OrderSystem.Application.Admin.Services
             var ordersToday = await _adminRepository.GetOrdersTodayAsync(cancellationToken);
             var totalRevenue = await _adminRepository.GetTotalRevenueAsync(cancellationToken);
             var revenueToday = await _adminRepository.GetRevenueTodayAsync(cancellationToken);
+            var totalCost = await _adminRepository.GetTotalCostAsync(cancellationToken);
+            var costToday = await _adminRepository.GetCostTodayAsync(cancellationToken);
             var totalUsers = await _adminRepository.GetTotalUsersAsync(cancellationToken);
             var newUsersToday = await _adminRepository.GetNewUsersTodayAsync(cancellationToken);
             var lowStockCount = await _adminRepository.GetLowStockCountAsync(cancellationToken);
@@ -35,6 +37,10 @@ namespace OrderSystem.Application.Admin.Services
                 OrdersToday = ordersToday,
                 TotalRevenue = totalRevenue,
                 RevenueToday = revenueToday,
+                TotalCost = totalCost,
+                CostToday = costToday,
+                TotalProfit = totalRevenue - totalCost,
+                ProfitToday = revenueToday - costToday,
                 TotalUsers = totalUsers,
                 NewUsersToday = newUsersToday,
                 LowStockCount = lowStockCount,
@@ -52,20 +58,37 @@ namespace OrderSystem.Application.Admin.Services
         }
 
         public async Task UpdateUserRoleAsync(
-            long userId, UpdateUserRoleRequest request, CancellationToken cancellationToken)
+            long userId, UpdateUserRoleRequest request, long currentUserId, CancellationToken cancellationToken)
         {
             var user = await _adminRepository.GetUserByIdAsync(userId, cancellationToken);
             if (user == null)
                 throw new Exception("User not found");
 
-            if (user.Role == UserRole.ADMIN)
-                throw new Exception("Cannot change the role of an admin user");
-
             if (!Enum.TryParse<UserRole>(request.Role, true, out var newRole))
                 throw new Exception("Invalid role");
 
+            if (user.Role == UserRole.CUSTOMER)
+                throw new Exception("Cannot change the role of a customer");
+
+            bool isSuperAdmin = currentUserId == 1;
+
+            if (user.Role == UserRole.ADMIN)
+            {
+                if (!isSuperAdmin)
+                    throw new Exception("Only the Super Admin can change the role of an admin user");
+                
+                if (user.Id == 1)
+                    throw new Exception("Cannot change the role of the Super Admin");
+            }
+
             if (newRole == UserRole.ADMIN)
-                throw new Exception("Cannot promote a user to admin");
+            {
+                if (!isSuperAdmin)
+                    throw new Exception("Only the Super Admin can promote a user to admin");
+                
+                if (user.Role != UserRole.MANAGER)
+                    throw new Exception("Only a manager can be promoted to admin");
+            }
 
             user.Role = newRole;
             user.UpdatedAt = DateTime.UtcNow;

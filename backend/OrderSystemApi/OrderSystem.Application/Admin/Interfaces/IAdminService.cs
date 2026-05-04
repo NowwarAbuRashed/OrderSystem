@@ -18,6 +18,7 @@ namespace OrderSystem.Application.Admin.Interfaces
         Task UpdateUserRoleAsync(
             long userId,
             UpdateUserRoleRequest request,
+            long currentUserId,
             CancellationToken cancellationToken);
 
         Task UpdateUserStatusAsync(

@@ -47,6 +47,12 @@ namespace OrderSystem.Infrastructure.Data.Configurations
             .HasPrecision(12, 2)
             .IsRequired();
 
+            builder.Property(x => x.UnitCost)
+            .HasColumnName("unit_cost")
+            .HasPrecision(10, 2)
+            .IsRequired()
+            .HasDefaultValue(0m);
+
             // Relationships
             builder.HasOne(x => x.Order)
                 .WithMany(o => o.OrderItems)

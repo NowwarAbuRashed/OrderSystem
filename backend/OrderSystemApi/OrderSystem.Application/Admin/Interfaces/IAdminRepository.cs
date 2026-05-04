@@ -11,6 +11,8 @@ namespace OrderSystem.Application.Admin.Interfaces
         Task<int> GetOrdersTodayAsync(CancellationToken cancellationToken);
         Task<decimal> GetTotalRevenueAsync(CancellationToken cancellationToken);
         Task<decimal> GetRevenueTodayAsync(CancellationToken cancellationToken);
+        Task<decimal> GetTotalCostAsync(CancellationToken cancellationToken);
+        Task<decimal> GetCostTodayAsync(CancellationToken cancellationToken);
         Task<int> GetTotalUsersAsync(CancellationToken cancellationToken);
         Task<int> GetNewUsersTodayAsync(CancellationToken cancellationToken);
         Task<int> GetLowStockCountAsync(CancellationToken cancellationToken);

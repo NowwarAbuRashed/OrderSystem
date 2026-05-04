@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using OrderSystem.Application.Admin.DTOs.Requests;
 using OrderSystem.Application.Admin.Interfaces;
 using OrderSystem.Domain.Enums;
+using OrderSystem.Api.Extensions;
 
 namespace OrderSystem.Api.Controllers.Admin
 {
@@ -42,7 +43,8 @@ namespace OrderSystem.Api.Controllers.Admin
             [FromBody] UpdateUserRoleRequest request,
             CancellationToken cancellationToken)
         {
-            await _adminService.UpdateUserRoleAsync(userId, request, cancellationToken);
+            var currentUserId = User.GetUserId();
+            await _adminService.UpdateUserRoleAsync(userId, request, currentUserId, cancellationToken);
             return Ok(new { message = "User role updated successfully" });
         }
 

@@ -14,6 +14,8 @@ namespace OrderSystem.Domain.Entities
         public int Quantity {  get; set; }
         public decimal UnitPrice { get; set; }
 
+        public decimal UnitCost { get; set; }
+
         public decimal LineTotal { get; set; }
 
         // Navigation Properties

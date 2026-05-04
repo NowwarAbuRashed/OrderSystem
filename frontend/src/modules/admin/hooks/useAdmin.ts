@@ -116,6 +116,7 @@ export function useUpdateCatalogBulkStatusMutation() {
       updateCatalogBulkStatus(productIds, isActive),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['manager', 'products'] });
     },
   });
 }
@@ -127,6 +128,7 @@ export function useUpdateCatalogBulkPriceMutation() {
       updateCatalogBulkPrice(productIds, percentageChange),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['manager', 'products'] });
     },
   });
 }

@@ -1,10 +1,85 @@
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { useAdminActivityQuery } from '../hooks/useAdmin';
 import { useI18n } from '../../../app/i18n/i18n-context';
 import { PageHeader } from '../../../shared/components/PageHeader';
 import { LoadingBlock } from '../../../shared/components/LoadingBlock';
-import { Activity, Search } from 'lucide-react';
+import { Activity, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { ensureUtc } from '../../../shared/utils/date';
+
+const parseDetailsData = (rawDetails: string) => {
+  if (!rawDetails) return null;
+
+  try {
+    const parsed = JSON.parse(rawDetails);
+    return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : null;
+  } catch {
+    return null;
+  }
+};
+
+function PriceChangesTable({ rawDetails }: { rawDetails: string }) {
+  const details = parseDetailsData(rawDetails);
+  const changes = (details?.PriceChanges as Array<any>) || [];
+  
+  if (changes.length === 0) {
+    return <div className="text-sm text-slate-500 italic py-2">No detailed price information available for this event.</div>;
+  }
+  
+  return (
+    <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden my-2 max-w-2xl">
+      <table className="w-full text-sm text-left">
+        <thead className="bg-slate-50 text-slate-600 border-b border-slate-100">
+          <tr>
+            <th className="px-4 py-2 font-medium">Product Name</th>
+            <th className="px-4 py-2 font-medium text-right">Old Price</th>
+            <th className="px-4 py-2 font-medium text-right">New Price</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          {changes.map((c) => (
+             <tr key={c.ProductId} className="hover:bg-slate-50 transition-colors">
+                <td className="px-4 py-2">{c.ProductName} <span className="text-xs text-slate-400 ml-1">#{c.ProductId}</span></td>
+                <td className="px-4 py-2 text-right text-slate-500 line-through">${Number(c.OldPrice).toFixed(2)}</td>
+                <td className="px-4 py-2 text-right font-medium text-green-600">${Number(c.NewPrice).toFixed(2)}</td>
+             </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function GeneralChangesTable({ rawDetails }: { rawDetails: string }) {
+  const details = parseDetailsData(rawDetails);
+  const changes = (details?.changes as Array<{Field: string, OldValue: any, NewValue: any}>) || [];
+  
+  if (changes.length === 0) {
+    return <div className="text-sm text-slate-500 italic py-2">No detailed change information available for this event.</div>;
+  }
+  
+  return (
+    <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden my-2 max-w-2xl">
+      <table className="w-full text-sm text-left">
+        <thead className="bg-slate-50 text-slate-600 border-b border-slate-100">
+          <tr>
+            <th className="px-4 py-2 font-medium">Field</th>
+            <th className="px-4 py-2 font-medium">Old Value</th>
+            <th className="px-4 py-2 font-medium">New Value</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          {changes.map((c, idx) => (
+             <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                <td className="px-4 py-2 font-medium text-slate-700">{c.Field}</td>
+                <td className="px-4 py-2 text-slate-500 line-through">{String(c.OldValue)}</td>
+                <td className="px-4 py-2 font-medium text-green-600">{String(c.NewValue)}</td>
+             </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 type ActivityLogEntry = {
   id: number;
@@ -22,6 +97,7 @@ type ActivityLogEntry = {
 export function AdminActivityLogPage() {
   const { t, locale } = useI18n();
   const [entityFilter, setEntityFilter] = useState('');
+  const [expandedLogs, setExpandedLogs] = useState<Set<number>>(new Set());
   const dateTimeFormatter = new Intl.DateTimeFormat(
     locale === 'ar' ? 'ar-SA-u-ca-gregory' : 'en-US',
     { dateStyle: 'medium', timeStyle: 'short' }
@@ -40,15 +116,11 @@ export function AdminActivityLogPage() {
     entityType: entityFilter || undefined
   });
 
-  const parseDetails = (rawDetails: string) => {
-    if (!rawDetails) return null;
-
-    try {
-      const parsed = JSON.parse(rawDetails);
-      return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : null;
-    } catch {
-      return null;
-    }
+  const toggleExpand = (id: number) => {
+    const next = new Set(expandedLogs);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setExpandedLogs(next);
   };
 
   const getActionLabel = (actionType: string) => {
@@ -91,7 +163,7 @@ export function AdminActivityLogPage() {
   };
 
   const getDetailsLabel = (log: ActivityLogEntry) => {
-    const details = parseDetails(log.details);
+    const details = parseDetailsData(log.details);
 
     if (!details) {
       return log.details || t.admin.noDetails;
@@ -185,40 +257,68 @@ export function AdminActivityLogPage() {
               <tbody className="divide-y divide-neutral-100">
                 {logs?.map((log: ActivityLogEntry) => {
                   const detailsLabel = getDetailsLabel(log);
+                  const isExpanded = expandedLogs.has(log.id);
+                  const canExpand = log.actionType === 'PRODUCT_BULK_PRICE' || log.actionType === 'PRODUCT_EDIT';
 
                   return (
-                  <tr key={log.id} className="hover:bg-neutral-50/50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-neutral-500">
-                      {dateTimeFormatter.format(new Date(ensureUtc(log.timestamp)))}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-700 border border-primary-100">
-                        {getActionLabel(log.actionType)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap font-medium text-neutral-900">
-                      {getEntityLabel(log)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {log.performedByUserId ? (
-                        <div className="flex items-center">
-                          <div className="w-6 h-6 rounded-full bg-neutral-200 flex items-center justify-center text-xs text-neutral-600 mr-2 uppercase">
-                            {log.performedByUser?.fullName?.charAt(0) || 'U'}
+                  <Fragment key={log.id}>
+                    <tr className={`hover:bg-neutral-50/50 transition-colors ${isExpanded ? 'bg-neutral-50/50' : ''}`}>
+                      <td className="px-6 py-4 whitespace-nowrap text-neutral-500">
+                        {dateTimeFormatter.format(new Date(ensureUtc(log.timestamp)))}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-700 border border-primary-100">
+                          {getActionLabel(log.actionType)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap font-medium text-neutral-900">
+                        {getEntityLabel(log)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {log.performedByUserId ? (
+                          <div className="flex items-center">
+                            <div className="w-6 h-6 rounded-full bg-neutral-200 flex items-center justify-center text-xs text-neutral-600 mr-2 uppercase">
+                              {log.performedByUser?.fullName?.charAt(0) || 'U'}
+                            </div>
+                            <span className="text-neutral-600">
+                              {log.performedByUser?.fullName || `ID: ${log.performedByUserId}`}
+                            </span>
                           </div>
-                          <span className="text-neutral-600">
-                            {log.performedByUser?.fullName || `ID: ${log.performedByUserId}`}
-                          </span>
+                        ) : (
+                          <span className="text-neutral-400 italic">{t.admin.system}</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-neutral-500 overflow-hidden">
+                        <div className="flex items-center gap-2">
+                          <div className="max-w-sm truncate" title={typeof detailsLabel === 'string' ? detailsLabel : ''}>
+                            {detailsLabel}
+                          </div>
+                          {canExpand && (
+                            <button
+                              onClick={() => toggleExpand(log.id)}
+                              className="text-primary-600 hover:text-primary-700 hover:underline text-xs font-medium flex items-center gap-1 shrink-0"
+                            >
+                              {isExpanded ? (
+                                <>Hide Details <ChevronUp className="w-3 h-3" /></>
+                              ) : (
+                                <>View Details <ChevronDown className="w-3 h-3" /></>
+                              )}
+                            </button>
+                          )}
                         </div>
-                      ) : (
-                        <span className="text-neutral-400 italic">{t.admin.system}</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-neutral-500 overflow-hidden">
-                      <div className="max-w-sm truncate" title={detailsLabel}>
-                        {detailsLabel}
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                    </tr>
+                    {isExpanded && (
+                      <tr className="bg-slate-50/30 border-b border-slate-100">
+                        <td colSpan={5} className="px-6 py-3">
+                           {log.actionType === 'PRODUCT_BULK_PRICE' 
+                              ? <PriceChangesTable rawDetails={log.details} />
+                              : <GeneralChangesTable rawDetails={log.details} />
+                           }
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 )})}
                 {(!logs || logs.length === 0) && (
                   <tr>

@@ -103,6 +103,7 @@ namespace OrderSystem.Application.Orders.Services
                     ProductId = ci.ProductId,
                     Quantity = ci.Quantity,
                     UnitPrice = unitPrice,
+                    UnitCost = ci.Product.Cost,
                     LineTotal = unitPrice * ci.Quantity
                 };
             }).ToList();
