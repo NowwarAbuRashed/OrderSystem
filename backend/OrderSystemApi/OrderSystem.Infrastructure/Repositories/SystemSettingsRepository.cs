@@ -20,12 +20,12 @@ namespace OrderSystem.Infrastructure.Repositories
 
         public async Task<List<SystemSetting>> GetAllAsync(CancellationToken ct)
         {
-            return await _context.SystemSettings.OrderBy(s => s.Key).ToListAsync(ct);
+            return await _context.SystemSettings.AsNoTracking().OrderBy(s => s.Key).ToListAsync(ct);
         }
 
         public async Task<SystemSetting?> GetByKeyAsync(string key, CancellationToken ct)
         {
-            return await _context.SystemSettings.FirstOrDefaultAsync(s => s.Key == key, ct);
+            return await _context.SystemSettings.AsNoTracking().FirstOrDefaultAsync(s => s.Key == key, ct);
         }
 
         public async Task UpsertAsync(string key, string value, string? description, CancellationToken ct)

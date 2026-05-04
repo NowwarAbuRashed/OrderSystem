@@ -36,7 +36,6 @@ namespace OrderSystem.Infrastructure.Repositories
                     SortOrder = x.SortOrder,
                     IsPrimary = x.IsPrimary,
                     CreatedAt = x.CreatedAt,
-                    //Product = _context.Products.FirstOrDefault(p => p.Id == x.ProductId)
                 })
 
                 .ToListAsync(ct);

@@ -55,15 +55,9 @@ namespace OrderSystem.Infrastructure.Repositories
 
         public async Task<int> MarkAllAsReadAsync(CancellationToken ct)
         {
-            var unread = await _context.SystemNotifications.Where(n => !n.IsRead).ToListAsync(ct);
-            if (!unread.Any()) return 0;
-            
-            foreach (var item in unread)
-            {
-                item.IsRead = true;
-            }
-            
-            _context.SystemNotifications.UpdateRange(unread);
+            await _context.SystemNotifications
+                          .Where(n => !n.IsRead)
+                          .ExecuteUpdateAsync(s => s.SetProperty(n => n.IsRead, true), ct);
             return await _context.SaveChangesAsync(ct);
         }
     }
