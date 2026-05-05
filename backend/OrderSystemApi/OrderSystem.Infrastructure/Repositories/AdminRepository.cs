@@ -47,6 +47,21 @@ namespace OrderSystem.Infrastructure.Repositories
                 .SumAsync(p => p.Amount, cancellationToken);
         }
 
+        public async Task<decimal> GetTotalCostAsync(CancellationToken cancellationToken)
+        {
+            return await _context.OrderItems
+                .Where(oi => oi.Order.Payments != null && oi.Order.Payments.Status == PaymentStatus.PAID)
+                .SumAsync(oi => oi.UnitCost * oi.Quantity, cancellationToken);
+        }
+
+        public async Task<decimal> GetCostTodayAsync(CancellationToken cancellationToken)
+        {
+            var today = DateTime.UtcNow.Date;
+            return await _context.OrderItems
+                .Where(oi => oi.Order.Payments != null && oi.Order.Payments.Status == PaymentStatus.PAID && oi.Order.CreatedAt >= today)
+                .SumAsync(oi => oi.UnitCost * oi.Quantity, cancellationToken);
+        }
+
         public async Task<int> GetTotalUsersAsync(CancellationToken cancellationToken)
         {
             return await _context.Users.CountAsync(cancellationToken);

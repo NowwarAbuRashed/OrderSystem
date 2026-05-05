@@ -3,7 +3,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../app/store/auth-context';
 import { useI18n } from '../app/i18n/i18n-context';
 import { LanguageSwitcher } from '../shared/components/LanguageSwitcher';
-import { LogOut, Activity, AlertTriangle, Settings, Menu, X, LayoutDashboard, Users, ShoppingCart, DollarSign, ClipboardList, Package, FolderTree } from 'lucide-react';
+import { LogOut, Activity, AlertTriangle, Settings, Menu, X, LayoutDashboard, Users, ShoppingCart, DollarSign, ClipboardList, Package, FolderTree, ArrowRight } from 'lucide-react';
 import { NotificationBell } from '../modules/admin/components/NotificationBell';
 import clsx from 'clsx';
 
@@ -73,6 +73,19 @@ export function AdminLayout() {
           );
         })}
       </nav>
+      <div className="px-3 py-4 border-t border-slate-100 space-y-1">
+        <div className="px-3 mb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+          {t.nav.manager}
+        </div>
+        <Link
+          to="/manager/orders"
+          onClick={() => setSidebarOpen(false)}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-primary-600 bg-primary-50 hover:bg-primary-100"
+        >
+          <ArrowRight className="w-4 h-4 text-primary-600" />
+          {t.admin?.enterAsManager || 'Enter as Manager'}
+        </Link>
+      </div>
       <div className="p-3 border-t border-slate-100 space-y-1">
         <LanguageSwitcher className="w-full justify-start" />
         <button

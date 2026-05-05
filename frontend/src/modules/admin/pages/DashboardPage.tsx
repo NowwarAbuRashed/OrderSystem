@@ -13,6 +13,7 @@ import {
   Users,
   AlertTriangle,
   TrendingUp,
+  TrendingDown,
   Package,
   CreditCard,
   Banknote,
@@ -33,6 +34,10 @@ type DashboardData = {
   ordersToday: number;
   totalRevenue: number;
   revenueToday: number;
+  totalCost: number;
+  costToday: number;
+  totalProfit: number;
+  profitToday: number;
   totalUsers: number;
   newUsersToday: number;
   lowStockCount: number;
@@ -124,7 +129,7 @@ export function AdminDashboardPage() {
       />
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           icon={<ShoppingCart className="w-5 h-5" />}
           label={t.admin.totalOrders}
@@ -140,6 +145,22 @@ export function AdminDashboardPage() {
           variant="success"
           trend={d.revenueToday > 0 ? 'up' : 'neutral'}
           trendLabel={`$${d.revenueToday.toFixed(2)} ${t.admin.today}`}
+        />
+        <StatCard
+          icon={<TrendingDown className="w-5 h-5" />}
+          label={t.admin.totalCostOutgoing || 'Total Cost (Outgoing)'}
+          value={`$${d.totalCost.toFixed(2)}`}
+          variant="danger"
+          trend={d.costToday > 0 ? 'down' : 'neutral'}
+          trendLabel={`$${d.costToday.toFixed(2)} ${t.admin.today}`}
+        />
+        <StatCard
+          icon={<TrendingUp className="w-5 h-5" />}
+          label={t.admin.netProfit || 'Net Profit'}
+          value={`$${d.totalProfit.toFixed(2)}`}
+          variant={d.totalProfit >= 0 ? 'success' : 'danger'}
+          trend={d.profitToday > 0 ? 'up' : d.profitToday < 0 ? 'down' : 'neutral'}
+          trendLabel={`$${d.profitToday.toFixed(2)} ${t.admin.today}`}
         />
         <StatCard
           icon={<Users className="w-5 h-5" />}

@@ -22,6 +22,7 @@ namespace OrderSystem.Infrastructure.Repositories
         public async Task<Payment?> GetByOrderIdAsync(long orderId, CancellationToken cancellationToken)
         {
             return await _context.Payments
+                .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.OrderId == orderId, cancellationToken);
         }
 

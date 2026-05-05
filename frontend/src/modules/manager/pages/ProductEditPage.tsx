@@ -57,6 +57,8 @@ export function ManagerProductEditPage() {
     description: z.string().trim().min(1, t.validation?.required as string),
     price: z.number({ message: t.validation?.required as string })
       .min(0.01, t.validation?.minNumber?.replace('{{min}}', '0.01') as string),
+    cost: z.number({ message: t.validation?.required as string })
+      .min(0, t.validation?.minNumber?.replace('{{min}}', '0') as string),
     quantity: z.number({ message: t.validation?.required as string }).min(0).optional(),
     minQuantity: z.number({ message: t.validation?.required as string })
       .min(0, t.validation?.minNumber?.replace('{{min}}', '0') as string),
@@ -69,7 +71,7 @@ export function ManagerProductEditPage() {
 
   const { register, handleSubmit, reset, setError, formState: { errors } } = useForm<ProductForm>({
     resolver: zodResolver(productSchema),
-    defaultValues: { status: 'ACTIVE', quantity: 0 }
+    defaultValues: { status: 'ACTIVE', quantity: 0, cost: 0 }
   });
 
   useEffect(() => {
@@ -78,6 +80,7 @@ export function ManagerProductEditPage() {
         name: product.name,
         description: product.description,
         price: product.price,
+        cost: product.cost ?? 0,
         minQuantity: product.minQuantity,
         categoryId: product.categoryId,
         status: product.status || 'ACTIVE',
@@ -103,8 +106,8 @@ export function ManagerProductEditPage() {
   const onSubmit = (data: ProductForm) => {
     if (isNew) {
       createProduct(
-        { name: data.name, description: data.description, price: data.price, quantity: data.quantity || 0, minQuantity: data.minQuantity, categoryId: data.categoryId },
-        { 
+        { name: data.name, description: data.description, price: data.price, cost: data.cost, quantity: data.quantity || 0, minQuantity: data.minQuantity, categoryId: data.categoryId },
+        {
           onSuccess: async (res) => {
             if (pendingFiles.length > 0) {
               try {
@@ -130,8 +133,8 @@ export function ManagerProductEditPage() {
       );
     } else {
       updateProduct(
-        { id, name: data.name, description: data.description, price: data.price, minQuantity: data.minQuantity, categoryId: data.categoryId, status: data.status },
-        { 
+        { id, name: data.name, description: data.description, price: data.price, cost: data.cost, minQuantity: data.minQuantity, categoryId: data.categoryId, status: data.status },
+        {
           onSuccess: () => {
             setIsSuccess(true);
             setTimeout(() => setIsSuccess(false), 3000);
@@ -158,7 +161,7 @@ export function ManagerProductEditPage() {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
     const file = e.target.files[0];
-    
+
     if (isNew) {
       setPendingFiles(prev => [...prev, {
         id: Math.random().toString(36).substring(7),
@@ -223,6 +226,10 @@ export function ManagerProductEditPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <Input label={t.manager.productPrice} {...register('price', { valueAsNumber: true })} type="number" step="0.01" error={errors.price?.message} />
+                  <Input label="Cost (Purchase Price)" {...register('cost', { valueAsNumber: true })} type="number" step="0.01" error={errors.cost?.message} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                   <Input label={t.manager.productMinQty} {...register('minQuantity', { valueAsNumber: true })} type="number" error={errors.minQuantity?.message} />
                 </div>
 
@@ -279,7 +286,7 @@ export function ManagerProductEditPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-              
+
               <div className="flex gap-2 mb-6 items-center">
                 <div className="flex-1">
                   <Input
@@ -320,7 +327,7 @@ export function ManagerProductEditPage() {
                       </button>
                     </li>
                   ))}
-                  
+
                   {/* Locally Pending Files (Unsaved) */}
                   {pendingFiles.map((pf, idx) => (
                     <li key={pf.id} className="relative group rounded-xl overflow-hidden shadow-sm border border-warning-200 bg-warning-50 aspect-square">

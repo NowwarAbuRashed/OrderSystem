@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OrderSystem.Api.Extensions;
 using OrderSystem.Application.Products.DTOs.Requests;
 using OrderSystem.Application.Products.DTOs.Responses;
 using OrderSystem.Application.Products.Interfaces;
@@ -37,7 +38,8 @@ public class ManagerProductsController : ControllerBase
         [FromBody] UpdateProductRequest request,
         CancellationToken ct)
     {
-        await _productService.UpdateProductAsync(productId, request, ct);
+        var performedByUserId = User.GetUserId();
+        await _productService.UpdateProductAsync(productId, request, performedByUserId, ct);
         return NoContent();
     }
 }

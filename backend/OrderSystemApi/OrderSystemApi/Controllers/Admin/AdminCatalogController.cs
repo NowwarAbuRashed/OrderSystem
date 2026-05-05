@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OrderSystem.Api.Extensions;
 using OrderSystem.Application.Products.Interfaces;
 using System.Collections.Generic;
 using System.Threading;
@@ -28,7 +29,8 @@ namespace OrderSystemApi.Controllers.Admin
         [HttpPut("bulk-status")]
         public async Task<IActionResult> BulkStatus([FromBody] BulkStatusRequest request, CancellationToken ct)
         {
-            var count = await _productService.BulkUpdateStatusAsync(request.ProductIds, request.IsActive, ct);
+            var performedByUserId = User.GetUserId();
+            var count = await _productService.BulkUpdateStatusAsync(request.ProductIds, request.IsActive, performedByUserId, ct);
             return Ok(new { message = $"Successfully updated {count} products." });
         }
 
@@ -41,7 +43,8 @@ namespace OrderSystemApi.Controllers.Admin
         [HttpPut("bulk-price")]
         public async Task<IActionResult> BulkPrice([FromBody] BulkPriceRequest request, CancellationToken ct)
         {
-            var count = await _productService.BulkUpdatePriceAsync(request.ProductIds, request.PercentageChange, ct);
+            var performedByUserId = User.GetUserId();
+            var count = await _productService.BulkUpdatePriceAsync(request.ProductIds, request.PercentageChange, performedByUserId, ct);
             return Ok(new { message = $"Successfully updated {count} products." });
         }
     }

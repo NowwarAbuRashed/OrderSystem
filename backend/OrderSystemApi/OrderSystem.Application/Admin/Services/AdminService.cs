@@ -9,10 +9,12 @@ namespace OrderSystem.Application.Admin.Services
     public class AdminService : IAdminService
     {
         private readonly IAdminRepository _adminRepository;
+        private readonly IActivityLogService _activityLogService;
 
-        public AdminService(IAdminRepository adminRepository)
+        public AdminService(IAdminRepository adminRepository, IActivityLogService activityLogService)
         {
             _adminRepository = adminRepository;
+            _activityLogService = activityLogService;
         }
 
         public async Task<DashboardResponse> GetDashboardAsync(CancellationToken cancellationToken)
@@ -21,6 +23,8 @@ namespace OrderSystem.Application.Admin.Services
             var ordersToday = await _adminRepository.GetOrdersTodayAsync(cancellationToken);
             var totalRevenue = await _adminRepository.GetTotalRevenueAsync(cancellationToken);
             var revenueToday = await _adminRepository.GetRevenueTodayAsync(cancellationToken);
+            var totalCost = await _adminRepository.GetTotalCostAsync(cancellationToken);
+            var costToday = await _adminRepository.GetCostTodayAsync(cancellationToken);
             var totalUsers = await _adminRepository.GetTotalUsersAsync(cancellationToken);
             var newUsersToday = await _adminRepository.GetNewUsersTodayAsync(cancellationToken);
             var lowStockCount = await _adminRepository.GetLowStockCountAsync(cancellationToken);
@@ -35,6 +39,10 @@ namespace OrderSystem.Application.Admin.Services
                 OrdersToday = ordersToday,
                 TotalRevenue = totalRevenue,
                 RevenueToday = revenueToday,
+                TotalCost = totalCost,
+                CostToday = costToday,
+                TotalProfit = totalRevenue - totalCost,
+                ProfitToday = revenueToday - costToday,
                 TotalUsers = totalUsers,
                 NewUsersToday = newUsersToday,
                 LowStockCount = lowStockCount,
@@ -52,29 +60,48 @@ namespace OrderSystem.Application.Admin.Services
         }
 
         public async Task UpdateUserRoleAsync(
-            long userId, UpdateUserRoleRequest request, CancellationToken cancellationToken)
+            long userId, UpdateUserRoleRequest request, long currentUserId, CancellationToken cancellationToken)
         {
             var user = await _adminRepository.GetUserByIdAsync(userId, cancellationToken);
             if (user == null)
                 throw new Exception("User not found");
 
-            if (user.Role == UserRole.ADMIN)
-                throw new Exception("Cannot change the role of an admin user");
-
             if (!Enum.TryParse<UserRole>(request.Role, true, out var newRole))
                 throw new Exception("Invalid role");
 
-            if (newRole == UserRole.ADMIN)
-                throw new Exception("Cannot promote a user to admin");
+            if (user.Role == UserRole.CUSTOMER)
+                throw new Exception("Cannot change the role of a customer");
 
+            bool isSuperAdmin = currentUserId == 1;
+
+            if (user.Role == UserRole.ADMIN)
+            {
+                if (!isSuperAdmin)
+                    throw new Exception("Only the Super Admin can change the role of an admin user");
+                
+                if (user.Id == 1)
+                    throw new Exception("Cannot change the role of the Super Admin");
+            }
+
+            if (newRole == UserRole.ADMIN)
+            {
+                if (!isSuperAdmin)
+                    throw new Exception("Only the Super Admin can promote a user to admin");
+                
+                if (user.Role != UserRole.MANAGER)
+                    throw new Exception("Only a manager can be promoted to admin");
+            }
+
+            var oldRole = user.Role;
             user.Role = newRole;
             user.UpdatedAt = DateTime.UtcNow;
 
             await _adminRepository.UpdateUserAsync(user, cancellationToken);
+            await _activityLogService.LogActionAsync("USER_ROLE_CHANGE", "User", user.Id.ToString(), currentUserId, new { OldRole = oldRole.ToString(), NewRole = newRole.ToString() }, cancellationToken);
         }
 
         public async Task UpdateUserStatusAsync(
-            long userId, UpdateUserStatusRequest request, CancellationToken cancellationToken)
+            long userId, UpdateUserStatusRequest request, long currentUserId, CancellationToken cancellationToken)
         {
             var user = await _adminRepository.GetUserByIdAsync(userId, cancellationToken);
             if (user == null)
@@ -83,10 +110,12 @@ namespace OrderSystem.Application.Admin.Services
             if (user.Role == UserRole.ADMIN)
                 throw new Exception("Cannot deactivate an admin user");
 
+            var oldStatus = user.IsActive;
             user.IsActive = request.IsActive;
             user.UpdatedAt = DateTime.UtcNow;
 
             await _adminRepository.UpdateUserAsync(user, cancellationToken);
+            await _activityLogService.LogActionAsync("USER_STATUS_CHANGE", "User", user.Id.ToString(), currentUserId, new { OldStatus = oldStatus, NewStatus = request.IsActive }, cancellationToken);
         }
 
         public async Task<PagedResult<AdminOrderDto>> GetOrdersAsync(

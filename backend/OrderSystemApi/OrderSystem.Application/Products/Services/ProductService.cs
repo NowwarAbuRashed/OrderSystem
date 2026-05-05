@@ -41,6 +41,7 @@ public class ProductService : IProductService
                 Id = x.Id,
                 Name = x.Name,
                 Price = x.Price,
+                Cost = x.Cost,
                 Quantity = x.Quantity,
                 MinQuantity = x.MinQuantity,
                 Status = x.Status.ToString(),
@@ -73,6 +74,7 @@ public class ProductService : IProductService
             Name = product.Name,
             Description = product.Description,
             Price = product.Price,
+            Cost = product.Cost,
             Quantity = product.Quantity,
             MinQuantity = product.MinQuantity,
             Status = product.Status.ToString(),
@@ -98,6 +100,7 @@ public class ProductService : IProductService
             Name = request.Name.Trim(),
             Description = request.Description.Trim(),
             Price = request.Price,
+            Cost = request.Cost,
             Quantity = request.Quantity,
             MinQuantity = request.MinQuantity,
             CategoryId = request.CategoryId,
@@ -107,37 +110,59 @@ public class ProductService : IProductService
         return await _productRepository.AddAsync(product, ct);
     }
 
-    public async Task UpdateProductAsync(long productId, UpdateProductRequest request, CancellationToken ct)
+    public async Task UpdateProductAsync(long productId, UpdateProductRequest request, long performedByUserId, CancellationToken ct)
     {
         var product = await _productRepository.GetByIdAsync(productId, ct);
 
         if (product is null)
             throw new KeyNotFoundException($"Product with id '{productId}' was not found.");
 
-        if (!string.IsNullOrWhiteSpace(request.Name))
+        var changes = new List<object>();
+
+        if (!string.IsNullOrWhiteSpace(request.Name) && product.Name != request.Name.Trim())
+        {
+            changes.Add(new { Field = "Name", OldValue = product.Name, NewValue = request.Name.Trim() });
             product.Name = request.Name.Trim();
+        }
 
-        if (!string.IsNullOrWhiteSpace(request.Description))
+        if (!string.IsNullOrWhiteSpace(request.Description) && product.Description != request.Description.Trim())
+        {
+            changes.Add(new { Field = "Description", OldValue = product.Description, NewValue = request.Description.Trim() });
             product.Description = request.Description.Trim();
+        }
 
-        if (request.Price.HasValue)
+        if (request.Price.HasValue && product.Price != request.Price.Value)
         {
             if (request.Price.Value < 0)
                 throw new ArgumentException("Price cannot be negative.");
 
+            changes.Add(new { Field = "Price", OldValue = product.Price, NewValue = request.Price.Value });
             product.Price = request.Price.Value;
         }
 
-        if (request.MinQuantity.HasValue)
+        if (request.Cost.HasValue && product.Cost != request.Cost.Value)
+        {
+            if (request.Cost.Value < 0)
+                throw new ArgumentException("Cost cannot be negative.");
+
+            changes.Add(new { Field = "Cost", OldValue = product.Cost, NewValue = request.Cost.Value });
+            product.Cost = request.Cost.Value;
+        }
+
+        if (request.MinQuantity.HasValue && product.MinQuantity != request.MinQuantity.Value)
         {
             if (request.MinQuantity.Value < 0)
                 throw new ArgumentException("MinQuantity cannot be negative.");
 
+            changes.Add(new { Field = "MinQuantity", OldValue = product.MinQuantity, NewValue = request.MinQuantity.Value });
             product.MinQuantity = request.MinQuantity.Value;
         }
 
-        if (request.CategoryId.HasValue)
+        if (request.CategoryId.HasValue && product.CategoryId != request.CategoryId.Value)
+        {
+            changes.Add(new { Field = "CategoryId", OldValue = product.CategoryId, NewValue = request.CategoryId.Value });
             product.CategoryId = request.CategoryId.Value;
+        }
 
         if (!string.IsNullOrWhiteSpace(request.Status))
         {
@@ -147,7 +172,12 @@ public class ProductService : IProductService
                 {
                     throw new ArgumentException("Cannot set status to Active when current stock is zero.");
                 }
-                product.Status = status;
+                
+                if (product.Status != status)
+                {
+                    changes.Add(new { Field = "Status", OldValue = product.Status.ToString(), NewValue = status.ToString() });
+                    product.Status = status;
+                }
             }
             else
             {
@@ -160,10 +190,10 @@ public class ProductService : IProductService
         if (!updated)
             throw new Exception("Failed to update product.");
             
-        await _activityLogService.LogActionAsync("PRODUCT_EDIT", "Product", product.Id.ToString(), null, new { message = "Product updated." }, ct);
+        await _activityLogService.LogActionAsync("PRODUCT_EDIT", "Product", product.Id.ToString(), performedByUserId, new { message = "Product updated.", changes }, ct);
     }
 
-    public async Task<int> BulkUpdateStatusAsync(List<long> productIds, bool isActive, CancellationToken ct)
+    public async Task<int> BulkUpdateStatusAsync(List<long> productIds, bool isActive, long performedByUserId, CancellationToken ct)
     {
         var products = await _productRepository.GetByIdsAsync(productIds, ct);
         if (!products.Any()) return 0;
@@ -178,28 +208,33 @@ public class ProductService : IProductService
         var success = await _productRepository.UpdateBulk(products);
         if (success)
         {
-            await _activityLogService.LogActionAsync("PRODUCT_BULK_STATUS", "Product", "Multiple", null, new { Count = products.Count, IsActive = isActive }, ct);
+            await _activityLogService.LogActionAsync("PRODUCT_BULK_STATUS", "Product", "Multiple", performedByUserId, new { Count = products.Count, IsActive = isActive }, ct);
             return products.Count;
         }
         return 0;
     }
 
-    public async Task<int> BulkUpdatePriceAsync(List<long> productIds, decimal percentageChange, CancellationToken ct)
+    public async Task<int> BulkUpdatePriceAsync(List<long> productIds, decimal percentageChange, long performedByUserId, CancellationToken ct)
     {
         var products = await _productRepository.GetByIdsAsync(productIds, ct);
         if (!products.Any()) return 0;
 
+        var priceChanges = new List<object>();
+
         foreach (var p in products)
         {
+            var oldPrice = p.Price;
             var change = p.Price * (percentageChange / 100m);
             p.Price += change;
             if (p.Price < 0) p.Price = 0;
+
+            priceChanges.Add(new { ProductId = p.Id, ProductName = p.Name, OldPrice = oldPrice, NewPrice = p.Price });
         }
 
         var success = await _productRepository.UpdateBulk(products);
         if (success)
         {
-            await _activityLogService.LogActionAsync("PRODUCT_BULK_PRICE", "Product", "Multiple", null, new { Count = products.Count, Percentage = percentageChange }, ct);
+            await _activityLogService.LogActionAsync("PRODUCT_BULK_PRICE", "Product", "Multiple", performedByUserId, new { Count = products.Count, Percentage = Math.Round(percentageChange, 2), PriceChanges = priceChanges }, ct);
             return products.Count;
         }
         return 0;

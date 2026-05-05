@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useAuth } from '../../../app/store/auth-context';
 import { useAdminUsersQuery, useUpdateUserRoleMutation, useUpdateUserStatusMutation } from '../hooks/useAdmin';
 import { useI18n } from '../../../app/i18n/i18n-context';
 import { PageHeader } from '../../../shared/components/PageHeader';
@@ -23,6 +24,7 @@ type AdminUser = {
 
 export function AdminUsersPage() {
   const { t, locale } = useI18n();
+  const { user: currentUser } = useAuth();
   const [roleFilter, setRoleFilter] = useState<string>('');
   const dateLocale = locale === 'ar' ? 'ar-SA-u-ca-gregory' : 'en-US';
   const params = {
@@ -65,7 +67,30 @@ export function AdminUsersPage() {
     {
       header: t.admin.role,
       accessor: (row) => {
+        if (row.role === 'CUSTOMER') {
+          return (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold">
+              {t.auth.customer}
+            </span>
+          );
+        }
+
+        const isSuperAdmin = currentUser?.userId === 1;
+
         if (row.role === 'ADMIN') {
+          if (isSuperAdmin && row.userId !== currentUser?.userId) {
+            return (
+              <select
+                value={row.role}
+                onChange={(e) => handleRoleChange(row.userId, e.target.value)}
+                className="text-xs font-medium px-2 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                disabled={updateRole.isPending}
+              >
+                <option value="ADMIN">{t.auth.admin}</option>
+                <option value="MANAGER">{t.auth.manager}</option>
+              </select>
+            );
+          }
           return (
             <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-semibold">
               <Shield className="w-3 h-3" />
@@ -73,17 +98,29 @@ export function AdminUsersPage() {
             </span>
           );
         }
-        return (
-          <select
-            value={row.role}
-            onChange={(e) => handleRoleChange(row.userId, e.target.value)}
-            className="text-xs font-medium px-2 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
-            disabled={updateRole.isPending}
-          >
-            <option value="CUSTOMER">{t.auth.customer}</option>
-            <option value="MANAGER">{t.auth.manager}</option>
-          </select>
-        );
+
+        if (row.role === 'MANAGER') {
+          if (isSuperAdmin) {
+            return (
+              <select
+                value={row.role}
+                onChange={(e) => handleRoleChange(row.userId, e.target.value)}
+                className="text-xs font-medium px-2 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                disabled={updateRole.isPending}
+              >
+                <option value="MANAGER">{t.auth.manager}</option>
+                <option value="ADMIN">{t.auth.admin}</option>
+              </select>
+            );
+          }
+          return (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold">
+              {t.auth.manager}
+            </span>
+          );
+        }
+
+        return <span>{row.role}</span>;
       },
     },
     {

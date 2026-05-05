@@ -1,4 +1,4 @@
-﻿using OrderSystem.Application.ProductImage.DTOs.Responses;
+using OrderSystem.Application.ProductImage.DTOs.Responses;
 
 namespace OrderSystem.Application.Products.DTOs.Responses
 {
@@ -8,6 +8,7 @@ namespace OrderSystem.Application.Products.DTOs.Responses
         public string Name { get; set; } = string.Empty;
 
         public decimal Price { get; set; }
+        public decimal Cost { get; set; }
         public int Quantity { get; set; }
         public int MinQuantity { get; set; }
         public string Status { get; set; } = string.Empty;

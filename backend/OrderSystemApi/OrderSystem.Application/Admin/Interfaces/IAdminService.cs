@@ -18,11 +18,13 @@ namespace OrderSystem.Application.Admin.Interfaces
         Task UpdateUserRoleAsync(
             long userId,
             UpdateUserRoleRequest request,
+            long currentUserId,
             CancellationToken cancellationToken);
 
         Task UpdateUserStatusAsync(
             long userId,
             UpdateUserStatusRequest request,
+            long currentUserId,
             CancellationToken cancellationToken);
 
         Task<PagedResult<AdminOrderDto>> GetOrdersAsync(

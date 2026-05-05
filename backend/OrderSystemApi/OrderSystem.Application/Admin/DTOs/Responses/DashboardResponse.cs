@@ -6,6 +6,10 @@ namespace OrderSystem.Application.Admin.DTOs.Responses
         public int OrdersToday { get; set; }
         public decimal TotalRevenue { get; set; }
         public decimal RevenueToday { get; set; }
+        public decimal TotalCost { get; set; }
+        public decimal CostToday { get; set; }
+        public decimal TotalProfit { get; set; }
+        public decimal ProfitToday { get; set; }
         public int TotalUsers { get; set; }
         public int NewUsersToday { get; set; }
         public int LowStockCount { get; set; }

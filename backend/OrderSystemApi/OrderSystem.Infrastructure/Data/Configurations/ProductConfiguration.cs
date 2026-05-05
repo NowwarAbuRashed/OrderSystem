@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OrderSystem.Domain.Entities;
@@ -46,6 +46,12 @@ namespace OrderSystem.Infrastructure.Data.Configurations
                 .HasColumnName("price")
                 .HasColumnType("decimal(10,2)")
                 .IsRequired();
+
+            builder.Property(p=>p.Cost)
+                .HasColumnName("cost")
+                .HasColumnType("decimal(10,2)")
+                .IsRequired()
+                .HasDefaultValue(0m);
 
             builder.Property(p=>p.Quantity)
                 .HasColumnName("quantity")

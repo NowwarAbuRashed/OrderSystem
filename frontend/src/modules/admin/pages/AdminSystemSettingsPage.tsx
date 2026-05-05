@@ -3,7 +3,7 @@ import { useI18n } from '../../../app/i18n/i18n-context';
 import { PageHeader } from '../../../shared/components/PageHeader';
 import { LoadingBlock } from '../../../shared/components/LoadingBlock';
 import { useSystemSettingsQuery, useUpdateSystemSettingsMutation } from '../hooks/useAdmin';
-import { Settings, Save, Building2, Package, Truck } from 'lucide-react';
+import { Save, Building2, Package, Truck } from 'lucide-react';
 
 export function AdminSystemSettingsPage() {
   const { t } = useI18n();
@@ -34,8 +34,8 @@ export function AdminSystemSettingsPage() {
 
   const handleSave = () => {
     updateMutation.mutate(form, {
-      onSuccess: () => alert('Settings saved successfully!'),
-      onError: () => alert('Failed to save settings'),
+      onSuccess: () => alert(t.admin?.settingsSaved || 'Settings saved successfully!'),
+      onError: () => alert(t.admin?.settingsFailed || 'Failed to save settings'),
     });
   };
 
@@ -55,13 +55,13 @@ export function AdminSystemSettingsPage() {
             <Building2 className="w-5 h-5 text-primary-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-neutral-900">Business Information</h3>
-            <p className="text-xs text-neutral-500">General business details</p>
+            <h3 className="font-semibold text-neutral-900">{t.admin?.businessInformation || 'Business Information'}</h3>
+            <p className="text-xs text-neutral-500">{t.admin?.businessDetailsDesc || 'General business details'}</p>
           </div>
         </div>
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Business Name</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">{t.admin?.businessName || 'Business Name'}</label>
             <input
               type="text"
               value={form['business.name']}
@@ -71,7 +71,7 @@ export function AdminSystemSettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Contact Email</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">{t.admin?.contactEmail || 'Contact Email'}</label>
             <input
               type="email"
               value={form['business.email']}
@@ -81,7 +81,7 @@ export function AdminSystemSettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Phone Number</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">{t.admin?.phoneNumber || 'Phone Number'}</label>
             <input
               type="tel"
               value={form['business.phone']}
@@ -91,7 +91,7 @@ export function AdminSystemSettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Business Address</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">{t.admin?.businessAddress || 'Business Address'}</label>
             <input
               type="text"
               value={form['business.address']}
@@ -110,13 +110,13 @@ export function AdminSystemSettingsPage() {
             <Package className="w-5 h-5 text-amber-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-neutral-900">Stock Thresholds</h3>
-            <p className="text-xs text-neutral-500">Default inventory alert levels</p>
+            <h3 className="font-semibold text-neutral-900">{t.admin?.stockThresholds || 'Stock Thresholds'}</h3>
+            <p className="text-xs text-neutral-500">{t.admin?.stockAlertLevelsDesc || 'Default inventory alert levels'}</p>
           </div>
         </div>
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Default Minimum Stock</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">{t.admin?.defaultMinStock || 'Default Minimum Stock'}</label>
             <input
               type="number"
               value={form['stock.defaultMinThreshold']}
@@ -124,10 +124,10 @@ export function AdminSystemSettingsPage() {
               className="w-full px-4 py-2.5 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
               min="0"
             />
-            <p className="mt-1 text-xs text-neutral-400">Products below this quantity trigger a low-stock alert</p>
+            <p className="mt-1 text-xs text-neutral-400">{t.admin?.defaultMinStockDesc || 'Products below this quantity trigger a low-stock alert'}</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Critical Stock Level</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">{t.admin?.criticalStockLevel || 'Critical Stock Level'}</label>
             <input
               type="number"
               value={form['stock.criticalThreshold']}
@@ -135,7 +135,7 @@ export function AdminSystemSettingsPage() {
               className="w-full px-4 py-2.5 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
               min="0"
             />
-            <p className="mt-1 text-xs text-neutral-400">Products below this level are marked as critical</p>
+            <p className="mt-1 text-xs text-neutral-400">{t.admin?.criticalStockLevelDesc || 'Products below this level are marked as critical'}</p>
           </div>
         </div>
       </div>
@@ -147,13 +147,13 @@ export function AdminSystemSettingsPage() {
             <Truck className="w-5 h-5 text-emerald-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-neutral-900">Delivery Settings</h3>
-            <p className="text-xs text-neutral-500">Delivery zones and fee configuration</p>
+            <h3 className="font-semibold text-neutral-900">{t.admin?.deliverySettings || 'Delivery Settings'}</h3>
+            <p className="text-xs text-neutral-500">{t.admin?.deliveryZonesDesc || 'Delivery zones and fee configuration'}</p>
           </div>
         </div>
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Default Delivery Fee ($)</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">{t.admin?.defaultDeliveryFee || 'Default Delivery Fee ($)'}</label>
             <input
               type="number"
               step="0.01"
@@ -164,7 +164,7 @@ export function AdminSystemSettingsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Free Delivery Above ($)</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">{t.admin?.freeDeliveryAbove || 'Free Delivery Above ($)'}</label>
             <input
               type="number"
               step="0.01"
@@ -175,7 +175,7 @@ export function AdminSystemSettingsPage() {
             />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-neutral-700 mb-1.5">Delivery Zones</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-1.5">{t.admin?.deliveryZones || 'Delivery Zones'}</label>
             <textarea
               value={form['delivery.zones']}
               onChange={e => handleChange('delivery.zones', e.target.value)}
@@ -183,7 +183,7 @@ export function AdminSystemSettingsPage() {
               className="w-full px-4 py-2.5 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors resize-none"
               placeholder="Zone A - Downtown&#10;Zone B - Suburbs&#10;Zone C - Rural"
             />
-            <p className="mt-1 text-xs text-neutral-400">Enter one zone per line</p>
+            <p className="mt-1 text-xs text-neutral-400">{t.admin?.deliveryZonesHint || 'Enter one zone per line'}</p>
           </div>
         </div>
       </div>
@@ -196,7 +196,7 @@ export function AdminSystemSettingsPage() {
           className="flex items-center gap-2 px-6 py-3 bg-primary-600 text-white font-medium rounded-xl hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
-          {updateMutation.isPending ? 'Saving...' : 'Save Settings'}
+          {updateMutation.isPending ? (t.admin?.saving || 'Saving...') : (t.admin?.saveSettings || 'Save Settings')}
         </button>
       </div>
     </div>

@@ -19,7 +19,7 @@ namespace OrderSystem.Infrastructure.Repositories
         public async Task<long> AddAsync(Product product, CancellationToken ct)
         {
             _context.Products.Add(product);
-             await _context.SaveChangesAsync() ;
+             await _context.SaveChangesAsync(ct) ;
             return product.Id;
 
         }
@@ -47,9 +47,9 @@ namespace OrderSystem.Infrastructure.Repositories
         }
         public async Task<bool> DeleteAsync(long productId)
         {
-            Product? prduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
-            if (prduct == null) return false;
-            _context.Products.Remove(prduct) ;
+            Product? product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
+            if (product == null) return false;
+            _context.Products.Remove(product) ;
             return await _context.SaveChangesAsync() > 0;
         }
 
@@ -60,6 +60,9 @@ namespace OrderSystem.Infrastructure.Repositories
                int pageSize,
                CancellationToken ct)
         {
+            //page = page < 1 ? 1 : page;
+            //pageSize = pageSize < 1 ? 10 : pageSize;
+
             IQueryable<Product> query = _context.Products
                 .Include(p => p.Images)
                 .AsNoTracking();
@@ -78,7 +81,7 @@ namespace OrderSystem.Infrastructure.Repositories
                 query = query.Where(x => x.CategoryId == categoryId.Value);
             }
 
-            var totalCount = await query.CountAsync(ct);
+            var totalCount = await query.Select(x => 1).CountAsync(ct);
 
             var items = await query
                 .OrderByDescending(x => x.Id)
@@ -88,10 +91,6 @@ namespace OrderSystem.Infrastructure.Repositories
 
             return (items, totalCount);
         }
-        //public void Update(Product product)
-        //{
-        //    _context.Products.Update(product);
-        //    _context.SaveChanges();
-        //}
+   
     }
 }
