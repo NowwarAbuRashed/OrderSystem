@@ -148,7 +148,7 @@ export function AdminDashboardPage() {
         />
         <StatCard
           icon={<TrendingDown className="w-5 h-5" />}
-          label="Total Cost (Outgoing)"
+          label={t.admin.totalCostOutgoing || 'Total Cost (Outgoing)'}
           value={`$${d.totalCost.toFixed(2)}`}
           variant="danger"
           trend={d.costToday > 0 ? 'down' : 'neutral'}
@@ -156,7 +156,7 @@ export function AdminDashboardPage() {
         />
         <StatCard
           icon={<TrendingUp className="w-5 h-5" />}
-          label="Net Profit"
+          label={t.admin.netProfit || 'Net Profit'}
           value={`$${d.totalProfit.toFixed(2)}`}
           variant={d.totalProfit >= 0 ? 'success' : 'danger'}
           trend={d.profitToday > 0 ? 'up' : d.profitToday < 0 ? 'down' : 'neutral'}

@@ -9,10 +9,12 @@ namespace OrderSystem.Application.Admin.Services
     public class AdminService : IAdminService
     {
         private readonly IAdminRepository _adminRepository;
+        private readonly IActivityLogService _activityLogService;
 
-        public AdminService(IAdminRepository adminRepository)
+        public AdminService(IAdminRepository adminRepository, IActivityLogService activityLogService)
         {
             _adminRepository = adminRepository;
+            _activityLogService = activityLogService;
         }
 
         public async Task<DashboardResponse> GetDashboardAsync(CancellationToken cancellationToken)
@@ -90,14 +92,16 @@ namespace OrderSystem.Application.Admin.Services
                     throw new Exception("Only a manager can be promoted to admin");
             }
 
+            var oldRole = user.Role;
             user.Role = newRole;
             user.UpdatedAt = DateTime.UtcNow;
 
             await _adminRepository.UpdateUserAsync(user, cancellationToken);
+            await _activityLogService.LogActionAsync("USER_ROLE_CHANGE", "User", user.Id.ToString(), currentUserId, new { OldRole = oldRole.ToString(), NewRole = newRole.ToString() }, cancellationToken);
         }
 
         public async Task UpdateUserStatusAsync(
-            long userId, UpdateUserStatusRequest request, CancellationToken cancellationToken)
+            long userId, UpdateUserStatusRequest request, long currentUserId, CancellationToken cancellationToken)
         {
             var user = await _adminRepository.GetUserByIdAsync(userId, cancellationToken);
             if (user == null)
@@ -106,10 +110,12 @@ namespace OrderSystem.Application.Admin.Services
             if (user.Role == UserRole.ADMIN)
                 throw new Exception("Cannot deactivate an admin user");
 
+            var oldStatus = user.IsActive;
             user.IsActive = request.IsActive;
             user.UpdatedAt = DateTime.UtcNow;
 
             await _adminRepository.UpdateUserAsync(user, cancellationToken);
+            await _activityLogService.LogActionAsync("USER_STATUS_CHANGE", "User", user.Id.ToString(), currentUserId, new { OldStatus = oldStatus, NewStatus = request.IsActive }, cancellationToken);
         }
 
         public async Task<PagedResult<AdminOrderDto>> GetOrdersAsync(

@@ -54,7 +54,8 @@ namespace OrderSystem.Api.Controllers.Admin
             [FromBody] UpdateUserStatusRequest request,
             CancellationToken cancellationToken)
         {
-            await _adminService.UpdateUserStatusAsync(userId, request, cancellationToken);
+            var currentUserId = User.GetUserId();
+            await _adminService.UpdateUserStatusAsync(userId, request, currentUserId, cancellationToken);
             return Ok(new { message = "User status updated successfully" });
         }
 

@@ -24,6 +24,7 @@ namespace OrderSystem.Application.Admin.Interfaces
         Task UpdateUserStatusAsync(
             long userId,
             UpdateUserStatusRequest request,
+            long currentUserId,
             CancellationToken cancellationToken);
 
         Task<PagedResult<AdminOrderDto>> GetOrdersAsync(

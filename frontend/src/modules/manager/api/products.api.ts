@@ -6,6 +6,7 @@ export interface CreateProductRequest {
   name: string;
   description: string;
   price: number;
+  cost: number;
   quantity: number;
   minQuantity: number;
   categoryId: number;
@@ -15,6 +16,7 @@ export interface UpdateProductRequest {
   name?: string;
   description?: string;
   price?: number;
+  cost?: number;
   minQuantity?: number;
   status?: string;
   categoryId?: number;

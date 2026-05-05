@@ -206,7 +206,7 @@ export function AdminCatalogPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 fade-in duration-200">
             <div className="px-6 py-4 border-b border-neutral-100 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-neutral-900">Adjust Prices</h3>
+              <h3 className="text-lg font-semibold text-neutral-900">{t.admin?.adjustPrices || 'Adjust Prices'}</h3>
               <button 
                 onClick={() => setIsPriceModalOpen(false)}
                 className="text-neutral-400 hover:text-neutral-600 p-1 rounded-lg hover:bg-neutral-100 transition-colors"

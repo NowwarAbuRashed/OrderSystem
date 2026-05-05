@@ -24,6 +24,7 @@ export type ProductDetails = {
   name: string;
   description: string;
   price: number;
+  cost?: number;
   quantity: number;
   minQuantity: number;
   status: ProductStatusLabel;

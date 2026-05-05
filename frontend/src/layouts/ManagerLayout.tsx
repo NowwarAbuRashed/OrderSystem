@@ -3,7 +3,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../app/store/auth-context';
 import { useI18n } from '../app/i18n/i18n-context';
 import { LanguageSwitcher } from '../shared/components/LanguageSwitcher';
-import { LogOut, Package, Archive, Tags, LayoutDashboard, Settings, Menu, X } from 'lucide-react';
+import { LogOut, Package, Archive, Tags, LayoutDashboard, Settings, Menu, X, ArrowLeft } from 'lucide-react';
 import clsx from 'clsx';
 
 export function ManagerLayout() {
@@ -67,6 +67,21 @@ export function ManagerLayout() {
         })}
       </nav>
       <div className="p-3 border-t border-slate-100 space-y-1">
+        {user?.role === 'ADMIN' && (
+          <div className="mb-4">
+            <div className="px-3 mb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              {t.nav.admin}
+            </div>
+            <Link
+              to="/admin/dashboard"
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-primary-600 bg-primary-50 hover:bg-primary-100"
+            >
+              <ArrowLeft className="w-4 h-4 text-primary-600" />
+              {t.admin?.returnAsAdmin || 'Return as Admin'}
+            </Link>
+          </div>
+        )}
         <LanguageSwitcher className="w-full justify-start" />
         <button
           onClick={handleLogout}

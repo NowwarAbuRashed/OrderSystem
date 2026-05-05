@@ -8,7 +8,7 @@ import { ErrorState } from '../../../shared/components/ErrorState';
 import { getApiErrorMessage } from '../../../shared/utils/error';
 import { PriceText } from '../../../shared/components/PriceText';
 import { QuantityStepper } from '../../../shared/components/QuantityStepper';
-import { ChevronLeft, ChevronRight, ShoppingCart, ImageOff, Shield, Truck, RefreshCw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart, Shield, Truck, RefreshCw } from 'lucide-react';
 import { Button } from '../../../shared/components/Button';
 import { StatusBadge } from '../../../shared/components/StatusBadge';
 import { ImageFallback } from '../../../shared/components/ImageFallback';

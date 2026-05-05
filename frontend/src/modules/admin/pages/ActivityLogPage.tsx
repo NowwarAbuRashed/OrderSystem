@@ -17,22 +17,22 @@ const parseDetailsData = (rawDetails: string) => {
   }
 };
 
-function PriceChangesTable({ rawDetails }: { rawDetails: string }) {
+function PriceChangesTable({ rawDetails, t }: { rawDetails: string, t: any }) {
   const details = parseDetailsData(rawDetails);
   const changes = (details?.PriceChanges as Array<any>) || [];
   
-  if (changes.length === 0) {
-    return <div className="text-sm text-slate-500 italic py-2">No detailed price information available for this event.</div>;
+  if (!details || changes.length === 0) {
+    return <div className="text-sm text-slate-500 italic py-2">{t.admin?.noPriceInfo || 'No detailed price information available for this event.'}</div>;
   }
   
   return (
     <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden my-2 max-w-2xl">
       <table className="w-full text-sm text-left">
         <thead className="bg-slate-50 text-slate-600 border-b border-slate-100">
-          <tr>
-            <th className="px-4 py-2 font-medium">Product Name</th>
-            <th className="px-4 py-2 font-medium text-right">Old Price</th>
-            <th className="px-4 py-2 font-medium text-right">New Price</th>
+          <tr className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider text-left border-b border-slate-200">
+            <th className="px-4 py-2 font-medium">{t.admin?.productName || 'Product Name'}</th>
+            <th className="px-4 py-2 font-medium text-right">{t.admin?.oldPrice || 'Old Price'}</th>
+            <th className="px-4 py-2 font-medium text-right">{t.admin?.newPrice || 'New Price'}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
@@ -49,22 +49,22 @@ function PriceChangesTable({ rawDetails }: { rawDetails: string }) {
   );
 }
 
-function GeneralChangesTable({ rawDetails }: { rawDetails: string }) {
+function GeneralChangesTable({ rawDetails, t }: { rawDetails: string, t: any }) {
   const details = parseDetailsData(rawDetails);
   const changes = (details?.changes as Array<{Field: string, OldValue: any, NewValue: any}>) || [];
   
-  if (changes.length === 0) {
-    return <div className="text-sm text-slate-500 italic py-2">No detailed change information available for this event.</div>;
+  if (!details || changes.length === 0) {
+    return <div className="text-sm text-slate-500 italic py-2">{t.admin?.noChangeInfo || 'No detailed change information available for this event.'}</div>;
   }
   
   return (
     <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden my-2 max-w-2xl">
       <table className="w-full text-sm text-left">
         <thead className="bg-slate-50 text-slate-600 border-b border-slate-100">
-          <tr>
-            <th className="px-4 py-2 font-medium">Field</th>
-            <th className="px-4 py-2 font-medium">Old Value</th>
-            <th className="px-4 py-2 font-medium">New Value</th>
+          <tr className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider text-left border-b border-slate-200">
+            <th className="px-4 py-2 font-medium">{t.admin?.field || 'Field'}</th>
+            <th className="px-4 py-2 font-medium">{t.admin?.oldValue || 'Old Value'}</th>
+            <th className="px-4 py-2 font-medium">{t.admin?.newValue || 'New Value'}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
@@ -133,6 +133,10 @@ export function AdminActivityLogPage() {
         return t.admin.bulkPriceAction;
       case 'PRODUCT_EDIT':
         return t.admin.productUpdatedAction;
+      case 'USER_ROLE_CHANGE':
+        return t.admin.userRoleChanged || 'User Role Changed';
+      case 'USER_STATUS_CHANGE':
+        return t.admin.userStatusChanged || 'User Status Changed';
       default:
         return actionType.replaceAll('_', ' ');
     }
@@ -203,8 +207,36 @@ export function AdminActivityLogPage() {
       return details.message;
     }
 
+    if (log.actionType === 'USER_ROLE_CHANGE') {
+      const oldRole = typeof details.OldRole === 'string' ? details.OldRole : null;
+      const newRole = typeof details.NewRole === 'string' ? details.NewRole : null;
+
+      if (oldRole && newRole) {
+        return `${t.admin.roleChangedFrom || 'Role changed from'} ${oldRole} ${t.admin.to || 'to'} ${newRole}`;
+      }
+    }
+
+    if (log.actionType === 'USER_STATUS_CHANGE') {
+      const oldStatus = typeof details.OldStatus === 'boolean' ? details.OldStatus : null;
+      const newStatus = typeof details.NewStatus === 'boolean' ? details.NewStatus : null;
+
+      if (oldStatus !== null && newStatus !== null) {
+        return `${t.admin.statusChangedFrom || 'Status changed from'} ${oldStatus ? t.manager.active : t.manager.inactive} ${t.admin.to || 'to'} ${newStatus ? t.manager.active : t.manager.inactive}`;
+      }
+    }
+
     return log.details;
   };
+
+  if (isError) return (
+    <div className="flex-1 bg-slate-50 flex flex-col p-4 md:p-8">
+      <PageHeader 
+        title={t.admin?.activityLog || 'Activity Log'} 
+        description={t.admin?.activityLogDesc || 'Audit trail of important system actions'} 
+      />
+      <div className="text-center py-10 text-red-500">{t.admin?.failedToLoadLogs || 'Failed to load activity logs.'}</div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -239,8 +271,6 @@ export function AdminActivityLogPage() {
 
       {isLoading ? (
         <LoadingBlock />
-      ) : isError ? (
-        <div className="text-center py-10 text-red-500">Failed to load activity logs.</div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border border-neutral-100 overflow-hidden">
           <div className="overflow-x-auto">
@@ -299,9 +329,9 @@ export function AdminActivityLogPage() {
                               className="text-primary-600 hover:text-primary-700 hover:underline text-xs font-medium flex items-center gap-1 shrink-0"
                             >
                               {isExpanded ? (
-                                <>Hide Details <ChevronUp className="w-3 h-3" /></>
+                                <>{t.admin?.hideDetails || 'Hide Details'} <ChevronUp className="w-3 h-3" /></>
                               ) : (
-                                <>View Details <ChevronDown className="w-3 h-3" /></>
+                                <>{t.admin?.viewDetails || 'View Details'} <ChevronDown className="w-3 h-3" /></>
                               )}
                             </button>
                           )}
@@ -311,10 +341,11 @@ export function AdminActivityLogPage() {
                     {isExpanded && (
                       <tr className="bg-slate-50/30 border-b border-slate-100">
                         <td colSpan={5} className="px-6 py-3">
-                           {log.actionType === 'PRODUCT_BULK_PRICE' 
-                              ? <PriceChangesTable rawDetails={log.details} />
-                              : <GeneralChangesTable rawDetails={log.details} />
-                           }
+                           {log.actionType === 'PRODUCT_BULK_PRICE' ? (
+                            <PriceChangesTable rawDetails={log.details} t={t} />
+                          ) : (
+                            <GeneralChangesTable rawDetails={log.details} t={t} />
+                          )}
                         </td>
                       </tr>
                     )}

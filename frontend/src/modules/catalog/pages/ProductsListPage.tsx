@@ -9,7 +9,7 @@ import { EmptyState } from '../../../shared/components/EmptyState';
 import { PageHeader } from '../../../shared/components/PageHeader';
 import { ProductCard } from '../../../shared/components/ProductCard';
 import { useAddCartItem } from '../../cart/hooks/useCart';
-import { Search, Filter, ShoppingBag, Sparkles } from 'lucide-react';
+import { Search, Filter, ShoppingBag } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 
 export function ProductsListPage() {

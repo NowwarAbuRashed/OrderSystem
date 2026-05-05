@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { ImageOff } from 'lucide-react';
 import { env } from '../../app/config/env';
 
 interface ImageFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {

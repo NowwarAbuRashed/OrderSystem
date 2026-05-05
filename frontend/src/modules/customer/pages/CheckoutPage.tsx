@@ -24,19 +24,17 @@ export function CheckoutPage() {
   const { t } = useI18n();
 
   const checkoutSchema = useMemo(() => z.object({
-    paymentMethod: z.preprocess(
-      (val) => Number(val),
-      z.nativeEnum(PaymentMethod, {
-        message: t.validation?.required || 'Payment method is required'
-      })
-    ),
+    paymentMethod: z.union([z.string(), z.number()]).transform(val => Number(val) as PaymentMethod),
     notes: z.string().optional()
   }), [t]);
 
-  type CheckoutForm = z.infer<typeof checkoutSchema>;
+  type CheckoutForm = {
+    paymentMethod: PaymentMethod;
+    notes?: string;
+  };
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<CheckoutForm>({
-    resolver: zodResolver(checkoutSchema),
+    resolver: zodResolver(checkoutSchema) as any,
     defaultValues: { notes: '', paymentMethod: PaymentMethod.CASH }
   });
 
